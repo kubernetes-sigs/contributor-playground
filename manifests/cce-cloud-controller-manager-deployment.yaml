@@ -1,0 +1,199 @@
+---
+kind: InitializerConfiguration
+apiVersion: admissionregistration.k8s.io/v1alpha1
+metadata:
+  name: pvlabel.kubernetes.io
+initializers:
+  - name: pvlabel.kubernetes.io
+    rules:
+    - apiGroups:
+      - ""
+      apiVersions:
+      - "*"
+      resources:
+      - persistentvolumes
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:cloud-controller-manager
+  labels:
+    kubernetes.io/cluster-service: "true"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - '*'
+
+- apiGroups:
+  - ""
+  resources:
+  - nodes/status
+  verbs:
+  - patch
+
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - list
+  - watch
+  - patch
+
+- apiGroups:
+  - ""
+  resources:
+  - services/status
+  verbs:
+  - update
+
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+  - update
+
+# For leader election
+- apiGroups:
+  - ""
+  resources:
+  - endpoints
+  verbs:
+  - create
+
+- apiGroups:
+  - ""
+  resources:
+  - endpoints
+  resourceNames:
+  - "cloud-controller-manager"
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - create
+
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  resourceNames:
+  - "cloud-controller-manager"
+  verbs:
+  - get
+  - update
+
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs:
+  - create
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+
+# For the PVL
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumes
+  verbs:
+  - list
+  - watch
+  - patch
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cce-cloud-controller-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:cloud-controller-manager
+subjects:
+- kind: ServiceAccount
+  name: cloud-controller-manager
+  namespace: kube-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cloud-controller-manager
+  namespace: kube-system
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    scheduler.alpha.kubernetes.io/critical-pod: ""
+  labels:
+     k8s-app: cloud-controller-manager
+  name: cce-cloud-controller-manager
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: cloud-controller-manager
+  template:
+    metadata:
+      labels:
+        k8s-app: cloud-controller-manager
+    spec:
+      tolerations:
+      - key: node.cloudprovider.kubernetes.io/uninitialized
+        value: "true"
+        effect: NoSchedule
+      serviceAccountName: cloud-controller-manager
+      containers:
+        - name: cce-cloud-controller-manager
+          image: hub.baidubce.com/jpaas-public/cce-cloud-controller-manager:latest
+          args:
+            - /usr/local/bin/cce-cloud-controller-manager
+            - --v=4
+            - --logtostderr=true
+            - --cloud-config=/etc/kubernetes/cloud.config
+            - --cloud-provider=cce
+            - --kubeconfig=/root/.kube/config
+            - --allocate-node-cidrs=true
+            - --cluster-cidr=72.16.0.0/19
+            - --cluster-name=kubernetes
+            - --master=https://100.64.230.204:6443
+            - --route-reconciliation-period=50s
+          volumeMounts:
+            - mountPath: /etc/kubernetes/cloud.config
+              name: cloud-config
+              readOnly: true
+            - mountPath: /root/.kube/config
+              name: kubeconfig
+              readOnly: true
+          resources:
+            requests:
+              cpu: 200m
+      volumes:
+      - name: cloud-config
+        hostPath:
+          path: /etc/kubernetes/cloud.config
+          type: FileOrCreate
+      - name: kubeconfig
+        hostPath:
+          path: /root/.kube/config
+          type: FileOrCreate
