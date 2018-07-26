@@ -25,8 +25,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	apps "k8s.io/api/apps/v1"
 	"k8s.io/api/core/v1"
-	extensions "k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -38,15 +38,14 @@ import (
 	"k8s.io/apimachinery/pkg/util/strategicpatch"
 	"k8s.io/apimachinery/pkg/util/wait"
 	clientset "k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
-	ref "k8s.io/client-go/tools/reference"
 	"k8s.io/client-go/util/integer"
 	clientretry "k8s.io/client-go/util/retry"
-	_ "k8s.io/kubernetes/pkg/api/install"
 	podutil "k8s.io/kubernetes/pkg/api/v1/pod"
-	"k8s.io/kubernetes/pkg/api/validation"
+	_ "k8s.io/kubernetes/pkg/apis/core/install"
+	"k8s.io/kubernetes/pkg/apis/core/validation"
+	"k8s.io/kubernetes/pkg/scheduler/algorithm"
 	hashutil "k8s.io/kubernetes/pkg/util/hash"
 	taintutils "k8s.io/kubernetes/pkg/util/taints"
 
@@ -66,7 +65,7 @@ const (
 	// latency/pod at the scale of 3000 pods over 100 nodes.
 	ExpectationsTimeout = 5 * time.Minute
 	// When batching pod creates, SlowStartInitialBatchSize is the size of the
-	// inital batch.  The size of each successive batch is twice the size of
+	// initial batch.  The size of each successive batch is twice the size of
 	// the previous batch.  For example, for a value of 1, batch sizes would be
 	// 1, 2, 4, 8, ...  and for a value of 10, batch sizes would be
 	// 10, 20, 40, 80, ...  Setting the value higher means that quota denials
@@ -86,6 +85,11 @@ var UpdateTaintBackoff = wait.Backoff{
 	Steps:    5,
 	Duration: 100 * time.Millisecond,
 	Jitter:   1.0,
+}
+
+var ShutdownTaint = &v1.Taint{
+	Key:    algorithm.TaintNodeShutdown,
+	Effect: v1.TaintEffectNoSchedule,
 }
 
 var (
@@ -412,7 +416,7 @@ type RealRSControl struct {
 var _ RSControlInterface = &RealRSControl{}
 
 func (r RealRSControl) PatchReplicaSet(namespace, name string, data []byte) error {
-	_, err := r.KubeClient.Extensions().ReplicaSets(namespace).Patch(name, types.StrategicMergePatchType, data)
+	_, err := r.KubeClient.ExtensionsV1beta1().ReplicaSets(namespace).Patch(name, types.StrategicMergePatchType, data)
 	return err
 }
 
@@ -474,29 +478,12 @@ func getPodsFinalizers(template *v1.PodTemplateSpec) []string {
 	return desiredFinalizers
 }
 
-func getPodsAnnotationSet(template *v1.PodTemplateSpec, object runtime.Object) (labels.Set, error) {
+func getPodsAnnotationSet(template *v1.PodTemplateSpec) labels.Set {
 	desiredAnnotations := make(labels.Set)
 	for k, v := range template.Annotations {
 		desiredAnnotations[k] = v
 	}
-	createdByRef, err := ref.GetReference(scheme.Scheme, object)
-	if err != nil {
-		return desiredAnnotations, fmt.Errorf("unable to get controller reference: %v", err)
-	}
-
-	// TODO: this code was not safe previously - as soon as new code came along that switched to v2, old clients
-	//   would be broken upon reading it. This is explicitly hardcoded to v1 to guarantee predictable deployment.
-	//   We need to consistently handle this case of annotation versioning.
-	codec := scheme.Codecs.LegacyCodec(v1.SchemeGroupVersion)
-
-	createdByRefJson, err := runtime.Encode(codec, &v1.SerializedReference{
-		Reference: *createdByRef,
-	})
-	if err != nil {
-		return desiredAnnotations, fmt.Errorf("unable to serialize controller reference: %v", err)
-	}
-	desiredAnnotations[v1.CreatedByAnnotation] = string(createdByRefJson)
-	return desiredAnnotations, nil
+	return desiredAnnotations
 }
 
 func getPodsPrefix(controllerName string) string {
@@ -546,17 +533,14 @@ func (r RealPodControl) CreatePodsOnNode(nodeName, namespace string, template *v
 }
 
 func (r RealPodControl) PatchPod(namespace, name string, data []byte) error {
-	_, err := r.KubeClient.Core().Pods(namespace).Patch(name, types.StrategicMergePatchType, data)
+	_, err := r.KubeClient.CoreV1().Pods(namespace).Patch(name, types.StrategicMergePatchType, data)
 	return err
 }
 
 func GetPodFromTemplate(template *v1.PodTemplateSpec, parentObject runtime.Object, controllerRef *metav1.OwnerReference) (*v1.Pod, error) {
 	desiredLabels := getPodsLabelSet(template)
 	desiredFinalizers := getPodsFinalizers(template)
-	desiredAnnotations, err := getPodsAnnotationSet(template, parentObject)
-	if err != nil {
-		return nil, err
-	}
+	desiredAnnotations := getPodsAnnotationSet(template)
 	accessor, err := meta.Accessor(parentObject)
 	if err != nil {
 		return nil, fmt.Errorf("parentObject does not have ObjectMeta, %v", err)
@@ -589,7 +573,7 @@ func (r RealPodControl) createPods(nodeName, namespace string, template *v1.PodT
 	if labels.Set(pod.Labels).AsSelectorPreValidated().Empty() {
 		return fmt.Errorf("unable to create pods, no labels")
 	}
-	if newPod, err := r.KubeClient.Core().Pods(namespace).Create(pod); err != nil {
+	if newPod, err := r.KubeClient.CoreV1().Pods(namespace).Create(pod); err != nil {
 		r.Recorder.Eventf(object, v1.EventTypeWarning, FailedCreatePodReason, "Error creating: %v", err)
 		return err
 	} else {
@@ -610,7 +594,7 @@ func (r RealPodControl) DeletePod(namespace string, podID string, object runtime
 		return fmt.Errorf("object does not have ObjectMeta, %v", err)
 	}
 	glog.V(2).Infof("Controller %v deleting pod %v/%v", accessor.GetName(), namespace, podID)
-	if err := r.KubeClient.Core().Pods(namespace).Delete(podID, nil); err != nil {
+	if err := r.KubeClient.CoreV1().Pods(namespace).Delete(podID, nil); err != nil {
 		r.Recorder.Eventf(object, v1.EventTypeWarning, FailedDeletePodReason, "Error deleting: %v", err)
 		return fmt.Errorf("unable to delete pods: %v", err)
 	} else {
@@ -834,18 +818,18 @@ func IsPodActive(p *v1.Pod) bool {
 }
 
 // FilterActiveReplicaSets returns replica sets that have (or at least ought to have) pods.
-func FilterActiveReplicaSets(replicaSets []*extensions.ReplicaSet) []*extensions.ReplicaSet {
-	activeFilter := func(rs *extensions.ReplicaSet) bool {
+func FilterActiveReplicaSets(replicaSets []*apps.ReplicaSet) []*apps.ReplicaSet {
+	activeFilter := func(rs *apps.ReplicaSet) bool {
 		return rs != nil && *(rs.Spec.Replicas) > 0
 	}
 	return FilterReplicaSets(replicaSets, activeFilter)
 }
 
-type filterRS func(rs *extensions.ReplicaSet) bool
+type filterRS func(rs *apps.ReplicaSet) bool
 
 // FilterReplicaSets returns replica sets that are filtered by filterFn (all returned ones should match filterFn).
-func FilterReplicaSets(RSes []*extensions.ReplicaSet, filterFn filterRS) []*extensions.ReplicaSet {
-	var filtered []*extensions.ReplicaSet
+func FilterReplicaSets(RSes []*apps.ReplicaSet, filterFn filterRS) []*apps.ReplicaSet {
+	var filtered []*apps.ReplicaSet
 	for i := range RSes {
 		if filterFn(RSes[i]) {
 			filtered = append(filtered, RSes[i])
@@ -875,7 +859,7 @@ func (o ControllersByCreationTimestamp) Less(i, j int) bool {
 }
 
 // ReplicaSetsByCreationTimestamp sorts a list of ReplicaSet by creation timestamp, using their names as a tie breaker.
-type ReplicaSetsByCreationTimestamp []*extensions.ReplicaSet
+type ReplicaSetsByCreationTimestamp []*apps.ReplicaSet
 
 func (o ReplicaSetsByCreationTimestamp) Len() int      { return len(o) }
 func (o ReplicaSetsByCreationTimestamp) Swap(i, j int) { o[i], o[j] = o[j], o[i] }
@@ -888,7 +872,7 @@ func (o ReplicaSetsByCreationTimestamp) Less(i, j int) bool {
 
 // ReplicaSetsBySizeOlder sorts a list of ReplicaSet by size in descending order, using their creation timestamp or name as a tie breaker.
 // By using the creation timestamp, this sorts from old to new replica sets.
-type ReplicaSetsBySizeOlder []*extensions.ReplicaSet
+type ReplicaSetsBySizeOlder []*apps.ReplicaSet
 
 func (o ReplicaSetsBySizeOlder) Len() int      { return len(o) }
 func (o ReplicaSetsBySizeOlder) Swap(i, j int) { o[i], o[j] = o[j], o[i] }
@@ -901,7 +885,7 @@ func (o ReplicaSetsBySizeOlder) Less(i, j int) bool {
 
 // ReplicaSetsBySizeNewer sorts a list of ReplicaSet by size in descending order, using their creation timestamp or name as a tie breaker.
 // By using the creation timestamp, this sorts from new to old replica sets.
-type ReplicaSetsBySizeNewer []*extensions.ReplicaSet
+type ReplicaSetsBySizeNewer []*apps.ReplicaSet
 
 func (o ReplicaSetsBySizeNewer) Len() int      { return len(o) }
 func (o ReplicaSetsBySizeNewer) Swap(i, j int) { o[i], o[j] = o[j], o[i] }
@@ -925,10 +909,10 @@ func AddOrUpdateTaintOnNode(c clientset.Interface, nodeName string, taints ...*v
 		// First we try getting node from the API server cache, as it's cheaper. If it fails
 		// we get it from etcd to be sure to have fresh data.
 		if firstTry {
-			oldNode, err = c.Core().Nodes().Get(nodeName, metav1.GetOptions{ResourceVersion: "0"})
+			oldNode, err = c.CoreV1().Nodes().Get(nodeName, metav1.GetOptions{ResourceVersion: "0"})
 			firstTry = false
 		} else {
-			oldNode, err = c.Core().Nodes().Get(nodeName, metav1.GetOptions{})
+			oldNode, err = c.CoreV1().Nodes().Get(nodeName, metav1.GetOptions{})
 		}
 		if err != nil {
 			return err
@@ -982,10 +966,10 @@ func RemoveTaintOffNode(c clientset.Interface, nodeName string, node *v1.Node, t
 		// First we try getting node from the API server cache, as it's cheaper. If it fails
 		// we get it from etcd to be sure to have fresh data.
 		if firstTry {
-			oldNode, err = c.Core().Nodes().Get(nodeName, metav1.GetOptions{ResourceVersion: "0"})
+			oldNode, err = c.CoreV1().Nodes().Get(nodeName, metav1.GetOptions{ResourceVersion: "0"})
 			firstTry = false
 		} else {
-			oldNode, err = c.Core().Nodes().Get(nodeName, metav1.GetOptions{})
+			oldNode, err = c.CoreV1().Nodes().Get(nodeName, metav1.GetOptions{})
 		}
 		if err != nil {
 			return err
@@ -1030,7 +1014,7 @@ func PatchNodeTaints(c clientset.Interface, nodeName string, oldNode *v1.Node, n
 		return fmt.Errorf("failed to create patch for node %q: %v", nodeName, err)
 	}
 
-	_, err = c.Core().Nodes().Patch(string(nodeName), types.StrategicMergePatchType, patchBytes)
+	_, err = c.CoreV1().Nodes().Patch(nodeName, types.StrategicMergePatchType, patchBytes)
 	return err
 }
 
