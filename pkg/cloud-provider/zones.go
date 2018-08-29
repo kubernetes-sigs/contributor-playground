@@ -17,12 +17,14 @@ limitations under the License.
 package cloud_provider
 
 import (
+	"context"
+
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 )
 
 // GetZone returns the Zone containing the current failure zone and locality region that the program is running in
-func (bc *BCECloud) GetZone() (cloudprovider.Zone, error) {
+func (bc *BCECloud) GetZone(ctx context.Context) (cloudprovider.Zone, error) {
 	zone := cloudprovider.Zone{
 		FailureDomain: "unknow",
 		Region:        bc.Region,
@@ -41,7 +43,7 @@ func (bc *BCECloud) GetZone() (cloudprovider.Zone, error) {
 // GetZoneByProviderID implements Zones.GetZoneByProviderID
 // This is particularly useful in external cloud providers where the kubelet
 // does not initialize node data.
-func (bc *BCECloud) GetZoneByProviderID(providerID string) (cloudprovider.Zone, error) {
+func (bc *BCECloud) GetZoneByProviderID(ctx context.Context, providerID string) (cloudprovider.Zone, error) {
 	instanceID, err := kubernetesInstanceID(providerID).mapToBCCInstanceID()
 	if err != nil {
 		return cloudprovider.Zone{}, err
@@ -60,7 +62,7 @@ func (bc *BCECloud) GetZoneByProviderID(providerID string) (cloudprovider.Zone, 
 // GetZoneByNodeName implements Zones.GetZoneByNodeName
 // This is particularly useful in external cloud providers where the kubelet
 // does not initialize node data.
-func (bc *BCECloud) GetZoneByNodeName(nodeName types.NodeName) (cloudprovider.Zone, error) {
+func (bc *BCECloud) GetZoneByNodeName(ctx context.Context, nodeName types.NodeName) (cloudprovider.Zone, error) {
 	instance, err := bc.getInstanceByNodeName(nodeName)
 	if err != nil {
 		return cloudprovider.Zone{}, err

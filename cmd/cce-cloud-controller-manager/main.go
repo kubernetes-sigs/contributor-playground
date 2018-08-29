@@ -19,20 +19,23 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
+	"math/rand"
 	goflag "flag"
 
-	utilflag "k8s.io/apiserver/pkg/util/flag"
 	"github.com/spf13/pflag"
 	"github.com/golang/glog"
 	"github.com/spf13/cobra"
+	utilflag "k8s.io/kubernetes/pkg/util/flag"
+	"k8s.io/kubernetes/pkg/version/verflag"
+	"k8s.io/apiserver/pkg/util/flag"
 	"k8s.io/apiserver/pkg/util/logs"
 	"k8s.io/apiserver/pkg/server/healthz"
 	"k8s.io/kubernetes/cmd/cloud-controller-manager/app"
-	"k8s.io/kubernetes/pkg/version/verflag"
 	"k8s.io/kubernetes/cmd/cloud-controller-manager/app/options"
-	"k8s.io/kubernetes/pkg/cloudprovider"
 	_ "k8s.io/kubernetes/pkg/client/metrics/prometheus" // for client metric registration
 	_ "k8s.io/kubernetes/pkg/version/prometheus"        // for version metric registration
+	_ "k8s.io/kubernetes/pkg/features"                  // add the kubernetes feature gates
 
 	_ "k8s.io/cloud-provider-baiducloud/pkg/cloud-provider"
 )
@@ -44,6 +47,7 @@ func init() {
 }
 
 func main() {
+	rand.Seed(time.Now().UTC().UnixNano())
 	c := NewCCECloudControllerManagerCommand()
 
 	glog.V(1).Infof("cce-cloud-controller-manager version: %s", version)
@@ -55,19 +59,25 @@ func main() {
 }
 
 func NewCCECloudControllerManagerCommand() *cobra.Command {
-	s := options.NewCloudControllerManagerServer()
+	goflag.CommandLine.Parse([]string{})
+	s, err := options.NewCloudControllerManagerOptions()
+	if err != nil {
+		glog.Fatalf("unable to initialize command options: %v", err)
+	}
 	cmd := &cobra.Command{
 		Use: "cce-cloud-controller-manager",
 		Long: `The Cloud controller manager is a daemon that embeds the cloud specific control loops shipped with Kubernetes.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			verflag.PrintAndExitIfRequested()
+			utilflag.PrintFlags(cmd.Flags())
 
-			glog.V(1).Infof("Init Cloud Provider: %s; configFile: %s\n", s.CloudProvider, s.CloudConfigFile)
-			cloud, err := cloudprovider.InitCloudProvider(s.CloudProvider, s.CloudConfigFile)
+			c, err := s.Config()
 			if err != nil {
-				glog.Fatalf("Cloud provider could not be initialized: %v", err)
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(1)
 			}
-			if err := app.Run(s, cloud); err != nil {
+
+			if err := app.Run(c.Complete()); err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
 			}
@@ -78,9 +88,9 @@ func NewCCECloudControllerManagerCommand() *cobra.Command {
 	// TODO: once we switch everything over to Cobra commands, we can go back to calling
 	// utilflag.InitFlags() (by removing its pflag.Parse() call). For now, we have to set the
 	// normalize func and add the go flag set by hand.
-	pflag.CommandLine.SetNormalizeFunc(utilflag.WordSepNormalizeFunc)
+	pflag.CommandLine.SetNormalizeFunc(flag.WordSepNormalizeFunc)
 	pflag.CommandLine.AddGoFlagSet(goflag.CommandLine)
-	goflag.CommandLine.Parse([]string{})
+
 	logs.InitLogs()
 	defer logs.FlushLogs()
 

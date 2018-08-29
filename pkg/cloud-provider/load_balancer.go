@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"context"
 
 	"github.com/golang/glog"
 	"k8s.io/api/core/v1"
@@ -29,12 +30,7 @@ import (
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/eip"
 )
 
-// GetLoadBalancer returns whether the specified load balancer exists, and
-// if so, what its status is.
-// Implementations must treat the *v1.Service parameter as read-only and not modify it.
-// Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
-// TODO: Break this up into different interfaces (LB, etc) when we have more than one type of service
-func (bc *BCECloud) GetLoadBalancer(clusterName string, service *v1.Service) (status *v1.LoadBalancerStatus, exists bool, err error) {
+func (bc *BCECloud) GetLoadBalancer(ctx context.Context, clusterName string, service *v1.Service) (status *v1.LoadBalancerStatus, exists bool, err error) {
 	lb, exists, err := bc.getBCELoadBalancer(cloudprovider.GetLoadBalancerName(service))
 	if err != nil || !exists {
 		return nil, exists, err
@@ -71,14 +67,11 @@ func (bc *BCECloud) getBCELoadBalancer(name string) (lb blb.LoadBalancer, exists
 // Implementations must treat the *v1.Service and *v1.Node
 // parameters as read-only and not modify them.
 // Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
-func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, nodes []*v1.Node) (*v1.LoadBalancerStatus, error) {
+func (bc *BCECloud) EnsureLoadBalancer(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node) (*v1.LoadBalancerStatus, error) {
 	glog.V(4).Infof("baidubce.EnsureLoadBalancer(%v, %v, %v, %v, %v, %v, %v, %v)",
 		clusterName, service.Namespace, service.Name, bc.Region, service.Spec.LoadBalancerIP, service.Spec.Ports)
 	if len(service.Spec.Ports) == 0 {
 		return nil, fmt.Errorf("requested load balancer with no ports")
-	}
-	if service.Spec.LoadBalancerIP != "" {
-		return nil, fmt.Errorf("LoadBalancerIP cannot be specified for BLB")
 	}
 	for _, port := range service.Spec.Ports {
 		if port.Protocol != v1.ProtocolTCP {
@@ -86,7 +79,7 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 		}
 	}
 
-	// BLB
+	// (1) BLB
 	lb, exists, err := bc.getBCELoadBalancer(cloudprovider.GetLoadBalancerName(service))
 	if err != nil {
 		return nil, err
@@ -137,24 +130,142 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 		return nil, err
 	}
 
-	// EIP
+	// (2) EIP
 	pubIP := lb.PublicIp
-	if len(pubIP) == 0 {
-		glog.V(2).Infoln("EnsureLoadBalancer: createEIP!")
-		pubIP, err = bc.createEIP(&lb)
-		if err != nil {
-			if pubIP != "" {
-				args := eip.EipArgs{
+	loadBalancerIP := service.Spec.LoadBalancerIP
+	if len(loadBalancerIP) == 0 { // not set LoadBalancerIP
+		if len(pubIP) == 0 { // blb not bind eip
+			glog.V(2).Infoln("EnsureLoadBalancer: createEIP!")
+			pubIP, err = bc.createEIP(&lb)
+			if err != nil {
+				if pubIP != "" {
+					args := eip.EipArgs{
+						Ip: pubIP,
+					}
+					bc.clientSet.Eip().DeleteEip(&args)
+				}
+				return nil, err
+			}
+		} else { // bib already bind eip
+			glog.V(4).Infoln("EnsureLoadBalancer: blb's eip already exists!")
+		}
+	} else { // set LoadBalancerIP
+		glog.V(4).Infof("EnsureLoadBalancer: Try to bind Custom LoadBalancerIP %s to BLB %s.\n", loadBalancerIP, lb.Name)
+		if len(pubIP) == 0 { // blb not bind eip
+			// check eip status
+			argsGet := eip.GetEipsArgs{
+				Ip: loadBalancerIP,
+			}
+			eips, err := bc.clientSet.Eip().GetEips(&argsGet)
+			if err != nil {
+				return nil, err
+			}
+			if len(eips) == 0 {
+				err = fmt.Errorf("EnsureLoadBalancer: EIP %s not Exist\n", loadBalancerIP)
+				return nil, err
+			} else {
+				eipStatus := eips[0].Status
+				for index := 0; (index < 10) && (eipStatus != "available"); index++ {
+					glog.V(4).Infof("Eip: %s is not available, retry:  %d", loadBalancerIP, index)
+					time.Sleep(10 * time.Second)
+					eips, err := bc.clientSet.Eip().GetEips(&argsGet)
+					if err != nil {
+						return nil, err
+					}
+					eipStatus = eips[0].Status
+				}
+				glog.V(4).Infof("Eip status is: %s", eipStatus)
+			}
+
+			// bind
+			lb.Status = "unknown" // add here to do loop
+			for index := 0; (index < 10) && (lb.Status != "available"); index++ {
+				glog.V(4).Infof("BLB: %s is not available, retry:  %d", lb.Name, index)
+				time.Sleep(10 * time.Second)
+				newlb, exist, err := bc.getBCELoadBalancer(lb.Name)
+				if err != nil {
+					glog.V(4).Infof("getBCELoadBalancer error: %s", lb.Name)
+					return nil, err
+				}
+				if !exist {
+					glog.V(4).Infof("getBCELoadBalancer not exist: %s", lb.Name)
+					return nil, fmt.Errorf("BLB not exists:%s", lb.Name)
+				}
+				lb = newlb
+				glog.V(4).Infof("BLB status is : %s", lb.Status)
+			}
+			argsBind := &eip.BindEipArgs{
+				Ip:           loadBalancerIP,
+				InstanceId:   lb.BlbId,
+				InstanceType: eip.BLB,
+			}
+			glog.V(4).Infof("BindEip:  %v", argsBind)
+			glog.V(4).Infof("Bind BLB: %v", lb)
+			err = bc.clientSet.Eip().BindEip(argsBind)
+			if err != nil {
+				glog.V(4).Infof("BindEip error: %v", err)
+				return nil, err
+			}
+			lb.PublicIp = loadBalancerIP
+			pubIP = loadBalancerIP
+			glog.V(4).Infof("EnsureLoadBalancer: Bind EIP to BLB success.")
+		} else { // blb already bind eip
+			if pubIP == loadBalancerIP { // bib bind correct LoadBalancerIP
+				glog.V(4).Infof("EnsureLoadBalancer: BLB %s already bind EIP %s.\n", lb.Name, pubIP)
+			} else { // blb not bind correct LoadBalancerIP, need update
+				glog.V(4).Infof("EnsureLoadBalancer: BLB %s already bind EIP %s, but need updating to %s.\n", lb.Name, pubIP, loadBalancerIP)
+				argsGet := eip.GetEipsArgs{
 					Ip: pubIP,
 				}
-				bc.clientSet.Eip().DeleteEip(&args)
+				eips, err := bc.clientSet.Eip().GetEips(&argsGet)
+				if err != nil {
+					return nil, err
+				}
+				if len(eips) > 0 {
+					unbindArgs := eip.EipArgs{
+						Ip: pubIP,
+					}
+					err := bc.clientSet.Eip().UnbindEip(&unbindArgs)
+					if err != nil {
+						glog.V(4).Infof("Unbind Eip error : %s", err.Error())
+						return nil, err
+					}
+				}
+				// bind
+				lb.Status = "unknown" // add here to do loop
+				for index := 0; (index < 10) && (lb.Status != "available"); index++ {
+					glog.V(4).Infof("BLB: %s is not available, retry:  %d", lb.Name, index)
+					time.Sleep(10 * time.Second)
+					newlb, exist, err := bc.getBCELoadBalancer(lb.Name)
+					if err != nil {
+						glog.V(4).Infof("getBCELoadBalancer error: %s", lb.Name)
+						return nil, err
+					}
+					if !exist {
+						glog.V(4).Infof("getBCELoadBalancer not exist: %s", lb.Name)
+						return nil, fmt.Errorf("BLB not exists:%s", lb.Name)
+					}
+					lb = newlb
+					glog.V(4).Infof("BLB status is : %s", lb.Status)
+				}
+				argsBind := &eip.BindEipArgs{
+					Ip:           loadBalancerIP,
+					InstanceId:   lb.BlbId,
+					InstanceType: eip.BLB,
+				}
+				glog.V(4).Infof("BindEip:  %v", argsBind)
+				glog.V(4).Infof("Bind BLB: %v", lb)
+				err = bc.clientSet.Eip().BindEip(argsBind)
+				if err != nil {
+					glog.V(4).Infof("BindEip error: %v", err)
+					return nil, err
+				}
+				lb.PublicIp = loadBalancerIP
+				pubIP = loadBalancerIP
 			}
-			return nil, err
 		}
-	} else {
-		glog.V(4).Infoln("EnsureLoadBalancer: blb's eip already exists!")
 	}
-	glog.V(4).Infof("EnsureLoadBalancer: pubIP is %s", pubIP)
+	glog.V(4).Infof("EnsureLoadBalancer: EXTERNAL-IP is %s", pubIP)
 
 	return &v1.LoadBalancerStatus{
 		Ingress: []v1.LoadBalancerIngress{{IP: pubIP}},
@@ -162,8 +273,8 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 }
 
 // UpdateLoadBalancer updates hosts under the specified load balancer.
-func (bc *BCECloud) UpdateLoadBalancer(clusterName string, service *v1.Service, nodes []*v1.Node) error {
-	_, err := bc.EnsureLoadBalancer(clusterName, service, nodes)
+func (bc *BCECloud) UpdateLoadBalancer(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node) error {
+	_, err := bc.EnsureLoadBalancer(ctx, clusterName, service, nodes)
 	return err
 }
 
@@ -173,7 +284,7 @@ func (bc *BCECloud) UpdateLoadBalancer(clusterName string, service *v1.Service, 
 // This construction is useful because many cloud providers' load balancers
 // have multiple underlying components, meaning a Get could say that the LB
 // doesn't exist even if some part of it is still laying around.
-func (bc *BCECloud) EnsureLoadBalancerDeleted(clusterName string, service *v1.Service) error {
+func (bc *BCECloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName string, service *v1.Service) error {
 	lbName := cloudprovider.GetLoadBalancerName(service)
 	serviceName := getServiceName(service)
 	glog.V(2).Infof("delete(%s): START clusterName=%q lbName=%q", serviceName, clusterName, lbName)
@@ -185,6 +296,9 @@ func (bc *BCECloud) EnsureLoadBalancerDeleted(clusterName string, service *v1.Se
 	glog.V(4).Infof("EnsureLoadBalancerDeleted getBCELoadBalancer : %s", lb.Name)
 	if err != nil {
 		glog.V(4).Infof("EnsureLoadBalancerDeleted get error: %s", err.Error())
+		if len(service.Spec.LoadBalancerIP) != 0 {
+			return err
+		}
 		delErr := bc.deleteEipByName(&lb)
 		if delErr != nil {
 			glog.V(4).Infof("deleteEipByName get error: %s", delErr.Error())
@@ -193,6 +307,9 @@ func (bc *BCECloud) EnsureLoadBalancerDeleted(clusterName string, service *v1.Se
 	}
 	if !existsLb {
 		glog.V(4).Infof("BCELoadBalancer not exists: %s", lbName)
+		if len(service.Spec.LoadBalancerIP) != 0 {
+			return err
+		}
 		delErr := bc.deleteEipByName(&lb)
 		if delErr != nil {
 			glog.V(4).Infof("deleteEipByName get error: %s", delErr.Error())
@@ -210,6 +327,10 @@ func (bc *BCECloud) EnsureLoadBalancerDeleted(clusterName string, service *v1.Se
 	}
 	// delete EIP
 	if lb.PublicIp != "" {
+		if len(service.Spec.LoadBalancerIP) != 0 {
+			glog.V(4).Infof("EnsureLoadBalancerDeleted: LoadBalancerIP is set, not delete EIP.")
+			return err
+		}
 		glog.V(4).Infof("Start delete EIP: %s", lb.PublicIp)
 		err = bc.deleteEIP(&lb)
 		if err != nil {

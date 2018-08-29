@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"context"
 
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -29,7 +30,7 @@ import (
 )
 
 // NodeAddresses returns the addresses of the specified instance.
-func (bc *BCECloud) NodeAddresses(name types.NodeName) ([]v1.NodeAddress, error) {
+func (bc *BCECloud) NodeAddresses(ctx context.Context, name types.NodeName) ([]v1.NodeAddress, error) {
 	nameStr := string(name)
 	nodeIP := net.ParseIP(nameStr)
 	if nodeIP == nil {
@@ -109,13 +110,13 @@ func (bc *BCECloud) getInstanceByNodeName(name types.NodeName) (vm cce.CceInstan
 }
 
 // ExternalID returns the cloud provider ID of the specified instance (deprecated).
-func (bc *BCECloud) ExternalID(name types.NodeName) (string, error) {
-	return bc.InstanceID(name)
+func (bc *BCECloud) ExternalID(ctx context.Context, name types.NodeName) (string, error) {
+	return bc.InstanceID(ctx, name)
 }
 
 // InstanceID returns the cloud provider ID of the specified instance.
 // Note that if the instance does not exist or is no longer running, we must return ("", cloudprovider.InstanceNotFound)
-func (bc *BCECloud) InstanceID(name types.NodeName) (string, error) {
+func (bc *BCECloud) InstanceID(ctx context.Context, name types.NodeName) (string, error) {
 	machine, err := bc.getInstanceByNodeName(name)
 	if err != nil {
 		return "", err
@@ -127,19 +128,19 @@ func (bc *BCECloud) InstanceID(name types.NodeName) (string, error) {
 // Note that if the instance does not exist or is no longer running, we must return ("", cloudprovider.InstanceNotFound)
 // (Implementer Note): This is used by kubelet. Kubelet will label the node. Real log from kubelet:
 //       Adding node label from cloud provider: beta.kubernetes.io/instance-type=[value]
-func (bc *BCECloud) InstanceType(name types.NodeName) (string, error) {
+func (bc *BCECloud) InstanceType(ctx context.Context, name types.NodeName) (string, error) {
 	return string("BCC"), nil
 }
 
 // AddSSHKeyToAllInstances adds an SSH public key as a legal identity for all instances
 // expected format for the key is standard ssh-keygen format: <protocol> <blob>
-func (bc *BCECloud) AddSSHKeyToAllInstances(user string, keyData []byte) error {
+func (bc *BCECloud) AddSSHKeyToAllInstances(ctx context.Context, user string, keyData []byte) error {
 	return fmt.Errorf("not supported")
 }
 
 // CurrentNodeName returns the name of the node we are currently running on
 // On most clouds (e.g. GCE) this is the hostname, so we provide the hostname
-func (bc *BCECloud) CurrentNodeName(hostname string) (types.NodeName, error) {
+func (bc *BCECloud) CurrentNodeName(ctx context.Context, hostname string) (types.NodeName, error) {
 	// excepting hostname is an ip address
 	nodeIP := net.ParseIP(hostname)
 	if nodeIP != nil {
@@ -150,20 +151,20 @@ func (bc *BCECloud) CurrentNodeName(hostname string) (types.NodeName, error) {
 
 // NodeAddressesByProviderID returns the node addresses of an instances with the specified unique providerID
 // e.g. BCE providerID: baidubce://i-8TokkCDO
-func (bc *BCECloud) NodeAddressesByProviderID(providerID string) ([]v1.NodeAddress, error) {
+func (bc *BCECloud) NodeAddressesByProviderID(ctx context.Context, providerID string) ([]v1.NodeAddress, error) {
 	return nil, errors.New("unimplemented")
 }
 
 // InstanceTypeByProviderID returns the cloudprovider instance type of the node with the specified unique providerID
 // This method will not be called from the node that is requesting this ID. i.e. metadata service
 // and other local methods cannot be used here
-func (bc *BCECloud) InstanceTypeByProviderID(providerID string) (string, error) {
+func (bc *BCECloud) InstanceTypeByProviderID(ctx context.Context, providerID string) (string, error) {
 	return string("BCC"), nil
 }
 
 // InstanceExistsByProviderID returns true if the instance with the given provider id still exists and is running.
 // If false is returned with no error, the instance will be immediately deleted by the cloud controller manager.
-func (bc *BCECloud) InstanceExistsByProviderID(providerID string) (bool, error) {
+func (bc *BCECloud) InstanceExistsByProviderID(ctx context.Context, providerID string) (bool, error) {
 	return false, errors.New("unimplemented")
 }
 
@@ -183,4 +184,8 @@ func (bc *BCECloud) getInstanceByID(instanceID string) (*cce.CceInstance, error)
 	}
 
 	return nil, cloudprovider.InstanceNotFound
+}
+
+func (bc *BCECloud) InstanceShutdownByProviderID(ctx context.Context, providerID string) (bool, error) {
+	return false, errors.New("unimplemented")
 }

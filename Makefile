@@ -33,8 +33,8 @@ local-build: build-output
 
 .PHONY: image-build
 image-build: build
-	docker build -t ${IMAGE}:latest .
-	docker push ${IMAGE}:latest
+	docker build -t ${IMAGE}:v1.11-latest .
+	docker push ${IMAGE}:v1.11-latest
 
 .PHONY: test
 test:

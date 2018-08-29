@@ -18,6 +18,7 @@ package cloud_provider
 
 import (
 	"fmt"
+	"context"
 
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/types"
@@ -28,7 +29,7 @@ import (
 )
 
 // ListRoutes lists all managed routes that belong to the specified clusterName
-func (bc *BCECloud) ListRoutes(clusterName string) (routes []*cloudprovider.Route, err error) {
+func (bc *BCECloud) ListRoutes(ctx context.Context, clusterName string) (routes []*cloudprovider.Route, err error) {
 	vpcid, err := bc.getVpcID()
 	if err != nil {
 		return nil, err
@@ -88,7 +89,7 @@ func (bc *BCECloud) getVpcRouteTable() ([]bcc.RouteRule, error) {
 // CreateRoute creates the described managed route
 // route.Name will be ignored, although the cloud-provider may use nameHint
 // to create a more user-meaningful name.
-func (bc *BCECloud) CreateRoute(clusterName string, nameHint string, kubeRoute *cloudprovider.Route) error {
+func (bc *BCECloud) CreateRoute(ctx context.Context, clusterName string, nameHint string, kubeRoute *cloudprovider.Route) error {
 	glog.V(4).Infof("create: creating route. clusterName=%q instance=%q cidr=%q", clusterName, kubeRoute.TargetNode, kubeRoute.DestinationCIDR)
 	vpcRoutes, err := bc.getVpcRouteTable()
 	if err != nil {
@@ -147,7 +148,7 @@ func (bc *BCECloud) CreateRoute(clusterName string, nameHint string, kubeRoute *
 
 // DeleteRoute deletes the specified managed route
 // Route should be as returned by ListRoutes
-func (bc *BCECloud) DeleteRoute(clusterName string, kubeRoute *cloudprovider.Route) error {
+func (bc *BCECloud) DeleteRoute(ctx context.Context, clusterName string, kubeRoute *cloudprovider.Route) error {
 	glog.V(4).Infof("DeleteRoute: deleting route. clusterName=%q instance=%q cidr=%q", clusterName, kubeRoute.TargetNode, kubeRoute.DestinationCIDR)
 	vpcTable, err := bc.getVpcRouteTable()
 	if err != nil {
