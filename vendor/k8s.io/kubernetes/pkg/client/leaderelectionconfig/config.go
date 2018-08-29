@@ -20,26 +20,12 @@ import (
 	"time"
 
 	"github.com/spf13/pflag"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	rl "k8s.io/client-go/tools/leaderelection/resourcelock"
 	"k8s.io/kubernetes/pkg/apis/componentconfig"
 )
 
 const (
 	DefaultLeaseDuration = 15 * time.Second
-	DefaultRenewDeadline = 10 * time.Second
-	DefaultRetryPeriod   = 2 * time.Second
 )
-
-func DefaultLeaderElectionConfiguration() componentconfig.LeaderElectionConfiguration {
-	return componentconfig.LeaderElectionConfiguration{
-		LeaderElect:   false,
-		LeaseDuration: metav1.Duration{Duration: DefaultLeaseDuration},
-		RenewDeadline: metav1.Duration{Duration: DefaultRenewDeadline},
-		RetryPeriod:   metav1.Duration{Duration: DefaultRetryPeriod},
-		ResourceLock:  rl.EndpointsResourceLock,
-	}
-}
 
 // BindFlags binds the common LeaderElectionCLIConfig flags to a flagset
 func BindFlags(l *componentconfig.LeaderElectionConfiguration, fs *pflag.FlagSet) {
@@ -62,5 +48,5 @@ func BindFlags(l *componentconfig.LeaderElectionConfiguration, fs *pflag.FlagSet
 		"of a leadership. This is only applicable if leader election is enabled.")
 	fs.StringVar(&l.ResourceLock, "leader-elect-resource-lock", l.ResourceLock, ""+
 		"The type of resource object that is used for locking during "+
-		"leader election. Supported options are `endpoints` (default) and `configmap`.")
+		"leader election. Supported options are `endpoints` (default) and `configmaps`.")
 }

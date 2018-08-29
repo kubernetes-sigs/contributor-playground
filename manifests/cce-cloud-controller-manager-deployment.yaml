@@ -165,7 +165,8 @@ spec:
       serviceAccountName: cloud-controller-manager
       containers:
         - name: cce-cloud-controller-manager
-          image: hub.baidubce.com/jpaas-public/cce-cloud-controller-manager:latest
+          image: hub.baidubce.com/jpaas-public/cce-cloud-controller-manager:v1.11-latest
+          imagePullPolicy: Always
           args:
             - /usr/local/bin/cce-cloud-controller-manager
             - --v=4
@@ -174,9 +175,9 @@ spec:
             - --cloud-provider=cce
             - --kubeconfig=/root/.kube/config
             - --allocate-node-cidrs=true
-            - --cluster-cidr=72.16.0.0/19
+            # Need change
+            - --cluster-cidr={{cluster-cidr}}
             - --cluster-name=kubernetes
-            - --master=https://100.64.230.204:6443
             - --route-reconciliation-period=50s
           volumeMounts:
             - mountPath: /etc/kubernetes/cloud.config
