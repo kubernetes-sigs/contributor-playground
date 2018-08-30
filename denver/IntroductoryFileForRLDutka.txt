@@ -1,0 +1,1 @@
+Hello! I am Rosie and new to Kubernetes! I have been working with Docker to setup a local environment for testing.
