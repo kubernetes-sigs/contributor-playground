@@ -1,0 +1,41 @@
+[Unit]
+Description=Kubernetes API Server
+After=network.target
+After=etcd.service
+
+[Service]
+ExecStart=/opt/kube/bin/kube-apiserver \
+--admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,DefaultTolerationSeconds,PodPreset,Initializers \
+--advertise-address=100.0.0.59 \
+--allow-privileged=true \
+--apiserver-count=3 \
+--authorization-mode=RBAC,Node \
+--bind-address=100.0.0.59 \
+--client-ca-file=/etc/kubernetes/pki/ca.pem \
+--cloud-config=/etc/kubernetes/cloud.config \
+--enable-swagger-ui=true \
+--etcd-cafile=/etc/etcd/ssl/ca.pem \
+--etcd-certfile=/etc/etcd/ssl/etcd.pem \
+--etcd-keyfile=/etc/etcd/ssl/etcd-key.pem \
+--etcd-servers=https://100.0.0.58:2379,https://100.0.0.60:2379,https://100.0.0.59:2379 \
+--enable-bootstrap-token-auth=true \
+--external-hostname=100.0.0.59  \
+--feature-gates=DevicePlugins=true,RotateKubeletServerCertificate=true,MountPropagation=true,CSIPersistentVolume=true \
+--insecure-port=0 \
+--logtostderr=true \
+--runtime-config=settings.k8s.io/v1alpha1=true,admissionregistration.k8s.io/v1alpha1=true,storage.k8s.io/v1alpha1=true \
+--secure-port=6443 \
+--service-account-key-file=/etc/kubernetes/pki/ca-key.pem \
+--service-cluster-ip-range=172.16.0.0/16 \
+--storage-backend=etcd3 \
+--tls-cert-file=/etc/kubernetes/pki/apiserver.pem \
+--tls-private-key-file=/etc/kubernetes/pki/apiserver-key.pem \
+--kubelet-client-certificate=/etc/kubernetes/pki/ca.pem \
+--kubelet-client-key=/etc/kubernetes/pki/ca-key.pem \
+--v=4
+Restart=always
+Type=notify
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
