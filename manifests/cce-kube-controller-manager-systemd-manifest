@@ -1,0 +1,32 @@
+[Unit]
+Description=Kubernetes Controller Manager
+After=network.target
+After=kube-apiserver.service
+
+[Service]
+ExecStart=/opt/kube/bin/kube-controller-manager \
+--allocate-node-cidrs=true \
+--cloud-config=/etc/kubernetes/cloud.config \
+--cluster-cidr=172.29.0.0/16 \
+--cluster-name=kubernetes \
+--cluster-signing-cert-file=/etc/kubernetes/pki/ca.pem \
+--cluster-signing-key-file=/etc/kubernetes/pki/ca-key.pem \
+--controllers=*,bootstrapsigner,tokencleaner \
+--feature-gates=DevicePlugins=true,RotateKubeletServerCertificate=true,MountPropagation=true,CSIPersistentVolume=true \
+--insecure-experimental-approve-all-kubelet-csrs-for-group=system:bootstrappers \
+--kubeconfig=/etc/kubernetes/controller-manager.conf \
+--leader-elect=true \
+--logtostderr=true \
+--master=https://100.0.0.59:6443 \
+--root-ca-file=/etc/kubernetes/pki/ca.pem \
+--route-reconciliation-period=50s \
+--service-account-private-key-file=/etc/kubernetes/pki/ca-key.pem \
+--service-cluster-ip-range=172.16.0.0/16 \
+--use-service-account-credentials=true \
+--v=4
+Restart=always
+Type=simple
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
