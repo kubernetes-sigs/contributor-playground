@@ -17,10 +17,10 @@ limitations under the License.
 package cloud_provider
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
-	"context"
 
 	"github.com/golang/glog"
 	"k8s.io/api/core/v1"
@@ -30,13 +30,20 @@ import (
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/eip"
 )
 
+const ServiceAnnotationLoadBalancerInternalVPC = "service.beta.kubernetes.io/cce-load-balancer-internal-vpc"
+
 func (bc *BCECloud) GetLoadBalancer(ctx context.Context, clusterName string, service *v1.Service) (status *v1.LoadBalancerStatus, exists bool, err error) {
+	internalVPCBLB := false
+	internalVPCBLBAnnotation := service.Annotations[ServiceAnnotationLoadBalancerInternalVPC]
+	if internalVPCBLBAnnotation == "true" {
+		internalVPCBLB = true
+	}
 	lb, exists, err := bc.getBCELoadBalancer(cloudprovider.GetLoadBalancerName(service))
 	if err != nil || !exists {
 		return nil, exists, err
 	}
 	ip := lb.Address
-	if lb.PublicIp != "" {
+	if lb.PublicIp != "" && !internalVPCBLB {
 		ip = lb.PublicIp
 	}
 	glog.V(4).Infof("GetLoadBalancer ip: %s", ip)
@@ -68,8 +75,8 @@ func (bc *BCECloud) getBCELoadBalancer(name string) (lb blb.LoadBalancer, exists
 // parameters as read-only and not modify them.
 // Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (bc *BCECloud) EnsureLoadBalancer(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node) (*v1.LoadBalancerStatus, error) {
-	glog.V(4).Infof("baidubce.EnsureLoadBalancer(%v, %v, %v, %v, %v, %v, %v, %v)",
-		clusterName, service.Namespace, service.Name, bc.Region, service.Spec.LoadBalancerIP, service.Spec.Ports)
+	glog.V(4).Infof("baidubce.EnsureLoadBalancer(%v, %v, %v, %v, %v, %v, %v, %v, %v)",
+		clusterName, service.Namespace, service.Name, bc.Region, service.Spec.LoadBalancerIP, service.Spec.Ports, service.Annotations)
 	if len(service.Spec.Ports) == 0 {
 		return nil, fmt.Errorf("requested load balancer with no ports")
 	}
@@ -80,6 +87,11 @@ func (bc *BCECloud) EnsureLoadBalancer(ctx context.Context, clusterName string, 
 	}
 
 	// (1) BLB
+	internalVPCBLB := false
+	internalVPCBLBAnnotation := service.Annotations[ServiceAnnotationLoadBalancerInternalVPC]
+	if internalVPCBLBAnnotation == "true" {
+		internalVPCBLB = true
+	}
 	lb, exists, err := bc.getBCELoadBalancer(cloudprovider.GetLoadBalancerName(service))
 	if err != nil {
 		return nil, err
@@ -96,16 +108,28 @@ func (bc *BCECloud) EnsureLoadBalancer(ctx context.Context, clusterName string, 
 			VpcID:    vpc,
 			SubnetID: bc.SubnetID,
 		}
-		_, err = bc.clientSet.Blb().CreateLoadBalancer(&args)
+		resp, err := bc.clientSet.Blb().CreateLoadBalancer(&args)
 		if err != nil {
 			return nil, err
 		}
+		glog.V(4).Infof("EnsureLoadBalancer create not exists blb success, BLB name: %s, BLB id: %s, BLB address: %s.\n", resp.Name, resp.LoadBalancerId, resp.Address)
 		argsDesc := blb.DescribeLoadBalancersArgs{
 			LoadBalancerName: lbName,
 		}
 		lbs, err := bc.clientSet.Blb().DescribeLoadBalancers(&argsDesc)
 		if err != nil {
 			return nil, err
+		}
+		if len(lbs) == 0 {
+			glog.V(4).Infof("Start delete BLB: %s", resp.Name)
+			args := blb.DeleteLoadBalancerArgs{
+				LoadBalancerId: resp.LoadBalancerId,
+			}
+			err = bc.clientSet.Blb().DeleteLoadBalancer(&args)
+			if err != nil {
+				return nil, err
+			}
+			return nil, fmt.Errorf("EnsureLoadBalancer create not exists blb failed.\n")
 		}
 		lb = lbs[0]
 	} else {
@@ -134,22 +158,30 @@ func (bc *BCECloud) EnsureLoadBalancer(ctx context.Context, clusterName string, 
 	pubIP := lb.PublicIp
 	loadBalancerIP := service.Spec.LoadBalancerIP
 	if len(loadBalancerIP) == 0 { // not set LoadBalancerIP
-		if len(pubIP) == 0 { // blb not bind eip
-			glog.V(2).Infoln("EnsureLoadBalancer: createEIP!")
-			pubIP, err = bc.createEIP(&lb)
-			if err != nil {
-				if pubIP != "" {
-					args := eip.EipArgs{
-						Ip: pubIP,
+		if internalVPCBLB {
+			pubIP = lb.Address
+		} else {
+			if len(pubIP) == 0 { // blb not bind eip
+				glog.V(2).Infoln("EnsureLoadBalancer: createEIP!")
+				pubIP, err = bc.createEIP(&lb)
+				if err != nil {
+					if pubIP != "" {
+						args := eip.EipArgs{
+							Ip: pubIP,
+						}
+						bc.clientSet.Eip().DeleteEip(&args)
 					}
-					bc.clientSet.Eip().DeleteEip(&args)
+					return nil, err
 				}
-				return nil, err
+			} else { // bib already bind eip
+				glog.V(4).Infoln("EnsureLoadBalancer: blb's eip already exists!")
 			}
-		} else { // bib already bind eip
-			glog.V(4).Infoln("EnsureLoadBalancer: blb's eip already exists!")
 		}
 	} else { // set LoadBalancerIP
+		if internalVPCBLB {
+			glog.V(4).Infof("Can not set LoadBalancerIP when use internal vpc BLB.\n")
+			return nil, fmt.Errorf("Can not set LoadBalancerIP when use internal vpc BLB.\n")
+		}
 		glog.V(4).Infof("EnsureLoadBalancer: Try to bind Custom LoadBalancerIP %s to BLB %s.\n", loadBalancerIP, lb.Name)
 		if len(pubIP) == 0 { // blb not bind eip
 			// check eip status
@@ -285,6 +317,11 @@ func (bc *BCECloud) UpdateLoadBalancer(ctx context.Context, clusterName string, 
 // have multiple underlying components, meaning a Get could say that the LB
 // doesn't exist even if some part of it is still laying around.
 func (bc *BCECloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName string, service *v1.Service) error {
+	internalVPCBLB := false
+	internalVPCBLBAnnotation := service.Annotations[ServiceAnnotationLoadBalancerInternalVPC]
+	if internalVPCBLBAnnotation == "true" {
+		internalVPCBLB = true
+	}
 	lbName := cloudprovider.GetLoadBalancerName(service)
 	serviceName := getServiceName(service)
 	glog.V(2).Infof("delete(%s): START clusterName=%q lbName=%q", serviceName, clusterName, lbName)
@@ -296,6 +333,9 @@ func (bc *BCECloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName s
 	glog.V(4).Infof("EnsureLoadBalancerDeleted getBCELoadBalancer : %s", lb.Name)
 	if err != nil {
 		glog.V(4).Infof("EnsureLoadBalancerDeleted get error: %s", err.Error())
+		if internalVPCBLB {
+			return err
+		}
 		if len(service.Spec.LoadBalancerIP) != 0 {
 			return err
 		}
@@ -307,6 +347,9 @@ func (bc *BCECloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName s
 	}
 	if !existsLb {
 		glog.V(4).Infof("BCELoadBalancer not exists: %s", lbName)
+		if internalVPCBLB {
+			return err
+		}
 		if len(service.Spec.LoadBalancerIP) != 0 {
 			return err
 		}
