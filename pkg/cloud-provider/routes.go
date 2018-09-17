@@ -17,15 +17,15 @@ limitations under the License.
 package cloud_provider
 
 import (
-	"fmt"
 	"context"
+	"fmt"
+	"k8s.io/cloud-provider-baiducloud/pkg/sdk/cce"
 
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bcc"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/cce"
 )
 
 // ListRoutes lists all managed routes that belong to the specified clusterName
@@ -106,10 +106,11 @@ func (bc *BCECloud) CreateRoute(ctx context.Context, clusterName string, nameHin
 	for _, ins := range inss {
 		if ins.InternalIP == string(kubeRoute.TargetNode) {
 			insID = ins.InstanceId
-		}
-		if ins.Status == cce.InstanceStatusCreateFailed || ins.Status == cce.InstanceStatusDeleted || ins.Status == cce.InstanceStatusDeleting || ins.Status == cce.InstanceStatusError {
-			glog.V(4).Infof("No need to create route, instance has a wrong status: %s", ins.Status)
-			return nil
+			if ins.Status == cce.InstanceStatusCreateFailed || ins.Status == cce.InstanceStatusDeleted || ins.Status == cce.InstanceStatusDeleting || ins.Status == cce.InstanceStatusError {
+				glog.V(4).Infof("No need to create route, instance has a wrong status: %s", ins.Status)
+				return nil
+			}
+			break
 		}
 	}
 	var needDelete []string
