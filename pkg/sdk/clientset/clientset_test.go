@@ -43,7 +43,5 @@ func TestNewFromConfig(t *testing.T) {
 				t.Error("ak error")
 			}
 		}
-
 	}
-
 }
