@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package bcc
+package vpc
 
 import (
 	"bytes"
@@ -186,5 +186,4 @@ func (c *Client) CreateRouteRule(args *CreateRouteRuleArgs) (string, error) {
 		return "", err
 	}
 	return crResp.RouteRuleID, nil
-
 }

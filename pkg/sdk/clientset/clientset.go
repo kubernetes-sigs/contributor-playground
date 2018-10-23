@@ -24,6 +24,7 @@ import (
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/blb"
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/cce"
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/eip"
+	"k8s.io/cloud-provider-baiducloud/pkg/sdk/vpc"
 )
 
 // Interface contains all methods of clients
@@ -32,6 +33,7 @@ type Interface interface {
 	Blb() *blb.Client
 	Eip() *eip.Client
 	Cce() *cce.Client
+	Vpc() *vpc.Client
 }
 
 // Clientset contains the clients for groups.
@@ -40,6 +42,7 @@ type Clientset struct {
 	BlbClient *blb.Client
 	EipClient *eip.Client
 	CceClient *cce.Client
+	VpcClient *vpc.Client
 }
 
 // Bcc retrieves the BccClient
@@ -74,10 +77,18 @@ func (c *Clientset) Cce() *cce.Client {
 	return c.CceClient
 }
 
+// Vpc retrieves the VpcClient
+func (c *Clientset) Vpc() *vpc.Client {
+	if c == nil {
+		return nil
+	}
+	return c.VpcClient
+}
+
 // NewFromConfig create a new Clientset for the given config.
 func NewFromConfig(cfg *bce.Config) (*Clientset, error) {
 	if cfg == nil {
-		return nil, fmt.Errorf("Config cannot be nil")
+		return nil, fmt.Errorf("config cannot be nil")
 	}
 	var cs Clientset
 	var cceCfg = *cfg
@@ -86,10 +97,11 @@ func NewFromConfig(cfg *bce.Config) (*Clientset, error) {
 	eipConfig := eip.NewConfig(cfg)
 	// cce endpoint is different
 	cceConfig := cce.NewConfig(&cceCfg)
+	vpcConfig := vpc.NewConfig(cfg)
 	cs.BccClient = bcc.NewClient(bccConfig)
 	cs.BlbClient = blb.NewBLBClient(blbConfig)
 	cs.EipClient = eip.NewEIPClient(eipConfig)
 	cs.CceClient = cce.NewClient(cceConfig)
+	cs.VpcClient = vpc.NewVPCClient(vpcConfig)
 	return &cs, nil
-
 }
