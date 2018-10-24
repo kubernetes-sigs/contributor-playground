@@ -104,6 +104,7 @@ func newCloud(configReader io.Reader) (cloudprovider.Interface, error) {
 	cloud.clientSet.Eip().SetDebug(true)
 	cloud.clientSet.Bcc().SetDebug(true)
 	cloud.clientSet.Cce().SetDebug(true)
+	cloud.clientSet.Vpc().SetDebug(true)
 	return &cloud, nil
 }
 

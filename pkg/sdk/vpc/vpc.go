@@ -14,11 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package bcc
+package vpc
 
 import (
 	"encoding/json"
-
 	"strconv"
 
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
@@ -55,12 +54,6 @@ type CreateVpcResponse struct {
 	VpcID string `json:"vpcId"`
 }
 
-// CreateVpc create a vpc
-// https://cloud.baidu.com/doc/VPC/API.html#.E5.88.9B.E5.BB.BAVPC
-// func (c *Client) CreateVpc(args *CreateVpcArgs) (string, error) {
-
-// }
-
 // ListVpcArgs args
 type ListVpcArgs struct {
 	IsDefault bool `json:"isDefault"`
@@ -89,23 +82,13 @@ func (c *Client) ListVpc(args *ListVpcArgs) ([]Vpc, error) {
 		return nil, err
 	}
 	bodyContent, err := resp.GetBodyContent()
-
 	if err != nil {
 		return nil, err
 	}
 	var lvResp *ListVpcResponse
 	err = json.Unmarshal(bodyContent, &lvResp)
-
 	if err != nil {
 		return nil, err
 	}
 	return lvResp.Vpcs, nil
 }
-
-// DeleteVpc delete a vpc by id
-// https://cloud.baidu.com/doc/VPC/API.html#.E5.88.A0.E9.99.A4VPC
-// func (c *Client) DeleteVpc(vpcid string) error {
-
-// }
-
-// TODO: UpdateVpc

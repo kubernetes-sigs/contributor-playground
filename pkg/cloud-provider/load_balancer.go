@@ -19,6 +19,7 @@ package cloud_provider
 import (
 	"context"
 	"fmt"
+	"net"
 	"strings"
 	"time"
 
@@ -28,6 +29,8 @@ import (
 
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/blb"
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/eip"
+	"k8s.io/cloud-provider-baiducloud/pkg/sdk/util"
+	"k8s.io/cloud-provider-baiducloud/pkg/sdk/vpc"
 )
 
 const ServiceAnnotationLoadBalancerInternalVPC = "service.beta.kubernetes.io/cce-load-balancer-internal-vpc"
@@ -99,14 +102,14 @@ func (bc *BCECloud) EnsureLoadBalancer(ctx context.Context, clusterName string, 
 	lbName := cloudprovider.GetLoadBalancerName(service)
 	if !exists {
 		glog.V(4).Infoln("EnsureLoadBalancer create not exists blb!")
-		vpc, err := bc.getVpcID()
+		vpcId, subnetId, err := bc.getVpcInfoForBLB()
 		if err != nil {
-			return nil, fmt.Errorf("Can't get VPC ID: %v\n", err)
+			return nil, fmt.Errorf("Can't get VPC info for BLB: %v\n", err)
 		}
 		args := blb.CreateLoadBalancerArgs{
 			Name:     lbName,
-			VpcID:    vpc,
-			SubnetID: bc.SubnetID,
+			VpcID:    vpcId,
+			SubnetID: subnetId,
 		}
 		resp, err := bc.clientSet.Blb().CreateLoadBalancer(&args)
 		if err != nil {
@@ -792,4 +795,71 @@ func (bc *BCECloud) waitForLoadBalancer(lb *blb.LoadBalancer) (blb.LoadBalancer,
 	}
 
 	return *lb, nil
+}
+
+func (bc *BCECloud) getVpcInfoForBLB() (string, string, error) {
+	// get prefer vpc info
+	ins, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
+	if err != nil {
+		return "", "", err
+	}
+	if len(ins) == 0 {
+		return "", "", fmt.Errorf("getVpcInfoForBLB failed since instance num is zero")
+	}
+	vpcId := ins[0].VpcId
+	subnetId := ins[0].SubnetId
+
+	// check subnet
+	subnet, err := bc.clientSet.Vpc().DescribeSubnet(subnetId)
+	if err != nil {
+		return "", "", fmt.Errorf("DescribeSubnet failed: %v", err)
+	}
+	if subnet.SubnetType == "BCC" {
+		return vpcId, subnetId, nil
+	}
+
+	// get subnet list and choose perferred one
+	params := make(map[string]string, 0)
+	params["vpcId"] = subnet.VpcID
+	subnets, err := bc.clientSet.Vpc().ListSubnet(params)
+	if err != nil {
+		return "", "", fmt.Errorf("ListSubnet failed: %v", err)
+	}
+	for _, subnet := range subnets {
+		if subnet.Name == "系统预定义子网" {
+			return subnet.VpcID, subnet.SubnetID, nil
+		}
+		if subnet.Name == "CCE-Reserve" {
+			return subnet.VpcID, subnet.SubnetID, nil
+		}
+	}
+
+	// create one
+	currentCidr := subnet.Cidr
+	for {
+		_, cidr, err := net.ParseCIDR(currentCidr)
+		if err != nil {
+			return "", "", fmt.Errorf("ParseCIDR failed: %v", err)
+		}
+		mask, _ := cidr.Mask.Size()
+		nextCidr, notExist := util.NextSubnet(cidr, mask)
+		if notExist {
+			return "", "", fmt.Errorf("NextSubnet failed: %v", err)
+		}
+		currentCidr = nextCidr.String()
+		createSubnetArgs := &vpc.CreateSubnetArgs{
+			Name:       "CCE-Reserve",
+			ZoneName:   subnet.ZoneName,
+			Cidr:       nextCidr.String(),
+			VpcID:      subnet.VpcID,
+			SubnetType: "BCC",
+		}
+		newSubnetId, err := bc.clientSet.Vpc().CreateSubnet(createSubnetArgs)
+		if err != nil {
+			glog.V(4).Infof("CreateSubnet failed: %v, will try again.", err)
+			time.Sleep(3 * time.Second)
+			continue
+		}
+		return subnet.VpcID, newSubnetId, nil
+	}
 }
