@@ -818,7 +818,7 @@ func (bc *BCECloud) getVpcInfoForBLB() (string, string, error) {
 		return vpcId, subnetId, nil
 	}
 
-	// get subnet list and choose prefer one
+	// get subnet list and choose perferred one
 	params := make(map[string]string, 0)
 	params["vpcId"] = subnet.VpcID
 	subnets, err := bc.clientSet.Vpc().ListSubnet(params)
@@ -829,8 +829,6 @@ func (bc *BCECloud) getVpcInfoForBLB() (string, string, error) {
 		if subnet.Name == "系统预定义子网" {
 			return subnet.VpcID, subnet.SubnetID, nil
 		}
-	}
-	for _, subnet := range subnets {
 		if subnet.Name == "CCE-Reserve" {
 			return subnet.VpcID, subnet.SubnetID, nil
 		}
@@ -859,6 +857,7 @@ func (bc *BCECloud) getVpcInfoForBLB() (string, string, error) {
 		newSubnetId, err := bc.clientSet.Vpc().CreateSubnet(createSubnetArgs)
 		if err != nil {
 			glog.V(4).Infof("CreateSubnet failed: %v, will try again.", err)
+			time.Sleep(3 * time.Second)
 			continue
 		}
 		return subnet.VpcID, newSubnetId, nil
