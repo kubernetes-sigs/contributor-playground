@@ -1,18 +1,19 @@
 approvers:
-  - jberkus
-  - tpepper
-  - idealhack
-  - puja
-  - xiangpengzhao
-  - qedrakmar
-  - congfairy
-  - godliness
   - AkihiroSuda
-  - yylin1
-  - yuqi-zhang
   - KaiWu
+  - congfairy
+  - dwmkerr
+  - godliness
+  - idealhack
+  - jberkus
   - ms4720
   - niyue
+  - puja
+  - qedrakmar
+  - tpepper
+  - xiangpengzhao
+  - yuqi-zhang
+  - yylin1
 
 reviewers:
   - m13m
