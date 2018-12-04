@@ -10,8 +10,9 @@ This exercise is designed for students to learn how issues are used in the Kuber
   - put they're gitHub handle
   - if they have *already contributed* to Kubernetes before, add a star by their name
 3. Collect all the notepads at an appropriate break.
-4. An NCW teacher should add the the list of GH handles as either reviewers of approvers to the OWNERs file in the appropriate `contributor-playground` folder:
-  - there should be 2 appprovers per table, and the rest should be reviewers
+4. An NCW teacher should add some folks form the the list of GH handles as either reviewers of approvers to the OWNERs file in the appropriate `contributor-playground` folder:
+  - there should be 2 appprovers per table
+  - their should be at least 2 Reviewers per table
   - folks with a star should be favored as approvers
   - use comments to mark the groups at each table
 5. Create a PR for the OWNERs file change, and get another Contribex admin to approve it.  This may require making sure that another approver will be present.
