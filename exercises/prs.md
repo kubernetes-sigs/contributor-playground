@@ -10,7 +10,7 @@ See [issues.md](issues.md) for how to prepare for this exercise.  If that prep h
 
 This exercise requires working knowledge of creating Github pull requests.  If any students at the table have never done this before, their neighbors should help them.
 
-1. Two students at the table (3 for 10-person tables) who have the status "reviewer" should each create a PR. Check the Owners file for status.
+1. Two students at the table (3 for 10-person tables) who are NOT in the OWNERS file as Reviewer or Approver should each create a PR. Check the Owners file for status.
 2. These students (and optionally, all other students if they want to) should Fork the contributor-playground repo, and then Clone it to their laptops.
 3. The students should create a PR by: creating a feature branch on their cloned repo, `git push`, and then creating the PR against the contributor-playground repo.
 4. The PR can be for any porpoise, but common ones are (a) creating a file by their name in the directory for that particular NCW (e.g. `seattle/jberkus.md`) or (b) issuing a correction to some other part of the Playground.  These PRs should have more than one line of text content to support the review phase.
