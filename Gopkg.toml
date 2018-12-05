@@ -1,18 +1,22 @@
 [[constraint]]
-  branch = "release-1.11"
+  version = "v1.11.5"
   name = "k8s.io/kubernetes"
 
 [[constraint]]
-  branch = "release-1.11"
+  version = "kubernetes-1.11.5"
   name = "k8s.io/apiserver"
 
 [[constraint]]
-  branch = "release-1.11"
+  version = "kubernetes-1.11.5"
   name = "k8s.io/api"
 
 [[constraint]]
-  branch = "release-1.11"
+  version = "kubernetes-1.11.5"
   name = "k8s.io/apimachinery"
+
+[[override]]
+  version = "kubernetes-1.11.5"
+  name = "k8s.io/apiextensions-apiserver"
 
 # Fix vendor/k8s.io/kubernetes/pkg/util/parsers/parsers.go:36:16: undefined: reference.ParseNormalizedNamed
 [[override]]
