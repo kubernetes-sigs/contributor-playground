@@ -1,4 +1,4 @@
-# KubeCon Seattle 2018 New Kubernetes Contributor Workshop
+# KubeCon Seattle 2018 New K8s Contributor Workshop
 
 This is the location of our Seattle New Contributor Workshop Pull Request activity.
 
