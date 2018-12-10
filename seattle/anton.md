@@ -1,4 +1,4 @@
 # Introduction
 
-Hi, there. I'm Anton.
+Hi, there. I am Anton.
 
