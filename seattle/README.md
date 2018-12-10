@@ -6,3 +6,5 @@ This is the location of our Seattle New Contributor Workshop Pull Request activi
 and stay tuned for more information!
 
 Let's add more cats to the pages.
+
+![cat image](https://www.petmd.com/sites/default/files/cloned_cat_cc_beaker.jpg)
