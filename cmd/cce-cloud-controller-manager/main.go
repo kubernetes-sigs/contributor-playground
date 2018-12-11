@@ -17,25 +17,25 @@ limitations under the License.
 package main
 
 import (
+	goflag "flag"
 	"fmt"
+	"math/rand"
 	"os"
 	"time"
-	"math/rand"
-	goflag "flag"
 
-	"github.com/spf13/pflag"
 	"github.com/golang/glog"
 	"github.com/spf13/cobra"
-	utilflag "k8s.io/kubernetes/pkg/util/flag"
-	"k8s.io/kubernetes/pkg/version/verflag"
+	"github.com/spf13/pflag"
+	"k8s.io/apiserver/pkg/server/healthz"
 	"k8s.io/apiserver/pkg/util/flag"
 	"k8s.io/apiserver/pkg/util/logs"
-	"k8s.io/apiserver/pkg/server/healthz"
 	"k8s.io/kubernetes/cmd/cloud-controller-manager/app"
 	"k8s.io/kubernetes/cmd/cloud-controller-manager/app/options"
 	_ "k8s.io/kubernetes/pkg/client/metrics/prometheus" // for client metric registration
-	_ "k8s.io/kubernetes/pkg/version/prometheus"        // for version metric registration
 	_ "k8s.io/kubernetes/pkg/features"                  // add the kubernetes feature gates
+	utilflag "k8s.io/kubernetes/pkg/util/flag"
+	_ "k8s.io/kubernetes/pkg/version/prometheus" // for version metric registration
+	"k8s.io/kubernetes/pkg/version/verflag"
 
 	_ "k8s.io/cloud-provider-baiducloud/pkg/cloud-provider"
 )
@@ -65,7 +65,7 @@ func NewCCECloudControllerManagerCommand() *cobra.Command {
 		glog.Fatalf("unable to initialize command options: %v", err)
 	}
 	cmd := &cobra.Command{
-		Use: "cce-cloud-controller-manager",
+		Use:  "cce-cloud-controller-manager",
 		Long: `The Cloud controller manager is a daemon that embeds the cloud specific control loops shipped with Kubernetes.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			verflag.PrintAndExitIfRequested()

@@ -24,8 +24,8 @@ import (
 	"net/http/httptest"
 	"os"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
 	"github.com/gorilla/mux"
+	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
 )
 
 var (

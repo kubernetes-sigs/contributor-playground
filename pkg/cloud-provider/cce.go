@@ -23,9 +23,9 @@ import (
 	"io/ioutil"
 	"time"
 
+	"github.com/golang/glog"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 	"k8s.io/kubernetes/pkg/controller"
-	"github.com/golang/glog"
 
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/clientset"
