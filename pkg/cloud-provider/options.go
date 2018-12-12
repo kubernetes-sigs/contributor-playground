@@ -18,6 +18,7 @@ package cloud_provider
 
 import (
 	"k8s.io/api/core/v1"
+	"github.com/golang/glog"
 )
 
 const (
@@ -27,6 +28,7 @@ const (
 )
 
 func ExtractAnnotationRequest(service *v1.Service) (*AnnotationRequest, *AnnotationRequest) {
+	glog.V(4).Infof("start to ExtractAnnotationRequest: %v", service.Annotations)
 	defaulted, request := &AnnotationRequest{}, &AnnotationRequest{}
 	annotation := make(map[string]string)
 	for k, v := range service.Annotations {
