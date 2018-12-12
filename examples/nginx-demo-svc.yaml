@@ -24,7 +24,6 @@ spec:
   selector:
     app: nginx
   type: LoadBalancer
-  loadBalancerIP: 78.11.24.19
   ports:
   - name: http
     port: 80

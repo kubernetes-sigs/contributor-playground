@@ -25,6 +25,7 @@ import (
 
 	"github.com/golang/glog"
 	"k8s.io/api/core/v1"
+	"k8s.io/kubernetes/pkg/cloudprovider"
 
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/blb"
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/eip"
@@ -37,15 +38,23 @@ type AnnotationRequest struct {
 	LoadBalancerInternalVpc string
 }
 
+// GetLoadBalancer returns whether the specified load balancer exists, and
+// if so, what its status is.
+// Implementations must treat the *v1.Service parameter as read-only and not modify it.
+// Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (bc *BCECloud) GetLoadBalancer(ctx context.Context, clusterName string, service *v1.Service) (status *v1.LoadBalancerStatus, exists bool, err error) {
+	bc.WorkAround(service)
 	_, request := ExtractAnnotationRequest(service)
 
 	if len(request.LoadBalancerId) == 0 {
 		return nil, false, nil
 	}
 	lb, exists, err := bc.getBCELoadBalancerById(request.LoadBalancerId)
-	if err != nil || !exists {
-		return nil, exists, err
+	if err != nil {
+		return nil, false, err
+	}
+	if !exists {
+		return nil, false, nil
 	}
 
 	var ip string
@@ -56,29 +65,7 @@ func (bc *BCECloud) GetLoadBalancer(ctx context.Context, clusterName string, ser
 	}
 	glog.V(4).Infof("GetLoadBalancer ip: %s", ip)
 
-	return &v1.LoadBalancerStatus{
-		Ingress: []v1.LoadBalancerIngress{{IP: ip}}}, true, nil
-}
-
-func (bc *BCECloud) getBCELoadBalancerById(id string) (lb *blb.LoadBalancer, exists bool, err error) {
-	args := blb.DescribeLoadBalancersArgs{
-		LoadBalancerId: id,
-	}
-	lbs, err := bc.clientSet.Blb().DescribeLoadBalancers(&args)
-	if err != nil {
-		glog.V(2).Infof("getBCELoadBalancer blb not exists: %v", err)
-		return &blb.LoadBalancer{}, false, err
-	}
-
-	if len(lbs) < 1 {
-		glog.V(2).Info("getBCELoadBalancer blb not exists blb! len(lbs) < 1")
-		return &blb.LoadBalancer{}, false, fmt.Errorf("getBCELoadBalancer blb not exists blb! len(lbs) < 1\n")
-	}
-	if len(lbs) > 1 {
-		glog.V(2).Info("getBCELoadBalancer len(lbs) > 1")
-		return &blb.LoadBalancer{}, false, fmt.Errorf("getBCELoadBalancer len(lbs) > 1\n")
-	}
-	return &lbs[0], true, nil
+	return &v1.LoadBalancerStatus{Ingress: []v1.LoadBalancerIngress{{IP: ip}}}, true, nil
 }
 
 // EnsureLoadBalancer creates a new load balancer 'name', or updates the existing one. Returns the status of the balancer
@@ -86,16 +73,17 @@ func (bc *BCECloud) getBCELoadBalancerById(id string) (lb *blb.LoadBalancer, exi
 // parameters as read-only and not modify them.
 // Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (bc *BCECloud) EnsureLoadBalancer(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node) (*v1.LoadBalancerStatus, error) {
-	glog.V(4).Infof("baidubce.EnsureLoadBalancer(%v, %v, %v, %v, %v, %v, %v, %v, %v)",
+	glog.V(4).Infof("EnsureLoadBalancer(%v, %v, %v, %v, %v, %v, %v, %v, %v)",
 		clusterName, service.Namespace, service.Name, bc.Region, service.Spec.LoadBalancerIP, service.Spec.Ports,
 		service.Annotations)
+	bc.WorkAround(service)
 	_, request := ExtractAnnotationRequest(service)
 	if len(service.Spec.Ports) == 0 {
-		return nil, fmt.Errorf("requested load balancer with no ports\n")
+		return nil, fmt.Errorf("requested load balancer with no ports")
 	}
 	for _, port := range service.Spec.Ports {
 		if port.Protocol != v1.ProtocolTCP {
-			return nil, fmt.Errorf("Only TCP LoadBalancer is supported for Baidu CCE\n")
+			return nil, fmt.Errorf("only TCP LoadBalancer is supported for Baidu CCE")
 		}
 	}
 
@@ -128,14 +116,14 @@ func (bc *BCECloud) EnsureLoadBalancer(ctx context.Context, clusterName string, 
 		}
 		if len(lbs) != 1 {
 			glog.V(4).Infof("EnsureLoadBalancer create blb failed: len(lbs) != 1")
-			return nil, fmt.Errorf("EnsureLoadBalancer create not exists blb failed.\n")
+			return nil, fmt.Errorf("EnsureLoadBalancer create blb failed: len(lbs) != 1\n")
 		}
 		lb = &lbs[0]
 		if service.Annotations == nil {
 			service.Annotations = make(map[string]string)
 		}
 		service.Annotations[ServiceAnnotationLoadBalancerId] = lb.BlbId
-	} else {
+	} else { // blb already exist, get info from cloud
 		var exists bool
 		lb, exists, err = bc.getBCELoadBalancerById(request.LoadBalancerId)
 		if err != nil {
@@ -317,6 +305,9 @@ func (bc *BCECloud) EnsureLoadBalancer(ctx context.Context, clusterName string, 
 }
 
 // UpdateLoadBalancer updates hosts under the specified load balancer.
+// Implementations must treat the *v1.Service and *v1.Node
+// parameters as read-only and not modify them.
+// Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (bc *BCECloud) UpdateLoadBalancer(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node) error {
 	_, err := bc.EnsureLoadBalancer(ctx, clusterName, service, nodes)
 	return err
@@ -328,7 +319,10 @@ func (bc *BCECloud) UpdateLoadBalancer(ctx context.Context, clusterName string, 
 // This construction is useful because many cloud providers' load balancers
 // have multiple underlying components, meaning a Get could say that the LB
 // doesn't exist even if some part of it is still laying around.
+// Implementations must treat the *v1.Service parameter as read-only and not modify it.
+// Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (bc *BCECloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName string, service *v1.Service) error {
+	bc.WorkAround(service)
 	_, request := ExtractAnnotationRequest(service)
 	serviceName := getServiceName(service)
 	glog.V(2).Infof("delete(%s): START clusterName=%q lbId=%q", serviceName, clusterName, request.LoadBalancerId)
@@ -372,6 +366,57 @@ func (bc *BCECloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName s
 	return nil
 }
 
+// 兼容老版本；不支持老版本则直接删除此部分
+func (bc *BCECloud) WorkAround(service *v1.Service) {
+	lb, exists, err := bc.getBCELoadBalancer(cloudprovider.GetLoadBalancerName(service))
+	if err != nil {
+		return
+	}
+	if !exists {
+		return
+	}
+	if service.Annotations == nil {
+		service.Annotations = make(map[string]string)
+	}
+	// TODO: 不会更新最终Service的annotaion，因为ip没变
+	service.Annotations[ServiceAnnotationLoadBalancerId] = lb.BlbId
+	glog.V(2).Infof("WorkAround for old version, lb: %v", lb)
+}
+
+
+func (bc *BCECloud) getBCELoadBalancer(name string) (lb *blb.LoadBalancer, exists bool, err error) {
+	args := blb.DescribeLoadBalancersArgs{
+		LoadBalancerName: name,
+	}
+	lbs, err := bc.clientSet.Blb().DescribeLoadBalancers(&args)
+	if err != nil {
+		glog.V(2).Infof("getBCELoadBalancer  blb not exists ! %v", args)
+		return &blb.LoadBalancer{}, false, err
+	}
+	if len(lbs) != 1 {
+		glog.V(2).Infof("getBCELoadBalancer len(lbs) != 1: %v", lbs)
+		return &blb.LoadBalancer{}, false, fmt.Errorf("getBCELoadBalancer len(lbs) != 1: %v", lbs)
+	}
+
+	return &lbs[0], true, nil
+}
+
+func (bc *BCECloud) getBCELoadBalancerById(id string) (lb *blb.LoadBalancer, exists bool, err error) {
+	args := blb.DescribeLoadBalancersArgs{
+		LoadBalancerId: id,
+	}
+	lbs, err := bc.clientSet.Blb().DescribeLoadBalancers(&args)
+	if err != nil {
+		glog.V(2).Infof("getBCELoadBalancer blb %s not exists: %v", args.LoadBalancerId ,err)
+		return &blb.LoadBalancer{}, false, err
+	}
+	if len(lbs) != 1 {
+		glog.V(2).Infof("getBCELoadBalancer len(lbs) != 1: %v", lbs)
+		return &blb.LoadBalancer{}, false, fmt.Errorf("getBCELoadBalancer len(lbs) != 1: %v", lbs)
+	}
+	return &lbs[0], true, nil
+}
+
 // This returns a human-readable version of the Service used to tag some resources.
 // This is only used for human-readable convenience, and not to filter.
 func getServiceName(service *v1.Service) string {
@@ -388,11 +433,11 @@ type PortListener struct {
 func (bc *BCECloud) reconcileListeners(service *v1.Service, lb *blb.LoadBalancer) error {
 	expected := make(map[int]PortListener)
 	// add expected ports
-	for _, v1 := range service.Spec.Ports {
-		expected[int(v1.Port)] = PortListener{
-			Port:     int(v1.Port),
-			Protocol: string(v1.Protocol),
-			NodePort: (v1.NodePort),
+	for _, servicePort := range service.Spec.Ports {
+		expected[int(servicePort.Port)] = PortListener{
+			Port:     int(servicePort.Port),
+			Protocol: string(servicePort.Protocol),
+			NodePort: servicePort.NodePort,
 		}
 	}
 	// delete or update unexpected ports
@@ -400,7 +445,7 @@ func (bc *BCECloud) reconcileListeners(service *v1.Service, lb *blb.LoadBalancer
 	if err != nil {
 		return err
 	}
-	deleteList := []PortListener{}
+	var deleteList []PortListener
 	for _, l := range all {
 		port, ok := expected[l.Port]
 		if !ok {
@@ -748,7 +793,7 @@ func (bc *BCECloud) getVpcInfoForBLB() (string, string, error) {
 		return vpcId, subnetId, nil
 	}
 
-	// get subnet list and choose perferred one
+	// get subnet list and choose preferred one
 	params := make(map[string]string, 0)
 	params["vpcId"] = subnet.VpcID
 	subnets, err := bc.clientSet.Vpc().ListSubnet(params)
@@ -766,7 +811,7 @@ func (bc *BCECloud) getVpcInfoForBLB() (string, string, error) {
 
 	// create one
 	currentCidr := subnet.Cidr
-	for {
+	for { // loop
 		_, cidr, err := net.ParseCIDR(currentCidr)
 		if err != nil {
 			return "", "", fmt.Errorf("ParseCIDR failed: %v", err)
