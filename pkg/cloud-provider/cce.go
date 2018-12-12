@@ -133,11 +133,6 @@ func (bc *BCECloud) Routes() (cloudprovider.Routes, bool) {
 	return bc, true
 }
 
-// ScrubDNS provides an opportunity for cloud-provider-specific code to process DNS settings for pods.
-func (bc *BCECloud) ScrubDNS(nameservers, searches []string) (nsOut, srchOut []string) {
-	return nameservers, searches
-}
-
 // ProviderName returns the cloud provider ID.
 func (bc *BCECloud) ProviderName() string {
 	return ProviderName
