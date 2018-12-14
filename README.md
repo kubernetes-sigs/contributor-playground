@@ -16,6 +16,13 @@ See docs/cce-cloud-controller-manager.md
 
 See docs/tutorial.md
 
+## Releases
+The below combinations have been tested on CCE. We don't do cross version testing or compatibility testing in other environments. 
+
+| Kubernetes Version  | CCM Version   |
+|--------|--------|
+| v1.11.5 | v1.0.2  |
+
 ## License
 
 Licensed under the Apache License, Version 2.0 (the "License");
