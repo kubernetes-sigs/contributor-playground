@@ -55,11 +55,11 @@ IP which you can use to connect to your service.
 ```bash
 $ kubectl get svc --watch
 NAME            CLUSTER-IP     EXTERNAL-IP      PORT(S)        AGE
-nginx-service   10.96.97.137   129.213.12.174   80:30274/TCP   5m
+nginx-service   1.1.1.1        8.8.8.8          80:30274/TCP   5m
 ```
 
 You can now access your service via the provisioned load balancer
 
 ```bash
-$ curl -i http://129.213.12.174
+$ curl -i http://8.8.8.8
 ```
