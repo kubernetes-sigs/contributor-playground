@@ -25,7 +25,7 @@ spec:
     app: nginx
   type: LoadBalancer
   # here set your own EIP
-  loadBalancerIP: 178.11.24.19
+  loadBalancerIP: 8.8.8.8
   ports:
   - name: http
     port: 80
