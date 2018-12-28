@@ -5,21 +5,21 @@ Requires=docker.service
 
 [Service]
 ExecStart=/opt/kube/bin/kubelet \
---address=192.168.3.16 \
+--address=127.0.0.1 \
 --allow-privileged=true \
 --client-ca-file=/etc/kubernetes/pki/ca.pem \
 --cloud-config=/etc/kubernetes/cloud.config \
 --cloud-provider=external \
---cluster-dns=172.16.0.10 \
+--cluster-dns=127.0.0.1 \
 --cluster-domain=cluster.local \
 --docker-root=/var/lib/docker \
 --fail-swap-on=false \
 --feature-gates=DevicePlugins=true,RotateKubeletServerCertificate=true,MountPropagation=true,CSIPersistentVolume=true \
---hostname-override=192.168.3.16 \
+--hostname-override=127.0.0.1 \
 --kubeconfig=/etc/kubernetes/kubelet.conf \
 --logtostderr=true \
 --network-plugin=kubenet \
---non-masquerade-cidr=172.29.0.0/16 \
+--non-masquerade-cidr=127.0.0.1/16 \
 --pod-infra-container-image=hub-readonly.baidubce.com/public/pause:2.0 \
 --pod-manifest-path=/etc/kubernetes/manifests \
 --anonymous-auth=false \
