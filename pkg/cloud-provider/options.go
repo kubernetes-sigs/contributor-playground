@@ -25,6 +25,7 @@ const (
 	ServiceAnnotationLoadBalancerPrefix      = "service.beta.kubernetes.io/cce-load-balancer-"
 	ServiceAnnotationLoadBalancerId          = ServiceAnnotationLoadBalancerPrefix + "id"
 	ServiceAnnotationLoadBalancerInternalVpc = ServiceAnnotationLoadBalancerPrefix + "internal-vpc"
+	ServiceAnnotationLoadBalancerAllocateVip = ServiceAnnotationLoadBalancerPrefix + "allocate-vip"
 )
 
 func ExtractAnnotationRequest(service *v1.Service) (*AnnotationRequest, *AnnotationRequest) {
@@ -45,6 +46,12 @@ func ExtractAnnotationRequest(service *v1.Service) (*AnnotationRequest, *Annotat
 	if ok {
 		defaulted.LoadBalancerInternalVpc = loadBalancerInternalVpc
 		request.LoadBalancerInternalVpc = loadBalancerInternalVpc
+	}
+
+	loadBalancerAllocateVip, ok := annotation[ServiceAnnotationLoadBalancerAllocateVip]
+	if ok {
+		defaulted.LoadBalancerAllocateVip = loadBalancerAllocateVip
+		request.LoadBalancerAllocateVip = loadBalancerAllocateVip
 	}
 
 	return defaulted, request
