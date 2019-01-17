@@ -685,6 +685,9 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) (string, error) {
 			if err != nil {
 				return "", err
 			}
+			if len(eips) == 0 {
+				return "", fmt.Errorf("createEIP failed: CreateEip success but query failed")
+			}
 			eipStatus = eips[0].Status
 		}
 		glog.V(4).Infof("Eip status is: %s", eipStatus)
