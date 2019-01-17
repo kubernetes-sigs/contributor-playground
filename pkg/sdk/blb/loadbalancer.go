@@ -52,10 +52,11 @@ type DescribeLoadBalancersResponse struct {
 
 // CreateLoadBalancerArgs create blb args
 type CreateLoadBalancerArgs struct {
-	Desc     string `json:"desc,omitempty"`
-	Name     string `json:"name,omitempty"`
-	VpcID    string `json:"vpcId,omitempty"`
-	SubnetID string `json:"subnetId,omitempty"`
+	Desc        string `json:"desc,omitempty"`
+	Name        string `json:"name,omitempty"`
+	VpcID       string `json:"vpcId,omitempty"`
+	SubnetID    string `json:"subnetId,omitempty"`
+	AllocateVip bool   `json:"allocateVip,omitempty"`
 }
 
 type CreateLoadBalancerResponse struct {
