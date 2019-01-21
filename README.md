@@ -21,7 +21,7 @@ The below combinations have been tested on CCE. We don't do cross version testin
 
 | Kubernetes Version  | CCM Version   |
 |--------|--------|
-| v1.11.5 | v1.0.2  |
+| [v1.11.5](https://github.com/kubernetes/kubernetes/releases/tag/v1.11.5) | [v1.0.3](https://github.com/baidu/cloud-provider-baiducloud/releases/tag/v1.0.3)  |
 
 ## License
 
