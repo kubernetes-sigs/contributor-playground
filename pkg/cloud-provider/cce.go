@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 	"k8s.io/kubernetes/pkg/controller"
 
@@ -39,7 +40,8 @@ const CceUserAgent = "cce-k8s:"
 
 type BCECloud struct {
 	CloudConfig
-	clientSet clientset.Interface
+	clientSet  clientset.Interface
+	kubeClient kubernetes.Interface
 }
 
 type CloudConfig struct {
@@ -54,6 +56,12 @@ type CloudConfig struct {
 	Endpoint        string `json:"Endpoint"`
 	NodeIP          string `json:"NodeIP"`
 	Debug           bool   `json:"Debug"`
+}
+
+type NodeAnnotation struct {
+	VpcId           string `json:"vpcId"`
+	VpcRouteTableId string `json:"vpcRouteTableId"`
+	VpcRouteRuleId  string `json:"vpcRouteRuleId"`
 }
 
 func init() {
@@ -144,4 +152,6 @@ func (bc *BCECloud) HasClusterID() bool {
 }
 
 // Initialize passes a Kubernetes clientBuilder interface to the cloud provider
-func (bc *BCECloud) Initialize(clientBuilder controller.ControllerClientBuilder) {}
+func (bc *BCECloud) Initialize(clientBuilder controller.ControllerClientBuilder) {
+	bc.kubeClient = clientBuilder.ClientOrDie(ProviderName)
+}
