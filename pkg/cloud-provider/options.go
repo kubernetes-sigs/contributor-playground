@@ -17,8 +17,8 @@ limitations under the License.
 package cloud_provider
 
 import (
-	"k8s.io/api/core/v1"
 	"github.com/golang/glog"
+	"k8s.io/api/core/v1"
 )
 
 const (
@@ -26,6 +26,13 @@ const (
 	ServiceAnnotationLoadBalancerId          = ServiceAnnotationLoadBalancerPrefix + "id"
 	ServiceAnnotationLoadBalancerInternalVpc = ServiceAnnotationLoadBalancerPrefix + "internal-vpc"
 	ServiceAnnotationLoadBalancerAllocateVip = ServiceAnnotationLoadBalancerPrefix + "allocate-vip"
+)
+
+const (
+	NodeAnnotationPrefix          = "node.alpha.kubernetes.io/"
+	NodeAnnotationVpcId           = NodeAnnotationPrefix + "vpc-id"
+	NodeAnnotationVpcRouteTableId = NodeAnnotationPrefix + "vpc-route-table-id"
+	NodeAnnotationVpcRouteRuleId  = NodeAnnotationPrefix + "vpc-route-rule-id"
 )
 
 func ExtractAnnotationRequest(service *v1.Service) (*AnnotationRequest, *AnnotationRequest) {
@@ -55,4 +62,30 @@ func ExtractAnnotationRequest(service *v1.Service) (*AnnotationRequest, *Annotat
 	}
 
 	return defaulted, request
+}
+
+func ExtractNodeAnnotation(node *v1.Node) *NodeAnnotation {
+	glog.V(4).Infof("start to ExtractNodeAnnotation: %v", node.Annotations)
+	result := &NodeAnnotation{}
+	annotation := make(map[string]string)
+	for k, v := range node.Annotations {
+		annotation[k] = v
+	}
+
+	vpcId, ok := annotation[NodeAnnotationVpcId]
+	if ok {
+		result.VpcId = vpcId
+	}
+
+	vpcRouteTableId, ok := annotation[NodeAnnotationVpcRouteTableId]
+	if ok {
+		result.VpcRouteTableId = vpcRouteTableId
+	}
+
+	vpcRouteRuleId, ok := annotation[NodeAnnotationVpcRouteRuleId]
+	if ok {
+		result.VpcRouteRuleId = vpcRouteRuleId
+	}
+
+	return result
 }
