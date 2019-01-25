@@ -18,13 +18,23 @@ package cloud_provider
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 )
 
+// Zones returns a zones interface. Also returns true if the interface is supported, false otherwise.
+func (bc *Baiducloud) Zones() (cloudprovider.Zones, bool) {
+	return bc, true
+}
+
 // GetZone returns the Zone containing the current failure zone and locality region that the program is running in
-func (bc *BCECloud) GetZone(ctx context.Context) (cloudprovider.Zone, error) {
+// In most cases, this method is called from the kubelet querying a local metadata service to acquire its zone.
+// For the case of external cloud providers, use GetZoneByProviderID or GetZoneByNodeName since GetZone
+// can no longer be called from the kubelets.
+func (bc *Baiducloud) GetZone(ctx context.Context) (cloudprovider.Zone, error) {
 	zone := cloudprovider.Zone{
 		FailureDomain: "unknow",
 		Region:        bc.Region,
@@ -40,15 +50,15 @@ func (bc *BCECloud) GetZone(ctx context.Context) (cloudprovider.Zone, error) {
 	return zone, nil
 }
 
-// GetZoneByProviderID implements Zones.GetZoneByProviderID
-// This is particularly useful in external cloud providers where the kubelet
-// does not initialize node data.
-func (bc *BCECloud) GetZoneByProviderID(ctx context.Context, providerID string) (cloudprovider.Zone, error) {
-	instanceID, err := kubernetesInstanceID(providerID).mapToBCCInstanceID()
-	if err != nil {
-		return cloudprovider.Zone{}, err
+// GetZoneByProviderID returns the Zone containing the current zone and locality region of the node specified by providerId
+// This method is particularly used in the context of external cloud providers where node initialization must be down
+// outside the kubelets.
+func (bc *Baiducloud) GetZoneByProviderID(ctx context.Context, providerID string) (cloudprovider.Zone, error) {
+	splitted := strings.Split(providerID, "//")
+	if len(splitted) != 2 {
+		return cloudprovider.Zone{}, fmt.Errorf("parse ProviderID failed: %v", providerID)
 	}
-	instance, err := bc.getInstanceByID(string(instanceID))
+	instance, err := bc.getInstanceByID(string(splitted[1]))
 	if err != nil {
 		return cloudprovider.Zone{}, err
 	}
@@ -59,10 +69,10 @@ func (bc *BCECloud) GetZoneByProviderID(ctx context.Context, providerID string) 
 	}, nil
 }
 
-// GetZoneByNodeName implements Zones.GetZoneByNodeName
-// This is particularly useful in external cloud providers where the kubelet
-// does not initialize node data.
-func (bc *BCECloud) GetZoneByNodeName(ctx context.Context, nodeName types.NodeName) (cloudprovider.Zone, error) {
+// GetZoneByNodeName returns the Zone containing the current zone and locality region of the node specified by node name
+// This method is particularly used in the context of external cloud providers where node initialization must be down
+// outside the kubelets.
+func (bc *Baiducloud) GetZoneByNodeName(ctx context.Context, nodeName types.NodeName) (cloudprovider.Zone, error) {
 	instance, err := bc.getInstanceByNodeName(nodeName)
 	if err != nil {
 		return cloudprovider.Zone{}, err
@@ -71,6 +81,5 @@ func (bc *BCECloud) GetZoneByNodeName(ctx context.Context, nodeName types.NodeNa
 		FailureDomain: instance.ZoneName,
 		Region:        bc.Region,
 	}
-
 	return zone, nil
 }

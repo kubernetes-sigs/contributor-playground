@@ -27,6 +27,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/golang/glog"
 	"io"
 	"io/ioutil"
 	"log"
@@ -537,7 +538,7 @@ func Debug(title, message string) {
 		log.Println("----------------------------DEBUG: start of " + title + "----------------------------")
 	}
 
-	log.Println(message)
+	glog.V(4).Infoln(message)
 
 	if title != "" {
 		log.Println("----------------------------DEBUG: end of " + title + "------------------------------\n")
