@@ -25,12 +25,12 @@ import (
 
 	"github.com/golang/glog"
 	"k8s.io/api/core/v1"
+	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/cache"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 	"k8s.io/kubernetes/pkg/controller"
 
-	"k8s.io/client-go/informers"
-	"k8s.io/client-go/tools/cache"
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/clientset"
 )
@@ -63,10 +63,23 @@ type CloudConfig struct {
 	Debug           bool   `json:"Debug"`
 }
 
+// ServiceAnnotation contains annotations from service
+type ServiceAnnotation struct {
+	LoadBalancerId             string
+	LoadBalancerInternalVpc    string
+	LoadBalancerAllocateVip    string
+	ElasticIPName              string
+	ElasticIPPaymentTiming     string
+	ElasticIPBillingMethod     string
+	ElasticIPBandwidthInMbps   int
+	ElasticIPReservationLength int
+}
+
+// NodeAnnotation contains annotations from node
 type NodeAnnotation struct {
-	VpcId           string `json:"vpcId"`
-	VpcRouteTableId string `json:"vpcRouteTableId"`
-	VpcRouteRuleId  string `json:"vpcRouteRuleId"`
+	VpcId           string
+	VpcRouteTableId string
+	VpcRouteRuleId  string
 }
 
 func init() {
@@ -127,21 +140,44 @@ func (bc *Baiducloud) Initialize(clientBuilder controller.ControllerClientBuilde
 	bc.kubeClient = clientBuilder.ClientOrDie(ProviderName)
 }
 
+// SetInformers sets the informer on the cloud object.
 func (bc *Baiducloud) SetInformers(informerFactory informers.SharedInformerFactory) {
 	glog.V(3).Infof("Setting up informers for Baiducloud")
+	// node
 	nodeInformer := informerFactory.Core().V1().Nodes().Informer()
 	nodeInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			node := obj.(*v1.Node)
-			glog.V(3).Infof("Node add: ", node.String())
+			glog.V(3).Infof("nodeInformer node add: ", node.Name)
+			// TODO: cache some node info
 		},
 		UpdateFunc: func(prev, obj interface{}) {
 			node := obj.(*v1.Node)
-			glog.V(3).Infof("Node update: ", node.String())
+			glog.V(3).Infof("nodeInformer node update: ", node.Name)
 		},
 		DeleteFunc: func(obj interface{}) {
 			node := obj.(*v1.Node)
-			glog.V(3).Infof("Node delete: ", node.String())
+			glog.V(3).Infof("nodeInformer node delete: ", node.Name)
+			// TODO: remove node info from cache
+		},
+	})
+	// service
+	serviceInformer := informerFactory.Core().V1().Services().Informer()
+	serviceInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			service := obj.(*v1.Service)
+			glog.V(3).Infof("serviceInformer service add: ", service.Name)
+			// TODO: cache some service info
+		},
+		UpdateFunc: func(prev, obj interface{}) {
+			service := obj.(*v1.Node)
+			glog.V(3).Infof("serviceInformer service update: ", service.Name)
+			// TODO:
+		},
+		DeleteFunc: func(obj interface{}) {
+			service := obj.(*v1.Node)
+			glog.V(3).Infof("serviceInformer service delete: ", service.Name)
+			// TODO: remove service info from cache
 		},
 	})
 }
