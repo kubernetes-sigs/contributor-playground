@@ -51,15 +51,21 @@ spec:
 ```bash
 $ kubectl create -f nginx.yaml
 ```
-（2）查询  
+（2）查询EIP  
   IP 8.8.8.8 即为此Nginx的EIP。 
 ```bash
 $ kubectl get svc
 NAME            CLUSTER-IP     EXTERNAL-IP      PORT(S)        AGE
 nginx-service   1.1.1.1        8.8.8.8          80:30274/TCP   5m
 ```
+（3）查询BLB
+```bash
+$ kubectl get svc nginx-service -o jsonpath={.metadata.annotations}
+map[service.beta.kubernetes.io/cce-load-balancer-id:lb-xxxxxx]
+```
+  lb-xxxxxx即为此Service的BLB的id。
  
-（3）访问测试
+（4）访问测试
 ```bash
 $ curl -i http://8.8.8.8
 ```
