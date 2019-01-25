@@ -1,9 +1,10 @@
 language: go
+
 sudo: false
 
-matrix:
-  include:
-    - go: 1.8
-    - go: tip
+go:
+  - 1.8
+  - 1.11
+
 script:
   - echo "Success"
