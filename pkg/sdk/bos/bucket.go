@@ -109,7 +109,7 @@ type ObjectMetadata struct {
 func NewObjectMetadataFromHeader(h http.Header) *ObjectMetadata {
 	objectMetadata := &ObjectMetadata{}
 
-	for key, _ := range h {
+	for key := range h {
 		if len(h[key]) > 0 {
 			lowerKey := strings.ToLower(key)
 			value := h[key][0]
