@@ -33,18 +33,6 @@ import (
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/vpc"
 )
 
-// ServiceAnnotation contains annotations from service
-type ServiceAnnotation struct {
-	LoadBalancerId             string
-	LoadBalancerInternalVpc    string
-	LoadBalancerAllocateVip    string
-	ElasticIPName              string
-	ElasticIPPaymentTiming     string
-	ElasticIPBillingMethod     string
-	ElasticIPBandwidthInMbps   int
-	ElasticIPReservationLength int
-}
-
 // LoadBalancer returns a balancer interface. Also returns true if the interface is supported, false otherwise.
 func (bc *Baiducloud) LoadBalancer() (cloudprovider.LoadBalancer, bool) {
 	return bc, true
