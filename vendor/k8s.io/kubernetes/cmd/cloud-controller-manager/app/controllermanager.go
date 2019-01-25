@@ -204,14 +204,18 @@ func startControllers(c *cloudcontrollerconfig.CompletedConfig, rootClientBuilde
 	client := func(serviceAccountName string) kubernetes.Interface {
 		return clientBuilder.ClientOrDie(serviceAccountName)
 	}
-	if cloud != nil {
-		// Initialize the cloud provider with a reference to the clientBuilder
-		cloud.Initialize(clientBuilder)
-	}
-
 	// TODO: move this setup into Config
 	versionedClient := rootClientBuilder.ClientOrDie("shared-informers")
 	sharedInformers := informers.NewSharedInformerFactory(versionedClient, resyncPeriod(c)())
+
+	if cloud != nil {
+		// Initialize the cloud provider with a reference to the clientBuilder
+		cloud.Initialize(clientBuilder)
+
+		if informerUserCloud, ok := cloud.(cloudprovider.InformerUser); ok {
+			informerUserCloud.SetInformers(sharedInformers)
+		}
+	}
 
 	// Start the CloudNodeController
 	nodeController := cloudcontrollers.NewCloudNodeController(

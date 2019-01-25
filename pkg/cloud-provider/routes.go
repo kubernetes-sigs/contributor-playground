@@ -29,8 +29,13 @@ import (
 	"k8s.io/cloud-provider-baiducloud/pkg/sdk/vpc"
 )
 
+// Routes returns a routes interface along with whether the interface is supported.
+func (bc *Baiducloud) Routes() (cloudprovider.Routes, bool) {
+	return bc, true
+}
+
 // ListRoutes lists all managed routes that belong to the specified clusterName
-func (bc *BCECloud) ListRoutes(ctx context.Context, clusterName string) (routes []*cloudprovider.Route, err error) {
+func (bc *Baiducloud) ListRoutes(ctx context.Context, clusterName string) (routes []*cloudprovider.Route, err error) {
 	vpcid, err := bc.getVpcID()
 	if err != nil {
 		return nil, err
@@ -75,7 +80,7 @@ func (bc *BCECloud) ListRoutes(ctx context.Context, clusterName string) (routes 
 // CreateRoute creates the described managed route
 // route.Name will be ignored, although the cloud-provider may use nameHint
 // to create a more user-meaningful name.
-func (bc *BCECloud) CreateRoute(ctx context.Context, clusterName string, nameHint string, kubeRoute *cloudprovider.Route) error {
+func (bc *Baiducloud) CreateRoute(ctx context.Context, clusterName string, nameHint string, kubeRoute *cloudprovider.Route) error {
 	glog.V(3).Infof("CreateRoute: creating route. clusterName=%v instance=%v cidr=%v", clusterName, kubeRoute.TargetNode, kubeRoute.DestinationCIDR)
 	vpcRoutes, err := bc.getVpcRouteTable()
 	if err != nil {
@@ -150,7 +155,7 @@ func (bc *BCECloud) CreateRoute(ctx context.Context, clusterName string, nameHin
 
 // DeleteRoute deletes the specified managed route
 // Route should be as returned by ListRoutes
-func (bc *BCECloud) DeleteRoute(ctx context.Context, clusterName string, kubeRoute *cloudprovider.Route) error {
+func (bc *Baiducloud) DeleteRoute(ctx context.Context, clusterName string, kubeRoute *cloudprovider.Route) error {
 	glog.V(3).Infof("DeleteRoute: deleting route. clusterName=%q instance=%q cidr=%q", clusterName, kubeRoute.TargetNode, kubeRoute.DestinationCIDR)
 	vpcTable, err := bc.getVpcRouteTable()
 	if err != nil {
@@ -165,16 +170,15 @@ func (bc *BCECloud) DeleteRoute(ctx context.Context, clusterName string, kubeRou
 				glog.V(3).Infof("Delete VPC route error %s", err.Error())
 				return err
 			}
-			_ = fmt.Sprintf("删除路由: 下一跳 %q 目的IP %q", kubeRoute.TargetNode, kubeRoute.DestinationCIDR)
 		}
 	}
 
-	glog.V(3).Infof("DeleteRoute: clusterName=%q instance=%q cidr=%q", clusterName, kubeRoute.TargetNode, kubeRoute.DestinationCIDR)
+	glog.V(3).Infof("DeleteRoute: success, clusterName=%q instance=%q cidr=%q", clusterName, kubeRoute.TargetNode, kubeRoute.DestinationCIDR)
 
 	return nil
 }
 
-func (bc *BCECloud) getVpcRouteTable() ([]vpc.RouteRule, error) {
+func (bc *Baiducloud) getVpcRouteTable() ([]vpc.RouteRule, error) {
 	vpcid, err := bc.getVpcID()
 	if err != nil {
 		return nil, err
@@ -193,7 +197,7 @@ func (bc *BCECloud) getVpcRouteTable() ([]vpc.RouteRule, error) {
 // node.alpha.kubernetes.io/vpc-id: "vpc-xxx"
 // node.alpha.kubernetes.io/vpc-route-table-id: "rt-xxx"
 // node.alpha.kubernetes.io/vpc-route-rule-id: "rr-xxx"
-func (bc *BCECloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vpcRouteRuleId string) error {
+func (bc *Baiducloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vpcRouteRuleId string) error {
 	curNode, err := bc.kubeClient.CoreV1().Nodes().Get(nodeName, metav1.GetOptions{})
 	if err != nil {
 		return err
@@ -216,4 +220,20 @@ func (bc *BCECloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vpcR
 		return err
 	}
 	return nil
+}
+
+func (bc *Baiducloud) getVpcID() (string, error) {
+	if bc.VpcID == "" {
+		ins, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
+		if err != nil {
+			return "", err
+		}
+		if len(ins) > 0 {
+			bc.VpcID = ins[0].VpcId
+			bc.SubnetID = ins[0].SubnetId
+		} else {
+			return "", fmt.Errorf("Get vpcid error\n")
+		}
+	}
+	return bc.VpcID, nil
 }

@@ -39,13 +39,16 @@ type Eip struct {
 	ExpireTime      string          `json:"expireTime"`
 }
 type Billing struct {
-	PaymentTiming string `json:"paymentTiming"`
-	BillingMethod string `json:"billingMethod"`
+	PaymentTiming string       `json:"paymentTiming"`
+	BillingMethod string       `json:"billingMethod"`
+	Reservation   *Reservation `json:"reservation"`
 }
+
 type Reservation struct {
 	ReservationLength   int    `json:"reservationLength"`
 	ReservationTimeUnit string `json:"reservationTimeUnit"`
 }
+
 type CreateEipArgs struct {
 	//  公网带宽，单位为Mbps。
 	// 对于prepay以及bandwidth类型的EIP，限制为为1~200之间的整数，
@@ -158,8 +161,6 @@ func (c *Client) ResizeEip(args *ResizeEipArgs) error {
 	if err != nil {
 		return err
 	}
-	// url := "http://" + Endpoint[c.GetRegion()] + "/v1/eip" + "/" + args.Ip + "?" + "resize&" + "clientToken=" + c.GenerateClientToken()
-	// req, err := bce.NewRequest("PUT", url, bytes.NewBuffer(postContent))
 	req, err := bce.NewRequest("PUT", c.GetURL("v1/eip"+"/"+args.Ip, params), bytes.NewBuffer(postContent))
 	if err != nil {
 		return err

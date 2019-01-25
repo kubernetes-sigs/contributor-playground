@@ -17,53 +17,109 @@ limitations under the License.
 package cloud_provider
 
 import (
+	"strconv"
+
 	"github.com/golang/glog"
 	"k8s.io/api/core/v1"
 )
 
 const (
-	ServiceAnnotationLoadBalancerPrefix      = "service.beta.kubernetes.io/cce-load-balancer-"
-	ServiceAnnotationLoadBalancerId          = ServiceAnnotationLoadBalancerPrefix + "id"
+	// ServiceAnnotationLoadBalancerPrefix is the annotation prefix of LoadBalancer
+	ServiceAnnotationLoadBalancerPrefix = "service.beta.kubernetes.io/cce-load-balancer-"
+	// ServiceAnnotationLoadBalancerId is the annotation of LoadBalancerId
+	ServiceAnnotationLoadBalancerId = ServiceAnnotationLoadBalancerPrefix + "id"
+	// ServiceAnnotationLoadBalancerInternalVpc is the annotation of LoadBalancerInternalVpc
 	ServiceAnnotationLoadBalancerInternalVpc = ServiceAnnotationLoadBalancerPrefix + "internal-vpc"
 	ServiceAnnotationLoadBalancerAllocateVip = ServiceAnnotationLoadBalancerPrefix + "allocate-vip"
+
+	// ServiceAnnotationElasticIPPrefix is the annotation prefix of ElasticIP
+	ServiceAnnotationElasticIPPrefix = "service.beta.kubernetes.io/cce-elastic-ip-"
+	// ServiceAnnotationElasticIPName is the annotation of ElasticIPName
+	ServiceAnnotationElasticIPName = ServiceAnnotationElasticIPPrefix + "name"
+	// ServiceAnnotationElasticIPPaymentTiming is the annotation of ElasticIPPaymentTiming
+	ServiceAnnotationElasticIPPaymentTiming = ServiceAnnotationElasticIPPrefix + "payment-timing"
+	// ServiceAnnotationElasticIPBillingMethod is the annotation of ElasticIPBillingMethod
+	ServiceAnnotationElasticIPBillingMethod = ServiceAnnotationElasticIPPrefix + "billing-method"
+	// ServiceAnnotationElasticIPBandwidthInMbps is the annotation of ElasticIPBandwidthInMbps
+	ServiceAnnotationElasticIPBandwidthInMbps = ServiceAnnotationElasticIPPrefix + "bandwidth-in-mbps"
+	// ServiceAnnotationElasticIPReservationLength is the annotation of ElasticIPReservationLength
+	ServiceAnnotationElasticIPReservationLength = ServiceAnnotationElasticIPPrefix + "reservation-length"
 )
 
 const (
-	NodeAnnotationPrefix          = "node.alpha.kubernetes.io/"
-	NodeAnnotationVpcId           = NodeAnnotationPrefix + "vpc-id"
+	// NodeAnnotationPrefix is the annotation prefix of Node
+	NodeAnnotationPrefix = "node.alpha.kubernetes.io/"
+	// NodeAnnotationVpcId is the annotation of VpcId on node
+	NodeAnnotationVpcId = NodeAnnotationPrefix + "vpc-id"
+	// NodeAnnotationVpcRouteTableId is the annotation of VpcRouteTableId on node
 	NodeAnnotationVpcRouteTableId = NodeAnnotationPrefix + "vpc-route-table-id"
-	NodeAnnotationVpcRouteRuleId  = NodeAnnotationPrefix + "vpc-route-rule-id"
+	// NodeAnnotationVpcRouteRuleId is the annotation of VpcRouteRuleId on node
+	NodeAnnotationVpcRouteRuleId = NodeAnnotationPrefix + "vpc-route-rule-id"
 )
 
-func ExtractAnnotationRequest(service *v1.Service) (*AnnotationRequest, *AnnotationRequest) {
-	glog.V(4).Infof("start to ExtractAnnotationRequest: %v", service.Annotations)
-	defaulted, request := &AnnotationRequest{}, &AnnotationRequest{}
+// ExtractServiceAnnotation extract annotations from service
+func ExtractServiceAnnotation(service *v1.Service) *ServiceAnnotation {
+	glog.V(4).Infof("start to ExtractServiceAnnotation: %v", service.Annotations)
+	result := &ServiceAnnotation{}
 	annotation := make(map[string]string)
 	for k, v := range service.Annotations {
 		annotation[k] = v
 	}
 
-	loadBalancerId, ok := annotation[ServiceAnnotationLoadBalancerId]
-	if ok {
-		defaulted.LoadBalancerId = loadBalancerId
-		request.LoadBalancerId = loadBalancerId
+	loadBalancerId, exist := annotation[ServiceAnnotationLoadBalancerId]
+	if exist {
+		result.LoadBalancerId = loadBalancerId
 	}
 
-	loadBalancerInternalVpc, ok := annotation[ServiceAnnotationLoadBalancerInternalVpc]
-	if ok {
-		defaulted.LoadBalancerInternalVpc = loadBalancerInternalVpc
-		request.LoadBalancerInternalVpc = loadBalancerInternalVpc
+	loadBalancerInternalVpc, exist := annotation[ServiceAnnotationLoadBalancerInternalVpc]
+	if exist {
+		result.LoadBalancerInternalVpc = loadBalancerInternalVpc
 	}
 
 	loadBalancerAllocateVip, ok := annotation[ServiceAnnotationLoadBalancerAllocateVip]
 	if ok {
-		defaulted.LoadBalancerAllocateVip = loadBalancerAllocateVip
-		request.LoadBalancerAllocateVip = loadBalancerAllocateVip
+		result.LoadBalancerAllocateVip = loadBalancerAllocateVip
 	}
 
-	return defaulted, request
+	elasticIPName, exist := annotation[ServiceAnnotationElasticIPName]
+	if exist {
+		result.ElasticIPName = elasticIPName
+	}
+
+	elasticIPPaymentTiming, exist := annotation[ServiceAnnotationElasticIPPaymentTiming]
+	if exist {
+		result.ElasticIPPaymentTiming = elasticIPPaymentTiming
+	}
+
+	elasticIPBillingMethod, exist := annotation[ServiceAnnotationElasticIPBillingMethod]
+	if exist {
+		result.ElasticIPBillingMethod = elasticIPBillingMethod
+	}
+
+	elasticIPBandwidthInMbps, exist := annotation[ServiceAnnotationElasticIPBandwidthInMbps]
+	if exist {
+		i, err := strconv.Atoi(elasticIPBandwidthInMbps)
+		if err != nil {
+			glog.V(4).Infof("ServiceAnnotationElasticIPBandwidthInMbps must be int")
+		} else {
+			result.ElasticIPBandwidthInMbps = i
+		}
+	}
+
+	elasticIPReservationLength, exist := annotation[ServiceAnnotationElasticIPReservationLength]
+	if exist {
+		i, err := strconv.Atoi(elasticIPReservationLength)
+		if err != nil {
+			glog.V(4).Infof("ServiceAnnotationElasticIPReservationLength must be int")
+		} else {
+			result.ElasticIPReservationLength = i
+		}
+	}
+
+	return result
 }
 
+// ExtractNodeAnnotation extract annotations from node
 func ExtractNodeAnnotation(node *v1.Node) *NodeAnnotation {
 	glog.V(4).Infof("start to ExtractNodeAnnotation: %v", node.Annotations)
 	result := &NodeAnnotation{}

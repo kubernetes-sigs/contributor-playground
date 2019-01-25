@@ -1,4 +1,4 @@
 # Use cce-cloud-controller-manager
 ```
-kubectl create -f cce-cloud-controller-manager-deployment.yaml
+kubectl create -f example-manifests/cce-cloud-controller-manager-deployment.yaml
 ```
