@@ -11,7 +11,7 @@ This functionality is implemented in-tree in the kube-controller-manger binary f
 
 ## Setup and Installation
 
-See docs/cce-cloud-controller-manager.md
+See [docs/cce-cloud-controller-manager.md](docs/cce-cloud-controller-manager.md)
 
 ## Usage
 
