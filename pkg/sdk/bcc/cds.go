@@ -44,7 +44,7 @@ type VolumeStatus string
 
 const (
 	VOLUMESTATUS_CREATE             VolumeStatus = "Creating"
-	VOLUMESTATUS_AVALIABLE          VolumeStatus = "Available"
+	VOLUMESTATUS_AVAILABLE          VolumeStatus = "Available"
 	VOLUMESTATUS_ATTACHING          VolumeStatus = "Attaching"
 	VOLUMESTATUS_NOTAVALIABLE       VolumeStatus = "NotAvailable"
 	VOLUMESTATUS_INUSE              VolumeStatus = "InUse"

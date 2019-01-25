@@ -27,7 +27,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/golang/glog"
 	"io"
 	"io/ioutil"
 	"log"
@@ -42,6 +41,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/golang/glog"
 )
 
 // GetURL gets the full URL for a http request.
@@ -365,6 +366,7 @@ func ToJson(i interface{}, keys ...string) ([]byte, error) {
 		}
 
 		byteArray, err = json.Marshal(m)
+		return byteArray, err
 	}
 
 	return byteArray, err
