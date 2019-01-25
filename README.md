@@ -13,9 +13,10 @@ This functionality is implemented in-tree in the kube-controller-manger binary f
 
 See docs/cce-cloud-controller-manager.md
 
-## Example
+## Usage
 
-See docs/tutorial.md
+- [English](docs/tutorial.md)
+- [中文](docs/tutorial_zh-CN.md)
 
 ## Releases
 The below combinations have been tested on CCE. We don't do cross version testing or compatibility testing in other environments. 
