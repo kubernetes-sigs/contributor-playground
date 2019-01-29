@@ -148,16 +148,16 @@ func (bc *Baiducloud) SetInformers(informerFactory informers.SharedInformerFacto
 	nodeInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			node := obj.(*v1.Node)
-			glog.V(3).Infof("nodeInformer node add: ", node.Name)
+			glog.V(3).Infof("nodeInformer node add: %v", node.Name)
 			// TODO: cache some node info
 		},
 		UpdateFunc: func(prev, obj interface{}) {
 			node := obj.(*v1.Node)
-			glog.V(3).Infof("nodeInformer node update: ", node.Name)
+			glog.V(5).Infof("nodeInformer node update: %v", node.Name)
 		},
 		DeleteFunc: func(obj interface{}) {
 			node := obj.(*v1.Node)
-			glog.V(3).Infof("nodeInformer node delete: ", node.Name)
+			glog.V(3).Infof("nodeInformer node delete: %v", node.Name)
 			// TODO: remove node info from cache
 		},
 	})
@@ -166,17 +166,17 @@ func (bc *Baiducloud) SetInformers(informerFactory informers.SharedInformerFacto
 	serviceInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			service := obj.(*v1.Service)
-			glog.V(3).Infof("serviceInformer service add: ", service.Name)
+			glog.V(3).Infof("serviceInformer service add: %v", service.Name)
 			// TODO: cache some service info
 		},
 		UpdateFunc: func(prev, obj interface{}) {
-			service := obj.(*v1.Node)
-			glog.V(3).Infof("serviceInformer service update: ", service.Name)
+			service := obj.(*v1.Service)
+			glog.V(3).Infof("serviceInformer service update: %v", service.Name)
 			// TODO:
 		},
 		DeleteFunc: func(obj interface{}) {
-			service := obj.(*v1.Node)
-			glog.V(3).Infof("serviceInformer service delete: ", service.Name)
+			service := obj.(*v1.Service)
+			glog.V(3).Infof("serviceInformer service delete: %v", service.Name)
 			// TODO: remove service info from cache
 		},
 	})

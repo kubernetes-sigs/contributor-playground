@@ -326,7 +326,7 @@ func (cnc *CloudNodeController) AddCloudNode(obj interface{}) {
 
 	cloudTaint := getCloudTaint(node.Spec.Taints)
 	if cloudTaint == nil {
-		glog.V(2).Infof("This node %s is registered without the cloud taint. Will not process.", node.Name)
+		glog.V(5).Infof("This node %s is registered without the cloud taint. Will not process.", node.Name)
 		return
 	}
 
