@@ -197,12 +197,12 @@ func (policy *DefaultRetryPolicy) shouldRetry(err error, retriesAttempted int) b
 
 	if bceError, ok := err.(*Error); ok {
 		if bceError.StatusCode == http.StatusInternalServerError {
-			log.Println("Retry for internal server error.")
+			log.Printf("Retry for internal server error: %v\n", err)
 			return true
 		}
 
 		if bceError.StatusCode == http.StatusServiceUnavailable {
-			log.Println("Retry for service unavailable.")
+			log.Printf("Retry for service unavailable: %v\n", err)
 			return true
 		}
 	} else {
