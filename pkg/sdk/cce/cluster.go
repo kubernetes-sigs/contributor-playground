@@ -48,7 +48,7 @@ type CceInstance struct {
 	CpuCount              int    `json:"cpu"`
 	GpuCount              int    `json:"gpu"`
 	MemoryCapacityInGB    int    `json:"memory"`
-	localDiskSizeInGB     int    `json:"localDiskSizeInGB"`
+	LocalDiskSizeInGB     int    `json:"localDiskSizeInGB"`
 	ImageId               string `json:"imageId"`
 	NetworkCapacityInMbps int    `json:"networkCapacityInMbps"`
 	PlacementPolicy       string `json:"placementPolicy"`

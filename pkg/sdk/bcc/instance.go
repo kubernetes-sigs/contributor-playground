@@ -49,7 +49,7 @@ type Instance struct {
 	CpuCount              int    `json:"cpuCount"`
 	GpuCount              int    `json:"gpuCount"`
 	MemoryCapacityInGB    int    `json:"memoryCapacityInGB"`
-	localDiskSizeInGB     int    `json:"localDiskSizeInGB"`
+	LocalDiskSizeInGB     int    `json:"localDiskSizeInGB"`
 	ImageId               string `json:"imageId"`
 	NetworkCapacityInMbps int    `json:"networkCapacityInMbps"`
 	PlacementPolicy       string `json:"placementPolicy"`
