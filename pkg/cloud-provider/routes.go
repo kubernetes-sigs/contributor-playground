@@ -64,13 +64,20 @@ func (bc *Baiducloud) ListRoutes(ctx context.Context, clusterName string) (route
 		var insName string
 		insName, ok := nodename[r.NexthopID]
 		if !ok {
-			glog.V(3).Infof("Instance name not exist: %s", r.NexthopID)
-			insName = "unknow"
+			continue
 		}
 		route := &cloudprovider.Route{
 			Name:            r.RouteRuleID,
 			DestinationCIDR: r.DestinationAddress,
 			TargetNode:      types.NodeName(insName),
+		}
+		vpcId, err := bc.getVpcID()
+		if err != nil {
+			return nil, err
+		}
+		err = bc.ensureRouteInfoToNode(string(route.TargetNode), vpcId, r.RouteTableID, r.RouteRuleID)
+		if err != nil {
+			return nil, err
 		}
 		kubeRoutes = append(kubeRoutes, route)
 	}

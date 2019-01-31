@@ -686,8 +686,6 @@ func (bc *Baiducloud) deleteListener(lb *blb.LoadBalancer, pl []PortListener) er
 	return nil
 }
 
-const DEFAULT_SERVER_WEIGHT = 100
-
 func (bc *Baiducloud) getAllBackendServer(lb *blb.LoadBalancer) ([]blb.BackendServer, error) {
 	args := blb.DescribeBackendServersArgs{
 		LoadBalancerId: lb.BlbId,
@@ -710,7 +708,7 @@ func (bc *Baiducloud) reconcileBackendServers(nodes []*v1.Node, lb *blb.LoadBala
 	if err != nil {
 		return err
 	}
-	removeList := []string{}
+	var removeList []string
 	// remove unexpected servers
 	for _, bs := range allBS {
 		_, exists := expectedServer[bs.InstanceId]
@@ -730,14 +728,13 @@ func (bc *Baiducloud) reconcileBackendServers(nodes []*v1.Node, lb *blb.LoadBala
 		}
 
 	}
-	addList := []blb.BackendServer{}
+	var addList []blb.BackendServer
 	// add expected servers
-	for insID, nodeName := range expectedServer {
+	for insID, _ := range expectedServer {
 		addList = append(addList, blb.BackendServer{
 			InstanceId: insID,
-			Weight:     DEFAULT_SERVER_WEIGHT,
+			Weight:     100,
 		})
-		glog.V(3).Infof("add node %s", nodeName)
 	}
 	if len(addList) > 0 {
 		args := blb.AddBackendServersArgs{
