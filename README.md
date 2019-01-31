@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/baidu/cloud-provider-baiducloud.svg?branch=master)](https://travis-ci.org/baidu/cloud-provider-baiducloud)
 [![Go Report Card](https://goreportcard.com/badge/github.com/baidu/cloud-provider-baiducloud)](https://goreportcard.com/report/github.com/baidu/cloud-provider-baiducloud)
 
-CCE Cloud Controller Manager is a [Kubernetes](https://github.com/kubernetes/kubernetes) Cloud Controller Manager implementation (or out-of-tree cloud-provider) for Cloud-Container-Engine(CCE) on BCE.
+CCE Cloud Controller Manager is a [Kubernetes](https://github.com/kubernetes/kubernetes) Cloud Controller Manager implementation (or out-of-tree cloud-provider) for Cloud-Container-Engine(CCE) on [Baidu Cloud](https://cloud.baidu.com).
 
 ## Introduction
 
