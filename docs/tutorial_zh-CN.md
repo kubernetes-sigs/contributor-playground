@@ -84,12 +84,11 @@ $ curl -i http://8.8.8.8
 kind: Service
 apiVersion: v1
 metadata:
-  name: nginx-service-eip-with-loadBalancerIP
+  name: nginx-service-eip-with-load-balancer-ip
 spec:
   selector:
-    app: nginx-eip-with-loadBalancerIP
+    app: nginx-eip-with-load-balancer-ip
   type: LoadBalancer
-  # 这里设置预先购买的EIP
   loadBalancerIP: 8.8.8.8
   ports:
   - name: nginx-port
@@ -100,13 +99,13 @@ spec:
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: nginx-deployment-eip-with-loadBalancerIP
+  name: nginx-deployment-eip-with-load-balancer-ip
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: nginx-set-loadBalancerIP
+        app: nginx-eip-with-load-balancer-ip
     spec:
       containers:
       - name: nginx
@@ -207,4 +206,4 @@ spec:
         ports:
         - containerPort: 80
 ```
-**注：仅限百度内部使用**
+**注：此VIP只能在百度内网使用，查询VIP请参考BLB的API**
