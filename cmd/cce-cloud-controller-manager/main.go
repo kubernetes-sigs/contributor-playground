@@ -37,6 +37,7 @@ import (
 	_ "k8s.io/kubernetes/pkg/version/prometheus" // for version metric registration
 	"k8s.io/kubernetes/pkg/version/verflag"
 
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-provider"
 	_ "k8s.io/cloud-provider-baiducloud/pkg/cloud-provider"
 )
 
@@ -44,6 +45,7 @@ var version string
 
 func init() {
 	healthz.DefaultHealthz()
+	cloud_provider.CCMVersion = version
 }
 
 func main() {
@@ -95,4 +97,8 @@ func NewCCECloudControllerManagerCommand() *cobra.Command {
 	defer logs.FlushLogs()
 
 	return cmd
+}
+
+func GetVersion() string {
+	return version
 }

@@ -1053,5 +1053,6 @@ func (bc *Baiducloud) deleteOldAndCreateNewEip(service *v1.Service, serviceAnnot
 func (bc *Baiducloud) resizeEip(service *v1.Service, serviceAnnotation *ServiceAnnotation, targetEip string) error {
 	return bc.clientSet.Eip().ResizeEip(&eip.ResizeEipArgs{
 		BandwidthInMbps: serviceAnnotation.ElasticIPBandwidthInMbps,
+		Ip:              targetEip,
 	})
 }

@@ -80,7 +80,11 @@ type NodeAnnotation struct {
 	VpcId           string
 	VpcRouteTableId string
 	VpcRouteRuleId  string
+	CCMVersion      string
 }
+
+// CCMVersion is the version of CCM
+var CCMVersion string
 
 func init() {
 	cloudprovider.RegisterCloudProvider(ProviderName, func(configReader io.Reader) (cloudprovider.Interface, error) {
