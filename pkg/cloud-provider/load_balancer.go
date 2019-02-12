@@ -232,8 +232,23 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 			return nil, err
 		}
 		if len(lbs) != 1 {
-			glog.V(3).Infof("[%v %v] EnsureLoadBalancer create blb failed: len(lbs) != 1", service.Namespace, service.Name)
-			return nil, fmt.Errorf("EnsureLoadBalancer create blb failed: len(lbs) != 1\n")
+			tryCount := 0
+			for {
+				tryCount ++
+				if tryCount > 10 {
+					return nil, fmt.Errorf("EnsureLoadBalancer create blb success but query get none")
+				}
+				glog.V(3).Infof("[%v %v] EnsureLoadBalancer create blb success but query get none, tryCount: ", service.Namespace, service.Name, tryCount)
+				lbs, err = bc.clientSet.Blb().DescribeLoadBalancers(&argsDesc)
+				if err != nil {
+					return nil, err
+				}
+				if len(lbs) == 1 {
+					glog.V(3).Infof("[%v %v] EnsureLoadBalancer create blb success and query get one, tryCount: ", service.Namespace, service.Name, tryCount)
+					break
+				}
+				time.Sleep(10 * time.Second)
+			}
 		}
 		lb = &lbs[0]
 		if service.Annotations == nil {

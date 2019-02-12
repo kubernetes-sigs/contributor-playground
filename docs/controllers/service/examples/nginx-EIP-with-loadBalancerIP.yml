@@ -2,10 +2,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: nginx-service-eip-with-loadBalancerIP
+  name: nginx-service-eip-with-load-balancer-ip
 spec:
   selector:
-    app: nginx-eip-with-loadBalancerIP
+    app: nginx-eip-with-load-balancer-ip
   type: LoadBalancer
   loadBalancerIP: 8.8.8.8
   ports:
@@ -17,13 +17,13 @@ spec:
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: nginx-deployment-eip-with-loadBalancerIP
+  name: nginx-deployment-eip-with-load-balancer-ip
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: nginx-set-loadBalancerIP
+        app: nginx-eip-with-load-balancer-ip
     spec:
       containers:
       - name: nginx
