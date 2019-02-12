@@ -222,6 +222,9 @@ func (bc *Baiducloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vp
 	if nodeAnnotation.VpcRouteRuleId != vpcRouteRuleId {
 		curNode.Annotations[NodeAnnotationVpcRouteRuleId] = vpcRouteRuleId
 	}
+	if nodeAnnotation.CCMVersion != CCMVersion {
+		curNode.Annotations[NodeAnnotationCCMVersion] = CCMVersion
+	}
 	_, err = bc.kubeClient.CoreV1().Nodes().Update(curNode)
 	if err != nil {
 		return err

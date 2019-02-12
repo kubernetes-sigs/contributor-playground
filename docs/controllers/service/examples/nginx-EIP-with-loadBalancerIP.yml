@@ -7,7 +7,6 @@ spec:
   selector:
     app: nginx-eip-with-loadBalancerIP
   type: LoadBalancer
-  # here set your own EIP
   loadBalancerIP: 8.8.8.8
   ports:
   - name: nginx-port

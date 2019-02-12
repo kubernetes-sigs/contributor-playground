@@ -4,9 +4,9 @@ apiVersion: v1
 metadata:
   name: nginx-service-eip-prepaid
   annotations:
-      service.beta.kubernetes.io/cce-elastic-ip-payment-timing: "Prepaid",
-      service.beta.kubernetes.io/cce-elastic-ip-bandwidth-in-mbps: "200" ,
-      service.beta.kubernetes.io/cce-elastic-ip-reservation-length: "36"
+    service.beta.kubernetes.io/cce-elastic-ip-payment-timing: "Prepaid"
+    service.beta.kubernetes.io/cce-elastic-ip-bandwidth-in-mbps: "200"
+    service.beta.kubernetes.io/cce-elastic-ip-reservation-length: "36"
 spec:
   selector:
     app: nginx-eip-prepaid

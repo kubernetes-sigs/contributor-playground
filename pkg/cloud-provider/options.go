@@ -55,6 +55,9 @@ const (
 	NodeAnnotationVpcRouteTableId = NodeAnnotationPrefix + "vpc-route-table-id"
 	// NodeAnnotationVpcRouteRuleId is the annotation of VpcRouteRuleId on node
 	NodeAnnotationVpcRouteRuleId = NodeAnnotationPrefix + "vpc-route-rule-id"
+
+	// NodeAnnotationCCMVersion is the version of CCM
+	NodeAnnotationCCMVersion = NodeAnnotationPrefix + "ccm-version"
 )
 
 // ExtractServiceAnnotation extract annotations from service
@@ -80,6 +83,9 @@ func ExtractServiceAnnotation(service *v1.Service) *ServiceAnnotation {
 	if ok {
 		result.LoadBalancerAllocateVip = loadBalancerAllocateVip
 	}
+
+	// TODO: return here because below is not supported currently
+	return result
 
 	elasticIPName, exist := annotation[ServiceAnnotationElasticIPName]
 	if exist {
@@ -141,6 +147,11 @@ func ExtractNodeAnnotation(node *v1.Node) *NodeAnnotation {
 	vpcRouteRuleId, ok := annotation[NodeAnnotationVpcRouteRuleId]
 	if ok {
 		result.VpcRouteRuleId = vpcRouteRuleId
+	}
+
+	ccmVersion, ok := annotation[NodeAnnotationCCMVersion]
+	if ok {
+		result.CCMVersion = ccmVersion
 	}
 
 	return result
