@@ -348,10 +348,11 @@ func (bc *Baiducloud) ensureEIPWithNoSpecificIP(ctx context.Context, clusterName
 		if (len(serviceAnnotation.ElasticIPPaymentTiming) != 0 && serviceAnnotation.ElasticIPPaymentTiming != targetEip.PaymentTiming) ||
 			(len(serviceAnnotation.ElasticIPBillingMethod) != 0 && serviceAnnotation.ElasticIPBillingMethod != targetEip.BillingMethod) {
 			glog.V(3).Infof("[%v %v] EnsureLoadBalancer: EIP config change, need delete old eip and create new one", service.Namespace, service.Name)
-			pubIP, err = bc.deleteOldAndCreateNewEip(service, serviceAnnotation, pubIP, lb)
-			if err != nil {
-				return "", err
-			}
+			//pubIP, err = bc.deleteOldAndCreateNewEip(service, serviceAnnotation, pubIP, lb)
+			//if err != nil {
+			//	return "", err
+			//}
+			return "", fmt.Errorf("not support change ElasticIP PaymentTiming or ElasticIP BillingMethod, you can delete old and create a new one")
 		}
 		if serviceAnnotation.ElasticIPBandwidthInMbps != 0 && serviceAnnotation.ElasticIPBandwidthInMbps != targetEip.BandwidthInMbps {
 			glog.V(3).Infof("[%v %v] EnsureLoadBalancer: EIP config change, need change ElasticIPBandwidthInMbps", service.Namespace, service.Name)

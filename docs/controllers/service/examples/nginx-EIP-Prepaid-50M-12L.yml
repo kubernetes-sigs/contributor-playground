@@ -2,14 +2,14 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: nginx-service-eip-prepaid
+  name: nginx-service-eip-prepaid-50m-12l
   annotations:
     service.beta.kubernetes.io/cce-elastic-ip-payment-timing: "Prepaid"
     service.beta.kubernetes.io/cce-elastic-ip-bandwidth-in-mbps: "200"
     service.beta.kubernetes.io/cce-elastic-ip-reservation-length: "36"
 spec:
   selector:
-    app: nginx-eip-prepaid
+    app: nginx-eip-prepaid-50m-12l
   type: LoadBalancer
   ports:
   - name: nginx-port
@@ -20,13 +20,13 @@ spec:
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: nginx-deployment-eip-prepaid
+  name: nginx-deployment-eip-prepaid-50m-12l
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: nginx-eip-prepaid
+        app: nginx-eip-prepaid-50m-12l
     spec:
       containers:
       - name: nginx

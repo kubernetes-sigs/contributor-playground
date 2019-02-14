@@ -84,9 +84,6 @@ func ExtractServiceAnnotation(service *v1.Service) *ServiceAnnotation {
 		result.LoadBalancerAllocateVip = loadBalancerAllocateVip
 	}
 
-	// TODO: return here because below is not supported currently
-	return result
-
 	elasticIPName, exist := annotation[ServiceAnnotationElasticIPName]
 	if exist {
 		result.ElasticIPName = elasticIPName
