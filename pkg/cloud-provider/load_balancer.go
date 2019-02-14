@@ -348,6 +348,7 @@ func (bc *Baiducloud) ensureEIPWithNoSpecificIP(ctx context.Context, clusterName
 		if (len(serviceAnnotation.ElasticIPPaymentTiming) != 0 && serviceAnnotation.ElasticIPPaymentTiming != targetEip.PaymentTiming) ||
 			(len(serviceAnnotation.ElasticIPBillingMethod) != 0 && serviceAnnotation.ElasticIPBillingMethod != targetEip.BillingMethod) {
 			glog.V(3).Infof("[%v %v] EnsureLoadBalancer: EIP config change, need delete old eip and create new one", service.Namespace, service.Name)
+			// TODO
 			//pubIP, err = bc.deleteOldAndCreateNewEip(service, serviceAnnotation, pubIP, lb)
 			//if err != nil {
 			//	return "", err
@@ -972,6 +973,9 @@ func (bc *Baiducloud) getEipCreateArgsFromAnnotation(serviceAnnotation *ServiceA
 	reservationLength := serviceAnnotation.ElasticIPReservationLength
 	switch paymentTiming {
 	case eip.PAYMENTTIMING_PREPAID:
+		// TODO
+		return nil, fmt.Errorf("not support Prepaid EIP")
+
 		if len(serviceAnnotation.ElasticIPBillingMethod) != 0 {
 			return nil, fmt.Errorf("when using Prepaid EIP, do not need to set ElasticIPBillingMethod")
 		}
