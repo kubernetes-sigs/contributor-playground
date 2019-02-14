@@ -40,7 +40,7 @@ type Eip struct {
 }
 type Billing struct {
 	PaymentTiming string       `json:"paymentTiming"`
-	BillingMethod string       `json:"billingMethod"`
+	BillingMethod string       `json:"billingMethod,omitempty"`
 	Reservation   *Reservation `json:"reservation"`
 }
 
