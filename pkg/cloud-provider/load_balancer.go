@@ -97,6 +97,17 @@ func (bc *Baiducloud) EnsureLoadBalancer(ctx context.Context, clusterName string
 	// ensure EIP
 	pubIP, err := bc.ensureEIP(ctx, clusterName, service, nodes, result, lb)
 	if err != nil {
+		glog.V(3).Infof("[%v %v] EnsureLoadBalancer: ensureEIP failed, so delete BLB. ensureEIP error: %s", service.Namespace, service.Name, err)
+		args := blb.DeleteLoadBalancerArgs{
+			LoadBalancerId: lb.BlbId,
+		}
+		deleteLoadBalancerErr := bc.clientSet.Blb().DeleteLoadBalancer(&args)
+		if deleteLoadBalancerErr != nil {
+			glog.V(3).Infof("[%v %v] EnsureLoadBalancer: delete BLB error: %s", service.Namespace, service.Name, deleteLoadBalancerErr)
+		}
+		if service.Annotations != nil {
+			delete(service.Annotations, ServiceAnnotationLoadBalancerId)
+		}
 		return nil, err
 	}
 
@@ -357,6 +368,12 @@ func (bc *Baiducloud) ensureEIPWithNoSpecificIP(ctx context.Context, clusterName
 		}
 		if serviceAnnotation.ElasticIPBandwidthInMbps != 0 && serviceAnnotation.ElasticIPBandwidthInMbps != targetEip.BandwidthInMbps {
 			glog.V(3).Infof("[%v %v] EnsureLoadBalancer: EIP config change, need change ElasticIPBandwidthInMbps", service.Namespace, service.Name)
+			// just validate args
+			_, err := bc.getEipCreateArgsFromAnnotation(serviceAnnotation)
+			if err != nil {
+				glog.Errorf("[%v %v] Eip Args error: %v", service.Namespace, service.Name, err)
+				return "", err
+			}
 			err = bc.resizeEip(service, serviceAnnotation, pubIP)
 			if err != nil {
 				return "", err
@@ -795,7 +812,7 @@ func (bc *Baiducloud) createEIP(args *eip.CreateEipArgs, lb *blb.LoadBalancer) (
 		}
 		glog.V(3).Infof("Eip status is: %s", eipStatus)
 	}
-	lb.Status = "unknown" //add here to do loop
+	lb.Status = "unknown" // add here to do loop
 	for index := 0; (index < 10) && (lb.Status != "available"); index++ {
 		glog.V(3).Infof("BLB: %s is not available, retry:  %d", lb.BlbId, index)
 		time.Sleep(10 * time.Second)
@@ -859,6 +876,7 @@ func (bc *Baiducloud) deleteEIP(ip string) error {
 }
 
 func (bc *Baiducloud) waitForLoadBalancer(lb *blb.LoadBalancer) (*blb.LoadBalancer, error) {
+	lb.Status = "unknown" // add here to do loop
 	for index := 0; (index < 10) && (lb.Status != "available"); index++ {
 		glog.V(3).Infof("BLB: %s is not available, retry:  %d", lb.BlbId, index)
 		time.Sleep(10 * time.Second)
@@ -973,9 +991,6 @@ func (bc *Baiducloud) getEipCreateArgsFromAnnotation(serviceAnnotation *ServiceA
 	reservationLength := serviceAnnotation.ElasticIPReservationLength
 	switch paymentTiming {
 	case eip.PAYMENTTIMING_PREPAID:
-		// TODO
-		return nil, fmt.Errorf("not support Prepaid EIP")
-
 		if len(serviceAnnotation.ElasticIPBillingMethod) != 0 {
 			return nil, fmt.Errorf("when using Prepaid EIP, do not need to set ElasticIPBillingMethod")
 		}
