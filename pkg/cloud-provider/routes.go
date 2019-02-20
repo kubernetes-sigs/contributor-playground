@@ -19,6 +19,7 @@ package cloud_provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/golang/glog"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -81,6 +82,7 @@ func (bc *Baiducloud) ListRoutes(ctx context.Context, clusterName string) (route
 		}
 		kubeRoutes = append(kubeRoutes, route)
 	}
+	glog.V(3).Infof("ListRoutes: %v", kubeRoutes)
 	return kubeRoutes, nil
 }
 
@@ -207,6 +209,10 @@ func (bc *Baiducloud) getVpcRouteTable() ([]vpc.RouteRule, error) {
 func (bc *Baiducloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vpcRouteRuleId string) error {
 	curNode, err := bc.kubeClient.CoreV1().Nodes().Get(nodeName, metav1.GetOptions{})
 	if err != nil {
+		// skip unreachable node
+		if strings.Contains(err.Error(), "not found") {
+			return nil
+		}
 		return err
 	}
 	if curNode.Annotations == nil {
