@@ -1,1 +1,0 @@
-I would like to use this for a demo for my coworkers and to troubleshoot potential tricky use cases for KubeCon.
