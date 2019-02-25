@@ -26,6 +26,13 @@ The below combinations have been tested on CCE. We don't do cross version testin
 |--------|--------|
 | v1.11.x | v1.0.x  |
 
+## Contribution
+Thank you for considering to help out with the source code! We welcome contributions from anyone on the internet, and are grateful for even the smallest of fixes!
+
+If you'd like to contribute, please fork, fix, commit and send a pull request for the maintainers to review and merge into the main code base.
+
+Please see the [Wiki](https://github.com/baidu/cloud-provider-baiducloud/wiki) for more details. 
+
 ## License
 
 Licensed under the Apache License, Version 2.0 (the "License");
