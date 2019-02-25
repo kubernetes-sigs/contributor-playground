@@ -30,6 +30,7 @@ const (
 	ServiceAnnotationLoadBalancerId = ServiceAnnotationLoadBalancerPrefix + "id"
 	// ServiceAnnotationLoadBalancerInternalVpc is the annotation of LoadBalancerInternalVpc
 	ServiceAnnotationLoadBalancerInternalVpc = ServiceAnnotationLoadBalancerPrefix + "internal-vpc"
+	// ServiceAnnotationLoadBalancerAllocateVip is the annotation which indicates BLB with a VIP
 	ServiceAnnotationLoadBalancerAllocateVip = ServiceAnnotationLoadBalancerPrefix + "allocate-vip"
 
 	// ServiceAnnotationElasticIPPrefix is the annotation prefix of ElasticIP
