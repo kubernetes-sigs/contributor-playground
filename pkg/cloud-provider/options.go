@@ -32,6 +32,19 @@ const (
 	ServiceAnnotationLoadBalancerInternalVpc = ServiceAnnotationLoadBalancerPrefix + "internal-vpc"
 	// ServiceAnnotationLoadBalancerAllocateVip is the annotation which indicates BLB with a VIP
 	ServiceAnnotationLoadBalancerAllocateVip = ServiceAnnotationLoadBalancerPrefix + "allocate-vip"
+	// ServiceAnnotationLoadBalancerScheduler is the annotation of load balancer which can be "RoundRobin"/"LeastConnection"/"Hash"
+	ServiceAnnotationLoadBalancerScheduler = ServiceAnnotationLoadBalancerPrefix + "scheduler"
+	// ServiceAnnotationLoadBalancerHealthCheckTimeoutInSecond is the annotation of health check timeout
+	ServiceAnnotationLoadBalancerHealthCheckTimeoutInSecond = ServiceAnnotationLoadBalancerPrefix + "health-check-timeout-in-second"
+	// ServiceAnnotationLoadBalancerHealthCheckInterval is the annotation of health check interval
+	ServiceAnnotationLoadBalancerHealthCheckInterval = ServiceAnnotationLoadBalancerPrefix + "health-check-interval"
+	// ServiceAnnotationLoadBalancerUnhealthyThreshold is the annotation of unhealthy threshold
+	ServiceAnnotationLoadBalancerUnhealthyThreshold = ServiceAnnotationLoadBalancerPrefix + "unhealthy-threshold"
+	// ServiceAnnotationLoadBalancerHealthyThreshold is the annotation of healthy threshold
+	ServiceAnnotationLoadBalancerHealthyThreshold = ServiceAnnotationLoadBalancerPrefix + "healthy-threshold"
+	// ServiceAnnotationLoadBalancerHealthCheckString is the annotation of health check string
+	ServiceAnnotationLoadBalancerHealthCheckString = ServiceAnnotationLoadBalancerPrefix + "health-check-string"
+	
 
 	// ServiceAnnotationElasticIPPrefix is the annotation prefix of ElasticIP
 	ServiceAnnotationElasticIPPrefix = "service.beta.kubernetes.io/cce-elastic-ip-"
