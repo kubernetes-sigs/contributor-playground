@@ -17,14 +17,14 @@ See [docs/cce-cloud-controller-manager.md](docs/cce-cloud-controller-manager.md)
 ## Usage
 
 - [English](docs/tutorial.md)
-- [中文](docs/tutorial_zh-CN.md)
+- [中文](docs/release-tutorial_zh-CN.md)
 
 ## Releases
 The below combinations have been tested on CCE. We don't do cross version testing or compatibility testing in other environments. 
 
 | Kubernetes Version  | CCM Version   |
 |--------|--------|
-| [v1.11.5](https://github.com/kubernetes/kubernetes/releases/tag/v1.11.5) | [v1.0.3](https://github.com/baidu/cloud-provider-baiducloud/releases/tag/v1.0.3)  |
+| v1.11.x | v1.0.x  |
 
 ## License
 

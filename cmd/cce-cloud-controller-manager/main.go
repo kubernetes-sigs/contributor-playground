@@ -52,7 +52,7 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	c := NewCCECloudControllerManagerCommand()
 
-	glog.V(1).Infof("cce-cloud-controller-manager version: %s", version)
+	glog.V(1).Infof("CCE Cloud-Controller-Manager version: %s", version)
 
 	if err := c.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
