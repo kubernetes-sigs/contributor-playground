@@ -82,7 +82,6 @@ func (bc *Baiducloud) ListRoutes(ctx context.Context, clusterName string) (route
 		}
 		kubeRoutes = append(kubeRoutes, route)
 	}
-	glog.V(3).Infof("ListRoutes: %v", kubeRoutes)
 	return kubeRoutes, nil
 }
 

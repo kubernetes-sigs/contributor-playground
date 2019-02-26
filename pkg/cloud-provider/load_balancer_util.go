@@ -48,8 +48,21 @@ func (bc *Baiducloud) validateService(service *v1.Service) error {
 		return fmt.Errorf("requested load balancer with no ports")
 	}
 	for _, port := range service.Spec.Ports {
-		if port.Protocol != v1.ProtocolTCP && port.Protocol != v1.ProtocolUDP {
-			return fmt.Errorf("only TCP,UDP LoadBalancer is supported for Baidu CCE")
+		switch port.Protocol {
+		case "TCP":
+			continue
+		case "UDP":
+			if EnableUDPLBService {
+				continue
+			} else {
+				return fmt.Errorf("UDP is not supported")
+			}
+		case "HTTP":
+			return fmt.Errorf("UDP is not supported")
+		case "HTTPS":
+			return fmt.Errorf("UDP is not supported")
+		default:
+			return fmt.Errorf("target protocol is not supported: %v", port.Protocol)
 		}
 	}
 	return nil

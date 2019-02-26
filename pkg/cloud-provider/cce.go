@@ -41,6 +41,11 @@ const ProviderName = "cce"
 // CceUserAgent is prefix of http header UserAgent
 const CceUserAgent = "cce-k8s:"
 
+// HardSwitch
+const (
+	EnableUDPLBService = false
+)
+
 // Baiducloud defines the main struct
 type Baiducloud struct {
 	CloudConfig
