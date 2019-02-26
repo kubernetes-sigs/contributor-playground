@@ -32,7 +32,7 @@ import (
 	"strings"
 	"time"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/util"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/util"
 )
 
 const (
@@ -46,7 +46,7 @@ const (
 //
 // We can change it by specifying the UserAgent field of bce.Config.
 var DefaultUserAgent = strings.Join([]string{
-	"baidubce-sdk-go",
+	"baidubce-cloud-sdk-go",
 	Version,
 	runtime.GOOS,
 	runtime.Version(),

@@ -14,16 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package blb
+package cce
 
 import (
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
 )
 
 // Endpoint contains all endpoints of Baidu Cloud BCC.
 var Endpoint = map[string]string{
-	"bj": "blb.bj.baidubce.com",
-	"gz": "blb.gz.baidubce.com",
+	"bj": "bcc.bj.baidubce.com",
+	"gz": "bcc.gz.baidubce.com",
 }
 
 // Config contains all options for bos.Client.
@@ -40,17 +40,20 @@ type Client struct {
 	*bce.Client
 }
 
-func NewBLBClient(config *Config) *Client {
+func NewClient(config *Config) *Client {
 	bceClient := bce.NewClient(config.Config)
 	return &Client{bceClient}
 }
 
 // GetURL generates the full URL of http request for Baidu Cloud BOS API.
-func (c *Client) GetURL(version string, params map[string]string) string {
+func (c *Client) GetURL(objectKey string, params map[string]string) string {
 	host := c.Endpoint
+
 	if host == "" {
 		host = Endpoint[c.GetRegion()]
 	}
-	uriPath := version
+
+	uriPath := objectKey
+
 	return c.Client.GetURL(host, uriPath, params)
 }

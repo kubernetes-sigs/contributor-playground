@@ -21,7 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
 )
 
 type Volume struct {

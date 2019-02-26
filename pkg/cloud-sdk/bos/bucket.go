@@ -26,8 +26,8 @@ import (
 	"strings"
 	"time"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/util"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/util"
 )
 
 // MIN_PART_NUMBER is the min part number for multipart upload.

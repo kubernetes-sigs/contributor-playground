@@ -20,12 +20,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-
 	"strconv"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
 )
 
+// TCPListener define TCPListener
 type TCPListener struct {
 	ListenerPort               int    `json:"listenerPort"`
 	BackendPort                int    `json:"backendPort"`
@@ -36,6 +36,7 @@ type TCPListener struct {
 	HealthyThreshold           int    `json:"healthyThreshold"`
 }
 
+// UDPListener define UDPListener
 type UDPListener struct {
 	ListenerPort               int    `json:"listenerPort"`
 	BackendPort                int    `json:"backendPort"`
@@ -47,6 +48,7 @@ type UDPListener struct {
 	HealthCheckString          string `json:"healthCheckString"`
 }
 
+// HTTPListener define HTTPListener
 type HTTPListener struct {
 	ListenerPort               int    `json:"listenerPort"`
 	BackendPort                int    `json:"backendPort"`
@@ -68,6 +70,7 @@ type HTTPListener struct {
 	RedirectPort               int    `json:"redirectPort"`
 }
 
+// HTTPSListener define HTTPSListener
 type HTTPSListener struct {
 	ListenerPort               int      `json:"listenerPort"`
 	BackendPort                int      `json:"backendPort"`
@@ -90,6 +93,7 @@ type HTTPSListener struct {
 	Ie6Compatible              bool     `json:"ie6Compatible"`
 }
 
+// CreateTCPListenerArgs is the args to create TCPListener
 type CreateTCPListenerArgs struct {
 	LoadBalancerId             string `json:"-"`
 	ListenerPort               int    `json:"listenerPort"`
@@ -101,6 +105,7 @@ type CreateTCPListenerArgs struct {
 	HealthyThreshold           int    `json:"healthyThreshold,omitempty"`
 }
 
+// CreateUDPListenerArgs is the args to create UDPListener
 type CreateUDPListenerArgs struct {
 	LoadBalancerId             string `json:"-"`
 	ListenerPort               int    `json:"listenerPort"`
@@ -113,6 +118,7 @@ type CreateUDPListenerArgs struct {
 	HealthCheckString          string `json:"healthCheckString"`
 }
 
+// CreateHTTPListenerArgs is the args to create HTTPListener
 type CreateHTTPListenerArgs struct {
 	LoadBalancerId             string `json:"-"`
 	ListenerPort               int    `json:"listenerPort"`
@@ -135,8 +141,92 @@ type CreateHTTPListenerArgs struct {
 	RedirectPort               int    `json:"redirectPort,omitempty"`
 }
 
-// CreateLoadBalancerHTTPListener create HTTP listener on loadbalancer
-// You can read doc at https://cloud.baidu.com/doc/BLB/API.html#.C0.F3.F3.ED.5C.D8.4D.66.19.FF.DA.7A.0F.75.05.7C
+// CreateHTTPSListenerArgs is the args to create HTTPSListener
+type CreateHTTPSListenerArgs struct {
+	LoadBalancerId             string `json:"-"`
+	ListenerPort               int    `json:"listenerPort"`
+	BackendPort                int    `json:"backendPort"`
+	Scheduler                  string `json:"scheduler"`
+	KeepSession                bool   `json:"keepSession,omitempty"`
+	KeepSessionType            string `json:"keepSessionType,omitempty"`
+	KeepSessionDuration        int    `json:"keepSessionDuration,omitempty"`
+	KeepSessionCookieName      int    `json:"keepSessionCookieName,omitempty"`
+	XForwardFor                bool   `json:"xForwardFor,omitempty"`
+	HealthCheckType            string `json:"healthCheckType,omitempty"`
+	HealthCheckPort            int    `json:"healthCheckPort,omitempty"`
+	HealthCheckURI             string `json:"healthCheckURI,omitempty"`
+	HealthCheckTimeoutInSecond int    `json:"healthCheckTimeoutInSecond,omitempty"`
+	HealthCheckInterval        int    `json:"healthCheckInterval,omitempty"`
+	UnhealthyThreshold         int    `json:"unhealthyThreshold,omitempty"`
+	HealthyThreshold           int    `json:"healthyThreshold,omitempty"`
+	HealthCheckNormalStatus    string `json:"healthCheckNormalStatus,omitempty"`
+	ServerTimeout              int    `json:"serverTimeout,omitempty"`
+	CertIds                    []int  `json:"certIds,omitempty"`
+	Ie6Compatible              bool   `json:"ie6Compatible"`
+}
+
+// DescribeTCPListenerArgs is the args to describe TCPListener
+type DescribeTCPListenerArgs struct {
+	LoadBalancerId string
+	ListenerPort   int
+}
+
+// DescribeTCPListenerResponse is the response of DescribeTCPListener
+type DescribeTCPListenerResponse struct {
+	Marker          string        `json:"marker"`
+	IsTruncated     bool          `json:"isTruncated"`
+	NextMarker      string        `json:"nextMarker"`
+	MaxKeys         int           `json:"maxKeys"`
+	TCPListenerList []TCPListener `json:"listenerList"`
+}
+
+// DescribeUDPListenerArgs is the args to describe UDPListener
+type DescribeUDPListenerArgs struct {
+	LoadBalancerId string
+	ListenerPort   int
+}
+
+// DescribeUDPListenerResponse is the response of DescribeUDPListener
+type DescribeUDPListenerResponse struct {
+	Marker          string        `json:"marker"`
+	IsTruncated     bool          `json:"isTruncated"`
+	NextMarker      string        `json:"nextMarker"`
+	MaxKeys         int           `json:"maxKeys"`
+	UDPListenerList []UDPListener `json:"listenerList"`
+}
+
+// UpdateTCPListenerArgs is the args to UpdateTCPListener
+type UpdateTCPListenerArgs struct {
+	LoadBalancerId             string `json:"-"`
+	ListenerPort               int    `json:"-"`
+	BackendPort                int    `json:"backendPort,omitempty"`
+	Scheduler                  string `json:"scheduler,omitempty"`
+	HealthCheckTimeoutInSecond int    `json:"healthCheckTimeoutInSecond,omitempty"`
+	HealthCheckInterval        int    `json:"healthCheckInterval,omitempty"`
+	UnhealthyThreshold         int    `json:"unhealthyThreshold,omitempty"`
+	HealthyThreshold           int    `json:"healthyThreshold,omitempty"`
+}
+
+// UpdateUDPListenerArgs is the args to update UDPListener
+type UpdateUDPListenerArgs struct {
+	LoadBalancerId             string `json:"-"`
+	ListenerPort               int    `json:"listenerPort"`
+	BackendPort                int    `json:"backendPort"`
+	Scheduler                  string `json:"scheduler"`
+	HealthCheckTimeoutInSecond int    `json:"healthCheckTimeoutInSecond,omitempty"`
+	HealthCheckInterval        int    `json:"healthCheckInterval,omitempty"`
+	UnhealthyThreshold         int    `json:"unhealthyThreshold,omitempty"`
+	HealthyThreshold           int    `json:"healthyThreshold,omitempty"`
+	HealthCheckString          string `json:"healthCheckString"`
+}
+
+// DeleteListenersArgs is the args to DeleteListeners
+type DeleteListenersArgs struct {
+	LoadBalancerId string `json:"-"`
+	PortList       []int  `json:"portList"`
+}
+
+// CreateTCPListener create TCP listener on loadbalancer
 func (c *Client) CreateTCPListener(args *CreateTCPListenerArgs) (err error) {
 	params := map[string]string{
 		"clientToken": c.GenerateClientToken(),
@@ -159,9 +249,7 @@ func (c *Client) CreateTCPListener(args *CreateTCPListenerArgs) (err error) {
 	return nil
 }
 
-// CreateLoadBalancerUDPListener create UDP listener on loadbalancer
-//
-// You can read doc at https://cloud.baidu.com/doc/BLB/API.html#.D7.A3.9B.E1.45.BD.9E.FA.B0.2F.60.12.B3.39.E8.9D
+// CreateUDPListener create UDP listener on loadbalancer
 func (c *Client) CreateUDPListener(args *CreateUDPListenerArgs) (err error) {
 	params := map[string]string{
 		"clientToken": c.GenerateClientToken(),
@@ -185,8 +273,6 @@ func (c *Client) CreateUDPListener(args *CreateUDPListenerArgs) (err error) {
 }
 
 // CreateHTTPListener create HTTP listener on loadbalancer
-//
-// You can read doc at https://cloud.baidu.com/doc/BLB/API.html#.D7.A3.9B.E1.45.BD.9E.FA.B0.2F.60.12.B3.39.E8.9D
 func (c *Client) CreateHTTPListener(args *CreateHTTPListenerArgs) (err error) {
 	params := map[string]string{
 		"clientToken": c.GenerateClientToken(),
@@ -209,20 +295,7 @@ func (c *Client) CreateHTTPListener(args *CreateHTTPListenerArgs) (err error) {
 	return nil
 }
 
-type DescribeTCPListenerArgs struct {
-	LoadBalancerId string
-	ListenerPort   int
-}
-type DescribeTCPListenerResponse struct {
-	Marker          string        `json:"marker"`
-	IsTruncated     bool          `json:"isTruncated"`
-	NextMarker      string        `json:"nextMarker"`
-	MaxKeys         int           `json:"maxKeys"`
-	TCPListenerList []TCPListener `json:"listenerList"`
-}
-
 // DescribeTCPListener Describe TCPListener
-// TODO: args need to validate
 func (c *Client) DescribeTCPListener(args *DescribeTCPListenerArgs) ([]TCPListener, error) {
 	if args == nil {
 		return nil, fmt.Errorf("DescribeTCPListener need args")
@@ -257,20 +330,7 @@ func (c *Client) DescribeTCPListener(args *DescribeTCPListenerArgs) ([]TCPListen
 	return blbsResp.TCPListenerList, nil
 }
 
-type DescribeUDPListenerArgs struct {
-	LoadBalancerId string
-	ListenerPort   int
-}
-type DescribeUDPListenerResponse struct {
-	Marker          string        `json:"marker"`
-	IsTruncated     bool          `json:"isTruncated"`
-	NextMarker      string        `json:"nextMarker"`
-	MaxKeys         int           `json:"maxKeys"`
-	UDPListenerList []UDPListener `json:"listenerList"`
-}
-
 // DescribeUDPListeners Describe UDPListeners
-// TODO: args need to validate
 func (c *Client) DescribeUDPListener(args *DescribeUDPListenerArgs) ([]UDPListener, error) {
 	if args == nil {
 		return nil, fmt.Errorf("DescribeUDPListeners need args")
@@ -305,19 +365,7 @@ func (c *Client) DescribeUDPListener(args *DescribeUDPListenerArgs) ([]UDPListen
 	return blbsResp.UDPListenerList, nil
 }
 
-type UpdateTCPListenerArgs struct {
-	LoadBalancerId             string `json:"-"`
-	ListenerPort               int    `json:"-"`
-	BackendPort                int    `json:"backendPort,omitempty"`
-	Scheduler                  string `json:"scheduler,omitempty"`
-	HealthCheckTimeoutInSecond int    `json:"healthCheckTimeoutInSecond,omitempty"`
-	HealthCheckInterval        int    `json:"healthCheckInterval,omitempty"`
-	UnhealthyThreshold         int    `json:"unhealthyThreshold,omitempty"`
-	HealthyThreshold           int    `json:"healthyThreshold,omitempty"`
-}
-
 // UpdateTCPListener update a TCPListener
-// TODO: args need to validate
 func (c *Client) UpdateTCPListener(args *UpdateTCPListenerArgs) error {
 
 	if args == nil || args.LoadBalancerId == "" || args.ListenerPort == 0 {
@@ -342,18 +390,6 @@ func (c *Client) UpdateTCPListener(args *UpdateTCPListenerArgs) error {
 		return err
 	}
 	return nil
-}
-
-type UpdateUDPListenerArgs struct {
-	LoadBalancerId             string `json:"-"`
-	ListenerPort               int    `json:"listenerPort"`
-	BackendPort                int    `json:"backendPort"`
-	Scheduler                  string `json:"scheduler"`
-	HealthCheckTimeoutInSecond int    `json:"healthCheckTimeoutInSecond,omitempty"`
-	HealthCheckInterval        int    `json:"healthCheckInterval,omitempty"`
-	UnhealthyThreshold         int    `json:"unhealthyThreshold,omitempty"`
-	HealthyThreshold           int    `json:"healthyThreshold,omitempty"`
-	HealthCheckString          string `json:"healthCheckString"`
 }
 
 func (args *UpdateUDPListenerArgs) validate() error {
@@ -399,12 +435,6 @@ func (c *Client) UpdateUDPListener(args *UpdateUDPListenerArgs) error {
 	return nil
 }
 
-type DeleteListenersArgs struct {
-	LoadBalancerId string `json:"-"`
-	// action         string `json:"-"`
-	PortList []int `json:"portList"`
-}
-
 func (args *DeleteListenersArgs) validate() error {
 	if args.LoadBalancerId == "" {
 		return fmt.Errorf("DeleteListenersArgs need LoadBalancerId")
@@ -415,7 +445,7 @@ func (args *DeleteListenersArgs) validate() error {
 	return nil
 }
 
-// UpdateUDPListener update a UDPListener
+// DeleteListeners delete a Listener
 func (c *Client) DeleteListeners(args *DeleteListenersArgs) error {
 	err := args.validate()
 	if err != nil {
@@ -429,7 +459,6 @@ func (c *Client) DeleteListeners(args *DeleteListenersArgs) error {
 	if err != nil {
 		return err
 	}
-	// url := "http://" + Endpoint[c.GetRegion()] + "/v1/blb" + "/" + args.LoadBalancerId + "/listener?" + "batchdelete=&" + "clientToken=" + c.GenerateClientToken()
 	req, err := bce.NewRequest("PUT", c.GetURL("v1/blb"+"/"+args.LoadBalancerId+"/listener", params), bytes.NewBuffer(postContent))
 	if err != nil {
 		return err

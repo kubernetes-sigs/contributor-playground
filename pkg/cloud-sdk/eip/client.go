@@ -16,7 +16,7 @@ limitations under the License.
 
 package eip
 
-import "k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
+import "k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
 
 // Endpoint contains all endpoints of Baidu Cloud BCC.
 var Endpoint = map[string]string{

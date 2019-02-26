@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package vpc
+package bcc
 
 import (
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
 )
 
 // Endpoint contains all endpoints of Baidu Cloud BCC.
@@ -41,7 +41,7 @@ type Client struct {
 	*bce.Client
 }
 
-func NewVPCClient(config *Config) *Client {
+func NewClient(config *Config) *Client {
 	bceClient := bce.NewClient(config.Config)
 	return &Client{bceClient}
 }
@@ -49,9 +49,12 @@ func NewVPCClient(config *Config) *Client {
 // GetURL generates the full URL of http request for Baidu Cloud BOS API.
 func (c *Client) GetURL(objectKey string, params map[string]string) string {
 	host := c.Endpoint
+
 	if host == "" {
 		host = Endpoint[c.GetRegion()]
 	}
+
 	uriPath := objectKey
+
 	return c.Client.GetURL(host, uriPath, params)
 }

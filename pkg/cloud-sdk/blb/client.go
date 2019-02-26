@@ -14,46 +14,48 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cce
+package blb
 
 import (
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
 )
 
-// Endpoint contains all endpoints of Baidu Cloud BCC.
+// Endpoint contains all endpoints of BLB.
 var Endpoint = map[string]string{
-	"bj": "bcc.bj.baidubce.com",
-	"gz": "bcc.gz.baidubce.com",
+	"bj": "blb.bj.baidubce.com",
+	"gz": "blb.gz.baidubce.com",
+	"su": "blb.su.baidubce.com",
+	"hk": "blb.hkg.baidubce.com",
+	"bd": "blb.bd.baidubce.com",
 }
 
-// Config contains all options for bos.Client.
+// Config contains all options for BLB.
 type Config struct {
 	*bce.Config
 }
 
+// NewConfig returns BLB config
 func NewConfig(config *bce.Config) *Config {
 	return &Config{config}
 }
 
-// Client is the bos client implemention for Baidu Cloud BOS API.
+// Client is the BLB client
 type Client struct {
 	*bce.Client
 }
 
-func NewClient(config *Config) *Client {
+// NewBLBClient returns BLB client
+func NewBLBClient(config *Config) *Client {
 	bceClient := bce.NewClient(config.Config)
 	return &Client{bceClient}
 }
 
-// GetURL generates the full URL of http request for Baidu Cloud BOS API.
-func (c *Client) GetURL(objectKey string, params map[string]string) string {
+// GetURL generates the full URL of http request for BLB
+func (c *Client) GetURL(version string, params map[string]string) string {
 	host := c.Endpoint
-
 	if host == "" {
 		host = Endpoint[c.GetRegion()]
 	}
-
-	uriPath := objectKey
-
+	uriPath := version
 	return c.Client.GetURL(host, uriPath, params)
 }
