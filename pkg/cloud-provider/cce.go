@@ -63,26 +63,6 @@ type CloudConfig struct {
 	Debug           bool   `json:"Debug"`
 }
 
-// ServiceAnnotation contains annotations from service
-type ServiceAnnotation struct {
-	LoadBalancerId             string
-	LoadBalancerInternalVpc    string
-	LoadBalancerAllocateVip    string
-	ElasticIPName              string
-	ElasticIPPaymentTiming     string
-	ElasticIPBillingMethod     string
-	ElasticIPBandwidthInMbps   int
-	ElasticIPReservationLength int
-}
-
-// NodeAnnotation contains annotations from node
-type NodeAnnotation struct {
-	VpcId           string
-	VpcRouteTableId string
-	VpcRouteRuleId  string
-	CCMVersion      string
-}
-
 // CCMVersion is the version of CCM
 var CCMVersion string
 
