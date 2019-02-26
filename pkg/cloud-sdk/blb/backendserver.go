@@ -21,23 +21,52 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
 )
 
+// BackendServer define BackendServer
 type BackendServer struct {
 	InstanceId string `json:"instanceId"`
 	Weight     int    `json:"weight,omitempty"`
 }
 
+// BackendServerStatus define BackendServer Status
 type BackendServerStatus struct {
 	InstanceId string `json:"instanceId"`
 	Weight     int    `json:"weight"`
 	Status     string `json:"status"`
 }
 
+// AddBackendServersArgs is the args to add BackendServer
 type AddBackendServersArgs struct {
 	LoadBalancerId    string          `json:"-"`
 	BackendServerList []BackendServer `json:"backendServerList"`
+}
+
+// DescribeBackendServersArgs is the args to describe BackendServer
+type DescribeBackendServersArgs struct {
+	LoadBalancerId string `json:"-"`
+}
+
+// DescribeBackendServersResponse is the response of DescribeBackendServers
+type DescribeBackendServersResponse struct {
+	Marker            string          `json:"marker"`
+	IsTruncated       bool            `json:"isTruncated"`
+	NextMarker        string          `json:"nextMarker"`
+	MaxKeys           int             `json:"maxKeys"`
+	BackendServerList []BackendServer `json:"backendServerList"`
+}
+
+// UpdateBackendServersArgs is the args to update the BackendServer
+type UpdateBackendServersArgs struct {
+	LoadBalancerId    string          `json:"-"`
+	BackendServerList []BackendServer `json:"backendServerList"`
+}
+
+// RemoveBackendServersArgs is the argds to remove BackendServer
+type RemoveBackendServersArgs struct {
+	LoadBalancerId    string   `json:"-"`
+	BackendServerList []string `json:"backendServerList"`
 }
 
 func (args *AddBackendServersArgs) validate() error {
@@ -53,6 +82,8 @@ func (args *AddBackendServersArgs) validate() error {
 
 	return nil
 }
+
+// AddBackendServers add BackendServers
 func (c *Client) AddBackendServers(args *AddBackendServersArgs) error {
 	err := args.validate()
 	if err != nil {
@@ -76,18 +107,6 @@ func (c *Client) AddBackendServers(args *AddBackendServersArgs) error {
 	return nil
 }
 
-type DescribeBackendServersArgs struct {
-	LoadBalancerId string `json:"-"`
-}
-
-type DescribeBackendServersResponse struct {
-	Marker            string          `json:"marker"`
-	IsTruncated       bool            `json:"isTruncated"`
-	NextMarker        string          `json:"nextMarker"`
-	MaxKeys           int             `json:"maxKeys"`
-	BackendServerList []BackendServer `json:"backendServerList"`
-}
-
 func (args *DescribeBackendServersArgs) validate() error {
 	if args == nil {
 		return fmt.Errorf("DescribeBackendServersArgs need args")
@@ -98,6 +117,7 @@ func (args *DescribeBackendServersArgs) validate() error {
 	return nil
 }
 
+// DescribeBackendServers describe BackendServers
 func (c *Client) DescribeBackendServers(args *DescribeBackendServersArgs) ([]BackendServer, error) {
 	err := args.validate()
 	if err != nil {
@@ -125,11 +145,6 @@ func (c *Client) DescribeBackendServers(args *DescribeBackendServersArgs) ([]Bac
 	}
 	return blbsResp.BackendServerList, nil
 
-}
-
-type UpdateBackendServersArgs struct {
-	LoadBalancerId    string          `json:"-"`
-	BackendServerList []BackendServer `json:"backendServerList"`
 }
 
 func (args *UpdateBackendServersArgs) validate() error {
@@ -168,11 +183,6 @@ func (c *Client) UpdateBackendServers(args *UpdateBackendServersArgs) error {
 		return err
 	}
 	return nil
-}
-
-type RemoveBackendServersArgs struct {
-	LoadBalancerId    string   `json:"-"`
-	BackendServerList []string `json:"backendServerList"`
 }
 
 func (args *RemoveBackendServersArgs) validate() error {

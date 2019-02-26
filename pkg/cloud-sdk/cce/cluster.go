@@ -21,8 +21,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bcc"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bcc"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
 )
 
 const (

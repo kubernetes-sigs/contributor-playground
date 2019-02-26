@@ -22,7 +22,7 @@ import (
 	"os"
 	"strings"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/util"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/util"
 )
 
 var canonicalHeaders = []string{

@@ -19,13 +19,13 @@ package blb
 import (
 	"bytes"
 	"encoding/json"
-
 	"fmt"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/util"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/util"
 )
 
+// LoadBalancer define LoadBalancer
 type LoadBalancer struct {
 	BlbId    string `json:"blbId"`
 	Name     string `json:"name"`
@@ -35,6 +35,7 @@ type LoadBalancer struct {
 	PublicIp string `json:"publicIp"`
 }
 
+// DescribeLoadBalancersArgs is the args to describe LoadBalancer
 type DescribeLoadBalancersArgs struct {
 	LoadBalancerId   string
 	LoadBalancerName string
@@ -42,6 +43,7 @@ type DescribeLoadBalancersArgs struct {
 	Address          string
 }
 
+// DescribeLoadBalancersResponse is the response of DescribeLoadBalancers
 type DescribeLoadBalancersResponse struct {
 	Marker      string         `json:"marker"`
 	IsTruncated bool           `json:"isTruncated"`
@@ -59,6 +61,7 @@ type CreateLoadBalancerArgs struct {
 	AllocateVip bool   `json:"allocateVip,omitempty"`
 }
 
+// CreateLoadBalancerResponse is the response of CreateLoadBalancer
 type CreateLoadBalancerResponse struct {
 	LoadBalancerId string `json:"blbId"`
 	Address        string `json:"address"`
@@ -66,18 +69,52 @@ type CreateLoadBalancerResponse struct {
 	Name           string `json:"name"`
 }
 
+// UpdateLoadBalancerArgs is the args to UpdateLoadBalancer
 type UpdateLoadBalancerArgs struct {
 	LoadBalancerId string `json:"blbId"`
 	Desc           string `json:"desc,omitempty"`
 	Name           string `json:"name,omitempty"`
 }
 
+// DeleteLoadBalancerArgs is the args to delete LoadBalancer
 type DeleteLoadBalancerArgs struct {
 	LoadBalancerId string `json:"blbId"`
 }
 
+// CreateLoadBalancer Create a  loadbalancer
+func (c *Client) CreateLoadBalancer(args *CreateLoadBalancerArgs) (*CreateLoadBalancerResponse, error) {
+	var params map[string]string
+	if args != nil {
+		params = map[string]string{
+			"clientToken": c.GenerateClientToken(),
+		}
+	}
+	postContent, err := json.Marshal(args)
+	if err != nil {
+		return nil, err
+	}
+	req, err := bce.NewRequest("POST", c.GetURL("v1/blb", params), bytes.NewBuffer(postContent))
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.SendRequest(req, nil)
+	if err != nil {
+		return nil, err
+	}
+	bodyContent, err := resp.GetBodyContent()
+	if err != nil {
+		return nil, err
+	}
+	var blbsResp *CreateLoadBalancerResponse
+	err = json.Unmarshal(bodyContent, &blbsResp)
+
+	if err != nil {
+		return nil, err
+	}
+	return blbsResp, nil
+}
+
 // DescribeLoadBalancers Describe loadbalancers
-// TODO: args need to validate
 func (c *Client) DescribeLoadBalancers(args *DescribeLoadBalancersArgs) ([]LoadBalancer, error) {
 	var params map[string]string
 	if args != nil {
@@ -112,42 +149,7 @@ func (c *Client) DescribeLoadBalancers(args *DescribeLoadBalancersArgs) ([]LoadB
 	return blbsResp.BLBList, nil
 }
 
-// CreateLoadBalancer Create a  loadbalancer
-// TODO: args need to validate
-func (c *Client) CreateLoadBalancer(args *CreateLoadBalancerArgs) (*CreateLoadBalancerResponse, error) {
-	var params map[string]string
-	if args != nil {
-		params = map[string]string{
-			"clientToken": c.GenerateClientToken(),
-		}
-	}
-	postContent, err := json.Marshal(args)
-	if err != nil {
-		return nil, err
-	}
-	req, err := bce.NewRequest("POST", c.GetURL("v1/blb", params), bytes.NewBuffer(postContent))
-	if err != nil {
-		return nil, err
-	}
-	resp, err := c.SendRequest(req, nil)
-	if err != nil {
-		return nil, err
-	}
-	bodyContent, err := resp.GetBodyContent()
-	if err != nil {
-		return nil, err
-	}
-	var blbsResp *CreateLoadBalancerResponse
-	err = json.Unmarshal(bodyContent, &blbsResp)
-
-	if err != nil {
-		return nil, err
-	}
-	return blbsResp, nil
-}
-
 // UpdateLoadBalancer update a loadbalancer
-// TODO: args need to validate
 func (c *Client) UpdateLoadBalancer(args *UpdateLoadBalancerArgs) error {
 	params := map[string]string{
 		"clientToken": c.GenerateClientToken(),

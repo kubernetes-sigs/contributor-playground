@@ -27,7 +27,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/cce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/cce"
 )
 
 // Instances returns an instances interface. Also returns true if the interface is supported, false otherwise.

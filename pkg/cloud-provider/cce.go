@@ -31,8 +31,8 @@ import (
 	"k8s.io/kubernetes/pkg/cloudprovider"
 	"k8s.io/kubernetes/pkg/controller"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/clientset"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/clientset"
 )
 
 // ProviderName is the name of this cloud provider.

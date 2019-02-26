@@ -27,10 +27,10 @@ import (
 	"k8s.io/api/core/v1"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/blb"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/eip"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/util"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/vpc"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/blb"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/eip"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/util"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/vpc"
 )
 
 // LoadBalancer returns a balancer interface. Also returns true if the interface is supported, false otherwise.
@@ -324,9 +324,9 @@ func (bc *Baiducloud) ensureEIPWithNoSpecificIP(ctx context.Context, clusterName
 	pubIP := lb.PublicIp
 	if len(pubIP) == 0 { // blb not bind eip, mostly case ==>
 		glog.V(2).Infof("[%v %v] EnsureLoadBalancer: createEIP!", service.Namespace, service.Name)
-		args, err := bc.getEipCreateArgsFromAnnotation(serviceAnnotation)
+		args, err := bc.getEipArgsFromAnnotation(serviceAnnotation)
 		if err != nil {
-			glog.Errorf("[%v %v] getEipCreateArgsFromAnnotation failed: %v", service.Namespace, service.Name, err)
+			glog.Errorf("[%v %v] getEipArgsFromAnnotation failed: %v", service.Namespace, service.Name, err)
 			return "", err
 		}
 		if len(args.Name) == 0 {
@@ -369,7 +369,7 @@ func (bc *Baiducloud) ensureEIPWithNoSpecificIP(ctx context.Context, clusterName
 		if serviceAnnotation.ElasticIPBandwidthInMbps != 0 && serviceAnnotation.ElasticIPBandwidthInMbps != targetEip.BandwidthInMbps {
 			glog.V(3).Infof("[%v %v] EnsureLoadBalancer: EIP config change, need change ElasticIPBandwidthInMbps", service.Namespace, service.Name)
 			// just validate args
-			_, err := bc.getEipCreateArgsFromAnnotation(serviceAnnotation)
+			_, err := bc.getEipArgsFromAnnotation(serviceAnnotation)
 			if err != nil {
 				glog.Errorf("[%v %v] Eip Args error: %v", service.Namespace, service.Name, err)
 				return "", err
@@ -976,7 +976,7 @@ func (bc *Baiducloud) getVpcInfoForBLB() (string, string, error) {
 	}
 }
 
-func (bc *Baiducloud) getEipCreateArgsFromAnnotation(serviceAnnotation *ServiceAnnotation) (*eip.CreateEipArgs, error) {
+func (bc *Baiducloud) getEipArgsFromAnnotation(serviceAnnotation *ServiceAnnotation) (*eip.CreateEipArgs, error) {
 	var args *eip.CreateEipArgs
 
 	paymentTiming := serviceAnnotation.ElasticIPPaymentTiming
@@ -1064,9 +1064,9 @@ func (bc *Baiducloud) deleteOldAndCreateNewEip(service *v1.Service, serviceAnnot
 		return "", err
 	}
 	glog.V(2).Infof("[%v %v] EnsureLoadBalancer: createEIP!", service.Namespace, service.Name)
-	args, err := bc.getEipCreateArgsFromAnnotation(serviceAnnotation)
+	args, err := bc.getEipArgsFromAnnotation(serviceAnnotation)
 	if err != nil {
-		glog.Errorf("[%v %v] getEipCreateArgsFromAnnotation failed: %v", service.Namespace, service.Name, err)
+		glog.Errorf("[%v %v] getEipArgsFromAnnotation failed: %v", service.Namespace, service.Name, err)
 		return "", err
 	}
 	if len(args.Name) == 0 {

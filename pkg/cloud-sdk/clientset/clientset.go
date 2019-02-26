@@ -19,12 +19,12 @@ package clientset
 import (
 	"fmt"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bcc"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/blb"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/cce"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/eip"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/vpc"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bcc"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/blb"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/cce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/eip"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/vpc"
 )
 
 // Interface contains all methods of clients

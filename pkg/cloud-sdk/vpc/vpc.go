@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
 )
 
 // Vpc type define

@@ -19,7 +19,7 @@ package bcc
 import (
 	"encoding/json"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
 )
 
 const (

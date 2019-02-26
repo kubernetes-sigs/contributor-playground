@@ -26,8 +26,8 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/cce"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/vpc"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/cce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/vpc"
 )
 
 // Routes returns a routes interface along with whether the interface is supported.
