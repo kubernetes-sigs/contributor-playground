@@ -31,8 +31,8 @@ import (
 	"k8s.io/kubernetes/pkg/cloudprovider"
 	"k8s.io/kubernetes/pkg/controller"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/bce"
-	"k8s.io/cloud-provider-baiducloud/pkg/sdk/clientset"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/clientset"
 )
 
 // ProviderName is the name of this cloud provider.
@@ -40,6 +40,11 @@ const ProviderName = "cce"
 
 // CceUserAgent is prefix of http header UserAgent
 const CceUserAgent = "cce-k8s:"
+
+// HardSwitch
+const (
+	EnableUDPLBService = false
+)
 
 // Baiducloud defines the main struct
 type Baiducloud struct {
@@ -61,26 +66,6 @@ type CloudConfig struct {
 	Endpoint        string `json:"Endpoint"`
 	NodeIP          string `json:"NodeIP"`
 	Debug           bool   `json:"Debug"`
-}
-
-// ServiceAnnotation contains annotations from service
-type ServiceAnnotation struct {
-	LoadBalancerId             string
-	LoadBalancerInternalVpc    string
-	LoadBalancerAllocateVip    string
-	ElasticIPName              string
-	ElasticIPPaymentTiming     string
-	ElasticIPBillingMethod     string
-	ElasticIPBandwidthInMbps   int
-	ElasticIPReservationLength int
-}
-
-// NodeAnnotation contains annotations from node
-type NodeAnnotation struct {
-	VpcId           string
-	VpcRouteTableId string
-	VpcRouteRuleId  string
-	CCMVersion      string
 }
 
 // CCMVersion is the version of CCM

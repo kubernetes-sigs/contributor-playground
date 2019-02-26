@@ -30,7 +30,26 @@ const (
 	ServiceAnnotationLoadBalancerId = ServiceAnnotationLoadBalancerPrefix + "id"
 	// ServiceAnnotationLoadBalancerInternalVpc is the annotation of LoadBalancerInternalVpc
 	ServiceAnnotationLoadBalancerInternalVpc = ServiceAnnotationLoadBalancerPrefix + "internal-vpc"
+	// ServiceAnnotationLoadBalancerAllocateVip is the annotation which indicates BLB with a VIP
 	ServiceAnnotationLoadBalancerAllocateVip = ServiceAnnotationLoadBalancerPrefix + "allocate-vip"
+	// TODO:
+	// ServiceAnnotationLoadBalancerScheduler is the annotation of load balancer which can be "RoundRobin"/"LeastConnection"/"Hash"
+	ServiceAnnotationLoadBalancerScheduler = ServiceAnnotationLoadBalancerPrefix + "scheduler"
+	// TODO:
+	// ServiceAnnotationLoadBalancerHealthCheckTimeoutInSecond is the annotation of health check timeout, default 3s, [1, 60]
+	ServiceAnnotationLoadBalancerHealthCheckTimeoutInSecond = ServiceAnnotationLoadBalancerPrefix + "health-check-timeout-in-second"
+	// TODO:
+	// ServiceAnnotationLoadBalancerHealthCheckInterval is the annotation of health check interval, default 3s, [1, 10]
+	ServiceAnnotationLoadBalancerHealthCheckInterval = ServiceAnnotationLoadBalancerPrefix + "health-check-interval"
+	// TODO:
+	// ServiceAnnotationLoadBalancerUnhealthyThreshold is the annotation of unhealthy threshold, default 3, [2, 5]
+	ServiceAnnotationLoadBalancerUnhealthyThreshold = ServiceAnnotationLoadBalancerPrefix + "unhealthy-threshold"
+	// TODO:
+	// ServiceAnnotationLoadBalancerHealthyThreshold is the annotation of healthy threshold, default 3, [2, 5]
+	ServiceAnnotationLoadBalancerHealthyThreshold = ServiceAnnotationLoadBalancerPrefix + "healthy-threshold"
+	// TODO:
+	// ServiceAnnotationLoadBalancerHealthCheckString is the annotation of health check string
+	ServiceAnnotationLoadBalancerHealthCheckString = ServiceAnnotationLoadBalancerPrefix + "health-check-string"
 
 	// ServiceAnnotationElasticIPPrefix is the annotation prefix of ElasticIP
 	ServiceAnnotationElasticIPPrefix = "service.beta.kubernetes.io/cce-elastic-ip-"
@@ -60,6 +79,35 @@ const (
 	NodeAnnotationCCMVersion = NodeAnnotationPrefix + "ccm-version"
 )
 
+// ServiceAnnotation contains annotations from service
+type ServiceAnnotation struct {
+	/* BLB */
+	LoadBalancerId                         string
+	LoadBalancerInternalVpc                string
+	LoadBalancerAllocateVip                string
+	LoadBalancerScheduler                  string
+	LoadBalancerHealthCheckTimeoutInSecond int
+	LoadBalancerHealthCheckInterval        int
+	LoadBalancerUnhealthyThreshold         int
+	LoadBalancerHealthyThreshold           int
+	LoadBalancerHealthCheckString          string
+
+	/* EIP */
+	ElasticIPName              string
+	ElasticIPPaymentTiming     string
+	ElasticIPBillingMethod     string
+	ElasticIPBandwidthInMbps   int
+	ElasticIPReservationLength int
+}
+
+// NodeAnnotation contains annotations from node
+type NodeAnnotation struct {
+	VpcId           string
+	VpcRouteTableId string
+	VpcRouteRuleId  string
+	CCMVersion      string
+}
+
 // ExtractServiceAnnotation extract annotations from service
 func ExtractServiceAnnotation(service *v1.Service) *ServiceAnnotation {
 	glog.V(4).Infof("start to ExtractServiceAnnotation: %v", service.Annotations)
@@ -82,6 +130,56 @@ func ExtractServiceAnnotation(service *v1.Service) *ServiceAnnotation {
 	loadBalancerAllocateVip, ok := annotation[ServiceAnnotationLoadBalancerAllocateVip]
 	if ok {
 		result.LoadBalancerAllocateVip = loadBalancerAllocateVip
+	}
+
+	loadBalancerScheduler, ok := annotation[ServiceAnnotationLoadBalancerScheduler]
+	if ok {
+		result.LoadBalancerScheduler = loadBalancerScheduler
+	}
+
+	loadBalancerHealthCheckTimeoutInSecond, exist := annotation[ServiceAnnotationLoadBalancerHealthCheckTimeoutInSecond]
+	if exist {
+		i, err := strconv.Atoi(loadBalancerHealthCheckTimeoutInSecond)
+		if err != nil {
+			glog.V(4).Infof("ServiceAnnotationLoadBalancerHealthCheckTimeoutInSecond must be int")
+		} else {
+			result.LoadBalancerHealthCheckTimeoutInSecond = i
+		}
+	}
+
+	loadBalancerHealthCheckInterval, exist := annotation[ServiceAnnotationLoadBalancerHealthCheckInterval]
+	if exist {
+		i, err := strconv.Atoi(loadBalancerHealthCheckInterval)
+		if err != nil {
+			glog.V(4).Infof("ServiceAnnotationLoadBalancerHealthCheckInterval must be int")
+		} else {
+			result.LoadBalancerHealthCheckInterval = i
+		}
+	}
+
+	loadBalancerUnhealthyThreshold, exist := annotation[ServiceAnnotationLoadBalancerUnhealthyThreshold]
+	if exist {
+		i, err := strconv.Atoi(loadBalancerUnhealthyThreshold)
+		if err != nil {
+			glog.V(4).Infof("ServiceAnnotationLoadBalancerUnhealthyThreshold must be int")
+		} else {
+			result.LoadBalancerUnhealthyThreshold = i
+		}
+	}
+
+	loadBalancerHealthyThreshold, exist := annotation[ServiceAnnotationLoadBalancerHealthyThreshold]
+	if exist {
+		i, err := strconv.Atoi(loadBalancerHealthyThreshold)
+		if err != nil {
+			glog.V(4).Infof("ServiceAnnotationLoadBalancerHealthyThreshold must be int")
+		} else {
+			result.LoadBalancerHealthyThreshold = i
+		}
+	}
+
+	loadBalancerHealthCheckString, exist := annotation[ServiceAnnotationLoadBalancerHealthCheckString]
+	if exist {
+		result.LoadBalancerHealthCheckString = loadBalancerHealthCheckString
 	}
 
 	elasticIPName, exist := annotation[ServiceAnnotationElasticIPName]
