@@ -199,8 +199,8 @@ type DescribeUDPListenerResponse struct {
 type UpdateTCPListenerArgs struct {
 	LoadBalancerId             string `json:"-"`
 	ListenerPort               int    `json:"-"`
-	BackendPort                int    `json:"backendPort,omitempty"`
-	Scheduler                  string `json:"scheduler,omitempty"`
+	BackendPort                int    `json:"backendPort"`
+	Scheduler                  string `json:"scheduler"`
 	HealthCheckTimeoutInSecond int    `json:"healthCheckTimeoutInSecond,omitempty"`
 	HealthCheckInterval        int    `json:"healthCheckInterval,omitempty"`
 	UnhealthyThreshold         int    `json:"unhealthyThreshold,omitempty"`
@@ -210,7 +210,7 @@ type UpdateTCPListenerArgs struct {
 // UpdateUDPListenerArgs is the args to update UDPListener
 type UpdateUDPListenerArgs struct {
 	LoadBalancerId             string `json:"-"`
-	ListenerPort               int    `json:"listenerPort"`
+	ListenerPort               int    `json:"-"`
 	BackendPort                int    `json:"backendPort"`
 	Scheduler                  string `json:"scheduler"`
 	HealthCheckTimeoutInSecond int    `json:"healthCheckTimeoutInSecond,omitempty"`
