@@ -540,7 +540,7 @@ func Debug(title, message string) {
 		log.Println("----------------------------DEBUG: start of " + title + "----------------------------")
 	}
 
-	glog.V(5).Infoln(message)
+	glog.V(4).Infoln(message)
 
 	if title != "" {
 		log.Println("----------------------------DEBUG: end of " + title + "------------------------------\n")

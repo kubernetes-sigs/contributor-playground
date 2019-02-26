@@ -32,16 +32,22 @@ const (
 	ServiceAnnotationLoadBalancerInternalVpc = ServiceAnnotationLoadBalancerPrefix + "internal-vpc"
 	// ServiceAnnotationLoadBalancerAllocateVip is the annotation which indicates BLB with a VIP
 	ServiceAnnotationLoadBalancerAllocateVip = ServiceAnnotationLoadBalancerPrefix + "allocate-vip"
+	// TODO:
 	// ServiceAnnotationLoadBalancerScheduler is the annotation of load balancer which can be "RoundRobin"/"LeastConnection"/"Hash"
 	ServiceAnnotationLoadBalancerScheduler = ServiceAnnotationLoadBalancerPrefix + "scheduler"
+	// TODO:
 	// ServiceAnnotationLoadBalancerHealthCheckTimeoutInSecond is the annotation of health check timeout, default 3s, [1, 60]
 	ServiceAnnotationLoadBalancerHealthCheckTimeoutInSecond = ServiceAnnotationLoadBalancerPrefix + "health-check-timeout-in-second"
+	// TODO:
 	// ServiceAnnotationLoadBalancerHealthCheckInterval is the annotation of health check interval, default 3s, [1, 10]
 	ServiceAnnotationLoadBalancerHealthCheckInterval = ServiceAnnotationLoadBalancerPrefix + "health-check-interval"
+	// TODO:
 	// ServiceAnnotationLoadBalancerUnhealthyThreshold is the annotation of unhealthy threshold, default 3, [2, 5]
 	ServiceAnnotationLoadBalancerUnhealthyThreshold = ServiceAnnotationLoadBalancerPrefix + "unhealthy-threshold"
+	// TODO:
 	// ServiceAnnotationLoadBalancerHealthyThreshold is the annotation of healthy threshold, default 3, [2, 5]
 	ServiceAnnotationLoadBalancerHealthyThreshold = ServiceAnnotationLoadBalancerPrefix + "healthy-threshold"
+	// TODO:
 	// ServiceAnnotationLoadBalancerHealthCheckString is the annotation of health check string
 	ServiceAnnotationLoadBalancerHealthCheckString = ServiceAnnotationLoadBalancerPrefix + "health-check-string"
 
