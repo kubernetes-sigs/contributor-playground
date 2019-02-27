@@ -24,6 +24,7 @@ import (
 	"k8s.io/kubernetes/pkg/cloudprovider"
 
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/blb"
+	"fmt"
 )
 
 // LoadBalancer returns a balancer interface. Also returns true if the interface is supported, false otherwise.
@@ -157,18 +158,32 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 	}
 
 	// delete EIP
-	if lb.PublicIp != "" {
-		if len(service.Spec.LoadBalancerIP) != 0 {
-			glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: LoadBalancerIP is set, not delete EIP.", serviceName, clusterName)
-			glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
-			return nil
-		}
-		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: Start delete EIP: %s", serviceName, clusterName, lb.PublicIp)
-		err = bc.deleteEIP(lb.PublicIp)
-		if err != nil {
-			return err
-		}
+	if result.LoadBalancerInternalVpc == "true" {
+		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: use LoadBalancerInternalVpc, no EIP to delete", service.Namespace, service.Name, lb.Address)
+		glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
+		return nil
 	}
+	if len(service.Spec.LoadBalancerIP) != 0 {
+		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: LoadBalancerIP is set, not delete EIP.", serviceName, clusterName)
+		glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
+		return nil
+	}
+	glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: Start delete EIP: %s", serviceName, clusterName, lb.PublicIp)
+	var targetEip string
+	if len(service.Status.LoadBalancer.Ingress) != 0 { // P0: use service EXTERNAL_IP
+		targetEip = service.Status.LoadBalancer.Ingress[0].IP
+	}
+	if len(targetEip) == 0 { // P1: use BLB public ip
+		targetEip = lb.PublicIp
+	}
+	if len(targetEip) == 0 { // get none EIP
+		return fmt.Errorf("EnsureLoadBalancerDeleted failed: can not get a EIP to delete")
+	}
+	err = bc.deleteEIP(targetEip)
+	if err != nil {
+		return err
+	}
+
 	glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
 	return nil
 }
