@@ -3,7 +3,7 @@
 startTime=`date +%Y%m%d-%H:%M`
 startTime_s=`date +%s`
 
-for i in `seq 1 1`;
+for i in `seq 1 2`;
 do
     kubectl create -f nginx.yaml
     status="Check: "
@@ -22,4 +22,4 @@ done
 endTime=`date +%Y%m%d-%H:%M`
 endTime_s=`date +%s`
 sumTime=$[ $endTime_s - $startTime_s ]
-echo "Test Finish: create-and-delete" "$startTime ---> $endTime" "Total:$sumTime minutes"
+echo "Test Finish: create-and-delete" "$startTime ---> $endTime" "Total: $sumTime s"
