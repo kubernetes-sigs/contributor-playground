@@ -5,7 +5,7 @@ startTime_s=`date +%s`
 
 for i in `seq 1 2`;
 do
-    kubectl create -f nginx.yaml
+    kubectl create -f ./test/create-and-delete/nginx.yaml
     status="Check: "
     while true
     do
@@ -16,7 +16,7 @@ do
         status=$status"."
         echo $status
     done
-    kubectl delete -f nginx.yaml
+    kubectl delete -f ./test/create-and-delete/nginx.yaml
 done
 
 endTime=`date +%Y%m%d-%H:%M`
