@@ -19,6 +19,7 @@ package cloud_provider
 import (
 	"strconv"
 
+	"fmt"
 	"github.com/golang/glog"
 	"k8s.io/api/core/v1"
 )
@@ -109,7 +110,7 @@ type NodeAnnotation struct {
 }
 
 // ExtractServiceAnnotation extract annotations from service
-func ExtractServiceAnnotation(service *v1.Service) *ServiceAnnotation {
+func ExtractServiceAnnotation(service *v1.Service) (*ServiceAnnotation, error) {
 	glog.V(4).Infof("start to ExtractServiceAnnotation: %v", service.Annotations)
 	result := &ServiceAnnotation{}
 	annotation := make(map[string]string)
@@ -141,7 +142,7 @@ func ExtractServiceAnnotation(service *v1.Service) *ServiceAnnotation {
 	if exist {
 		i, err := strconv.Atoi(loadBalancerHealthCheckTimeoutInSecond)
 		if err != nil {
-			glog.V(4).Infof("ServiceAnnotationLoadBalancerHealthCheckTimeoutInSecond must be int")
+			return nil, fmt.Errorf("ServiceAnnotationLoadBalancerHealthCheckTimeoutInSecond must be int")
 		} else {
 			result.LoadBalancerHealthCheckTimeoutInSecond = i
 		}
@@ -151,7 +152,7 @@ func ExtractServiceAnnotation(service *v1.Service) *ServiceAnnotation {
 	if exist {
 		i, err := strconv.Atoi(loadBalancerHealthCheckInterval)
 		if err != nil {
-			glog.V(4).Infof("ServiceAnnotationLoadBalancerHealthCheckInterval must be int")
+			return nil, fmt.Errorf("ServiceAnnotationLoadBalancerHealthCheckInterval must be int")
 		} else {
 			result.LoadBalancerHealthCheckInterval = i
 		}
@@ -161,7 +162,7 @@ func ExtractServiceAnnotation(service *v1.Service) *ServiceAnnotation {
 	if exist {
 		i, err := strconv.Atoi(loadBalancerUnhealthyThreshold)
 		if err != nil {
-			glog.V(4).Infof("ServiceAnnotationLoadBalancerUnhealthyThreshold must be int")
+			return nil, fmt.Errorf("ServiceAnnotationLoadBalancerUnhealthyThreshold must be int")
 		} else {
 			result.LoadBalancerUnhealthyThreshold = i
 		}
@@ -171,7 +172,7 @@ func ExtractServiceAnnotation(service *v1.Service) *ServiceAnnotation {
 	if exist {
 		i, err := strconv.Atoi(loadBalancerHealthyThreshold)
 		if err != nil {
-			glog.V(4).Infof("ServiceAnnotationLoadBalancerHealthyThreshold must be int")
+			return nil, fmt.Errorf("ServiceAnnotationLoadBalancerHealthyThreshold must be int")
 		} else {
 			result.LoadBalancerHealthyThreshold = i
 		}
@@ -201,7 +202,7 @@ func ExtractServiceAnnotation(service *v1.Service) *ServiceAnnotation {
 	if exist {
 		i, err := strconv.Atoi(elasticIPBandwidthInMbps)
 		if err != nil {
-			glog.V(4).Infof("ServiceAnnotationElasticIPBandwidthInMbps must be int")
+			return nil, fmt.Errorf("ServiceAnnotationElasticIPBandwidthInMbps must be int")
 		} else {
 			result.ElasticIPBandwidthInMbps = i
 		}
@@ -211,17 +212,17 @@ func ExtractServiceAnnotation(service *v1.Service) *ServiceAnnotation {
 	if exist {
 		i, err := strconv.Atoi(elasticIPReservationLength)
 		if err != nil {
-			glog.V(4).Infof("ServiceAnnotationElasticIPReservationLength must be int")
+			return nil, fmt.Errorf("ServiceAnnotationElasticIPReservationLength must be int")
 		} else {
 			result.ElasticIPReservationLength = i
 		}
 	}
 
-	return result
+	return result, nil
 }
 
 // ExtractNodeAnnotation extract annotations from node
-func ExtractNodeAnnotation(node *v1.Node) *NodeAnnotation {
+func ExtractNodeAnnotation(node *v1.Node) (*NodeAnnotation, error) {
 	glog.V(4).Infof("start to ExtractNodeAnnotation: %v", node.Annotations)
 	result := &NodeAnnotation{}
 	annotation := make(map[string]string)
@@ -249,5 +250,5 @@ func ExtractNodeAnnotation(node *v1.Node) *NodeAnnotation {
 		result.CCMVersion = ccmVersion
 	}
 
-	return result
+	return result, nil
 }
