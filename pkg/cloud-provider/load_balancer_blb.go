@@ -14,6 +14,30 @@ import (
 func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node, serviceAnnotation *ServiceAnnotation) (*blb.LoadBalancer, error) {
 	var lb *blb.LoadBalancer
 	var err error
+
+	// if serviceAnnotation.LoadBalancerId is none, we need to double check from cloud since user can update yaml in a short time causing annotation not attach.
+	// LOG:
+	// Event(v1.ObjectReference{Kind:"Service", Namespace:"default", Name:"eip-lb-service5",
+	// UID:"887fc095-3b25-11e9-8eab-fa163e80f2ac", APIVersion:"v1", ResourceVersion:"172548", FieldPath:""}): type: 'Warning'
+	// reason: 'CreatingLoadBalancerFailed' Error creating load balancer (will retry): not persisting update to service
+	// 'default/eip-lb-service5' that has been changed since we received it: Operation cannot be fulfilled on services
+	// "eip-lb-service5": the object has been modified; please apply your changes to the latest version and try again
+	if len(serviceAnnotation.LoadBalancerId) == 0 {
+		var exists bool
+		lb, exists, err = bc.getBCELoadBalancer(bc.ClusterID + "/" + getServiceName(service))
+		if err != nil {
+			return nil, err
+		}
+		if exists {
+			glog.V(3).Infof("[%v %v] EnsureLoadBalancer serviceAnnotation.LoadBalancerId is none, but we got blb from cloud", service.Namespace, service.Name)
+			serviceAnnotation.LoadBalancerId = lb.BlbId
+			if service.Annotations == nil {
+				service.Annotations = make(map[string]string)
+			}
+			service.Annotations[ServiceAnnotationLoadBalancerId] = lb.BlbId
+		}
+	}
+
 	if len(serviceAnnotation.LoadBalancerId) == 0 { // blb not exist, create one and update annotation
 		glog.V(3).Infof("[%v %v] EnsureLoadBalancer create blb!", service.Namespace, service.Name)
 		vpcId, subnetId, err := bc.getVpcInfoForBLB()
@@ -47,7 +71,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 		if len(lbs) != 1 {
 			tryCount := 0
 			for {
-				tryCount ++
+				tryCount++
 				if tryCount > 10 {
 					return nil, fmt.Errorf("EnsureLoadBalancer create blb success but query get none")
 				}
@@ -68,7 +92,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 			service.Annotations = make(map[string]string)
 		}
 		service.Annotations[ServiceAnnotationLoadBalancerId] = lb.BlbId
-	} else { // blb already exist, get info from cloud
+	} else if lb == nil { // blb already exist, get info from cloud
 		var exists bool
 		lb, exists, err = bc.getBCELoadBalancerById(serviceAnnotation.LoadBalancerId)
 		if err != nil {
@@ -79,6 +103,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 		}
 		glog.V(3).Infof("[%v %v] EnsureLoadBalancer: blb already exists: %v", service.Namespace, service.Name, lb)
 	}
+
 	lb, err = bc.waitForLoadBalancer(lb)
 	if err != nil {
 		return nil, err

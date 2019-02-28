@@ -18,13 +18,13 @@ package cloud_provider
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/golang/glog"
 	"k8s.io/api/core/v1"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/blb"
-	"fmt"
 )
 
 // LoadBalancer returns a balancer interface. Also returns true if the interface is supported, false otherwise.
@@ -39,7 +39,10 @@ func (bc *Baiducloud) LoadBalancer() (cloudprovider.LoadBalancer, bool) {
 func (bc *Baiducloud) GetLoadBalancer(ctx context.Context, clusterName string, service *v1.Service) (status *v1.LoadBalancerStatus, exists bool, err error) {
 	// workaround to support old version, can be removed if not support old version
 	bc.workAround(service)
-	result := ExtractServiceAnnotation(service)
+	result, err := ExtractServiceAnnotation(service)
+	if err != nil {
+		return nil, false, err
+	}
 
 	if len(result.LoadBalancerId) == 0 {
 		return nil, false, nil
@@ -72,8 +75,11 @@ func (bc *Baiducloud) EnsureLoadBalancer(ctx context.Context, clusterName string
 		clusterName, service.Namespace, service.Name, bc.Region, service.Spec.LoadBalancerIP, service.Spec.Ports, service.Annotations)
 	// workaround to support old version, can be removed if not support old version
 	bc.workAround(service)
-	result := ExtractServiceAnnotation(service)
-	err := bc.validateService(service)
+	result, err := ExtractServiceAnnotation(service)
+	if err != nil {
+		return nil, err
+	}
+	err = bc.validateService(service)
 	if err != nil {
 		return nil, err
 	}
@@ -91,17 +97,6 @@ func (bc *Baiducloud) EnsureLoadBalancer(ctx context.Context, clusterName string
 	// ensure EIP
 	pubIP, err := bc.ensureEIP(ctx, clusterName, service, nodes, result, lb)
 	if err != nil {
-		glog.V(3).Infof("[%v %v] EnsureLoadBalancer: ensureEIP failed, so delete BLB. ensureEIP error: %s", service.Namespace, service.Name, err)
-		args := blb.DeleteLoadBalancerArgs{
-			LoadBalancerId: lb.BlbId,
-		}
-		deleteLoadBalancerErr := bc.clientSet.Blb().DeleteLoadBalancer(&args)
-		if deleteLoadBalancerErr != nil {
-			glog.V(3).Infof("[%v %v] EnsureLoadBalancer: delete BLB error: %s", service.Namespace, service.Name, deleteLoadBalancerErr)
-		}
-		if service.Annotations != nil {
-			delete(service.Annotations, ServiceAnnotationLoadBalancerId)
-		}
 		return nil, err
 	}
 
@@ -129,8 +124,17 @@ func (bc *Baiducloud) UpdateLoadBalancer(ctx context.Context, clusterName string
 func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName string, service *v1.Service) error {
 	// workaround to support old version, can be removed if not support old version
 	bc.workAround(service)
-	result := ExtractServiceAnnotation(service)
+	result, err := ExtractServiceAnnotation(service)
+	if err != nil {
+		// if annotation has error, then creation must be failed. So return nil to tell k8s lb has been deleted.
+		return nil
+	}
 	serviceName := getServiceName(service)
+	if len(result.LoadBalancerId) == 0 {
+		glog.V(1).Infof("[%v %v] EnsureLoadBalancerDeleted: target load balancer not create successful. So, no need to delete BLB and EIP", serviceName, clusterName)
+		return nil
+	}
+
 	glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: START lbId=%q", serviceName, clusterName, result.LoadBalancerId)
 
 	// reconcile logic is capable of fully reconcile, so we can use this to delete
