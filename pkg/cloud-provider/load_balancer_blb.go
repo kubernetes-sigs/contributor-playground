@@ -47,7 +47,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 		if len(lbs) != 1 {
 			tryCount := 0
 			for {
-				tryCount ++
+				tryCount++
 				if tryCount > 10 {
 					return nil, fmt.Errorf("EnsureLoadBalancer create blb success but query get none")
 				}

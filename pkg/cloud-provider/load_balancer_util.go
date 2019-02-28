@@ -69,6 +69,9 @@ func (bc *Baiducloud) validateService(service *v1.Service) error {
 }
 
 func (bc *Baiducloud) getBCELoadBalancer(name string) (lb *blb.LoadBalancer, exists bool, err error) {
+	if len(name) == 0 {
+		return nil, false, fmt.Errorf("LoadBalancerName is empty")
+	}
 	args := blb.DescribeLoadBalancersArgs{
 		LoadBalancerName: name,
 	}
@@ -85,6 +88,9 @@ func (bc *Baiducloud) getBCELoadBalancer(name string) (lb *blb.LoadBalancer, exi
 }
 
 func (bc *Baiducloud) getBCELoadBalancerById(id string) (lb *blb.LoadBalancer, exists bool, err error) {
+	if len(id) == 0 {
+		return nil, false, fmt.Errorf("LoadBalancerId is empty")
+	}
 	args := blb.DescribeLoadBalancersArgs{
 		LoadBalancerId: id,
 	}

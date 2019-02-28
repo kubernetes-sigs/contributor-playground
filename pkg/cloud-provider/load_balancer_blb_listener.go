@@ -21,8 +21,8 @@ import (
 
 	"k8s.io/api/core/v1"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/blb"
 	"github.com/golang/glog"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/blb"
 )
 
 // PortListener describe listener port
