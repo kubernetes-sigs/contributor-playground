@@ -97,17 +97,6 @@ func (bc *Baiducloud) EnsureLoadBalancer(ctx context.Context, clusterName string
 	// ensure EIP
 	pubIP, err := bc.ensureEIP(ctx, clusterName, service, nodes, result, lb)
 	if err != nil {
-		glog.V(3).Infof("[%v %v] EnsureLoadBalancer: ensureEIP failed, so delete BLB. ensureEIP error: %s", service.Namespace, service.Name, err)
-		args := blb.DeleteLoadBalancerArgs{
-			LoadBalancerId: lb.BlbId,
-		}
-		deleteLoadBalancerErr := bc.clientSet.Blb().DeleteLoadBalancer(&args)
-		if deleteLoadBalancerErr != nil {
-			glog.V(3).Infof("[%v %v] EnsureLoadBalancer: delete BLB error: %s", service.Namespace, service.Name, deleteLoadBalancerErr)
-		}
-		if service.Annotations != nil {
-			delete(service.Annotations, ServiceAnnotationLoadBalancerId)
-		}
 		return nil, err
 	}
 

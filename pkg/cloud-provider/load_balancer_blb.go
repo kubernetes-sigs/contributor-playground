@@ -29,7 +29,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 			return nil, err
 		}
 		if exists {
-			glog.V(3).Infof("[%v %v] EnsureLoadBalancer erviceAnnotation.LoadBalancerId is none, but we got blb from cloud", service.Namespace, service.Name)
+			glog.V(3).Infof("[%v %v] EnsureLoadBalancer serviceAnnotation.LoadBalancerId is none, but we got blb from cloud", service.Namespace, service.Name)
 			serviceAnnotation.LoadBalancerId = lb.BlbId
 			if service.Annotations == nil {
 				service.Annotations = make(map[string]string)
