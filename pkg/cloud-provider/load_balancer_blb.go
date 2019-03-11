@@ -75,13 +75,13 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 				if tryCount > 10 {
 					return nil, fmt.Errorf("EnsureLoadBalancer create blb success but query get none")
 				}
-				glog.V(3).Infof("[%v %v] EnsureLoadBalancer create blb success but query get none, tryCount: ", service.Namespace, service.Name, tryCount)
+				glog.V(3).Infof("[%v %v] EnsureLoadBalancer create blb success but query get none, tryCount: %v", service.Namespace, service.Name, tryCount)
 				lbs, err = bc.clientSet.Blb().DescribeLoadBalancers(&argsDesc)
 				if err != nil {
 					return nil, err
 				}
 				if len(lbs) == 1 {
-					glog.V(3).Infof("[%v %v] EnsureLoadBalancer create blb success and query get one, tryCount: ", service.Namespace, service.Name, tryCount)
+					glog.V(3).Infof("[%v %v] EnsureLoadBalancer create blb success and query get one, tryCount: %v", service.Namespace, service.Name, tryCount)
 					break
 				}
 				time.Sleep(10 * time.Second)

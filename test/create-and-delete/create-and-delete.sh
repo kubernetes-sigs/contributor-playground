@@ -19,6 +19,15 @@ do
     kubectl delete -f ./test/create-and-delete/nginx.yaml
 done
 
+sleep 60
+
+for i in `seq 1 2`;
+do
+    kubectl create -f ./test/create-and-delete/nginx.yaml
+    sleep 10
+    kubectl delete -f ./test/create-and-delete/nginx.yaml
+done
+
 endTime=`date +%Y%m%d-%H:%M`
 endTime_s=`date +%s`
 sumTime=$[ $endTime_s - $startTime_s ]
