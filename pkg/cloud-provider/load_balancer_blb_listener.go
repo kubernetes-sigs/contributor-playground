@@ -91,10 +91,11 @@ func (bc *Baiducloud) createListener(lb *blb.LoadBalancer, pl PortListener) erro
 	switch pl.Protocol {
 	case "UDP":
 		args := blb.CreateUDPListenerArgs{
-			LoadBalancerId: lb.BlbId,
-			ListenerPort:   pl.Port,
-			BackendPort:    int(pl.NodePort),
-			Scheduler:      "RoundRobin",
+			LoadBalancerId:    lb.BlbId,
+			ListenerPort:      pl.Port,
+			BackendPort:       int(pl.NodePort),
+			Scheduler:         "RoundRobin",
+			HealthCheckString: "HealthCheck",
 		}
 		err := bc.clientSet.Blb().CreateUDPListener(&args)
 		if err != nil {
@@ -129,6 +130,7 @@ func (bc *Baiducloud) updateListener(lb *blb.LoadBalancer, pl PortListener) erro
 			ListenerPort:   pl.Port,
 			BackendPort:    int(pl.NodePort),
 			Scheduler:      "RoundRobin",
+			HealthCheckString: "HealthCheck",
 		}
 		err := bc.clientSet.Blb().UpdateUDPListener(&args)
 		if err != nil {
@@ -174,22 +176,20 @@ func (bc *Baiducloud) getAllListeners(lb *blb.LoadBalancer) ([]PortListener, err
 		})
 	}
 
-	if EnableUDPLBService {
-		// add UDPlisteners
-		describeUDPListenerArgs := blb.DescribeUDPListenerArgs{
-			LoadBalancerId: lb.BlbId,
-		}
-		udpListeners, err := bc.clientSet.Blb().DescribeUDPListener(&describeUDPListenerArgs)
-		if err != nil {
-			return nil, err
-		}
-		for _, listener := range udpListeners {
-			allListeners = append(allListeners, PortListener{
-				Port:     listener.ListenerPort,
-				Protocol: "UDP",
-				NodePort: int32(listener.BackendPort),
-			})
-		}
+	// add UDPlisteners
+	describeUDPListenerArgs := blb.DescribeUDPListenerArgs{
+		LoadBalancerId: lb.BlbId,
+	}
+	udpListeners, err := bc.clientSet.Blb().DescribeUDPListener(&describeUDPListenerArgs)
+	if err != nil {
+		return nil, err
+	}
+	for _, listener := range udpListeners {
+		allListeners = append(allListeners, PortListener{
+			Port:     listener.ListenerPort,
+			Protocol: "UDP",
+			NodePort: int32(listener.BackendPort),
+		})
 	}
 
 	// TODO: add HTTP,HTTPS
