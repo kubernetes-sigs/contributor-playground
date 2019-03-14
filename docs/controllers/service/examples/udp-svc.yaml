@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: udp-server-demo-svc
+  annotations:
+    service.beta.kubernetes.io/cce-load-balancer-allocate-vip: "true"
+  labels:
+    app: udp-server-demo
+spec:
+  type: LoadBalancer
+  ports:
+  - name: udp-server-demo-port
+    port: 3005
+    targetPort: 3005
+    protocol: UDP
+  selector:
+    app: udp-server-demo
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: udp-server-demo
+  labels:
+    app: udp-server-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: udp-server-demo
+  template:
+    metadata:
+      labels:
+        app: udp-server-demo
+    spec:
+      containers:
+      - name: udp-server-demo
+        image: hub.baidubce.com/jpaas-public/udp-server-demo:latest
+        ports:
+        - containerPort: 3005
+          protocol: UDP
