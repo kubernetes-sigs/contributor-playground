@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
       - name: udp-server-demo
-        image: hello2mao/udp-server-demo:latest
+        image: hub.baidubce.com/jpaas-public/udp-server-demo:latest
         ports:
         - containerPort: 3005
           protocol: UDP
