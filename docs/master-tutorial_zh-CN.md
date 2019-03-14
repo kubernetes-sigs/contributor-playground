@@ -12,7 +12,7 @@
 Kubernetes官方教程：[Services](https://kubernetes.io/docs/concepts/services-networking/service/)
 
 # 快速开始
-当用户创建类型是**LoadBalancer**的Service，默认情况下，CCE会联动的创建BLB，并为此BLB绑定EIP。  
+当用户创建类型是**LoadBalancer**的Service，默认情况下，CCE会联动的创建BLB，并为此BLB绑定EIP。而当用户删除此Service时，CCE也会联动的删除BLB和EIP。  
 以创建一个简单的Nginx为例：
 ```yaml
 ---
@@ -71,6 +71,9 @@ $ curl -i http://8.8.8.8
 ```
 
 # 高级配置
+## 端口协议
+### TCP
+
 ## 固定EIP
 当用户删除Service并重新创建的时候，EIP会变，这样就需要去更改依赖于此IP的其他所有服务，所以CCE提供一种方式来固定此EIP。  
 固定EIP的方案：  
