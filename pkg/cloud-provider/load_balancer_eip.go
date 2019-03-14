@@ -215,6 +215,10 @@ func (bc *Baiducloud) ensureEIPWithSpecificIP(ctx context.Context, clusterName s
 }
 
 func (bc *Baiducloud) createEIP(args *eip.CreateEipArgs, lb *blb.LoadBalancer) (string, error) {
+	// according to eip api doc, limit to 65
+	if len(args.Name) > 65 {
+		args.Name = args.Name[:65]
+	}
 	glog.V(3).Infof("CreateEip:  %v", args)
 	ip, err := bc.clientSet.Eip().CreateEip(args)
 	if err != nil {
