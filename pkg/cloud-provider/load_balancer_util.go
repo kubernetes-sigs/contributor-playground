@@ -52,11 +52,7 @@ func (bc *Baiducloud) validateService(service *v1.Service) error {
 		case "TCP":
 			continue
 		case "UDP":
-			if EnableUDPLBService {
-				continue
-			} else {
-				return fmt.Errorf("UDP is not supported")
-			}
+			continue
 		case "HTTP":
 			return fmt.Errorf("UDP is not supported")
 		case "HTTPS":
