@@ -95,7 +95,7 @@ func (bc *Baiducloud) createListener(lb *blb.LoadBalancer, pl PortListener) erro
 			ListenerPort:      pl.Port,
 			BackendPort:       int(pl.NodePort),
 			Scheduler:         "RoundRobin",
-			HealthCheckString: "Health Check",
+			HealthCheckString: "HealthCheck",
 		}
 		err := bc.clientSet.Blb().CreateUDPListener(&args)
 		if err != nil {
@@ -130,7 +130,7 @@ func (bc *Baiducloud) updateListener(lb *blb.LoadBalancer, pl PortListener) erro
 			ListenerPort:   pl.Port,
 			BackendPort:    int(pl.NodePort),
 			Scheduler:      "RoundRobin",
-			HealthCheckString: "Health Check",
+			HealthCheckString: "HealthCheck",
 		}
 		err := bc.clientSet.Blb().UpdateUDPListener(&args)
 		if err != nil {
