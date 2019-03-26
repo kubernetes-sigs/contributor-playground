@@ -150,12 +150,15 @@ func (bc *Baiducloud) waitForLoadBalancer(lb *blb.LoadBalancer) (*blb.LoadBalanc
 			return newlb, err
 		}
 		if !exist {
-			glog.V(3).Infof("getBCELoadBalancer not exist: %s", lb.BlbId)
-			return newlb, fmt.Errorf("BLB not exists:%s", lb.BlbId)
+			glog.V(3).Infof("getBCELoadBalancer not exist: %s, retry", lb.BlbId)
+			if index >= 9 {
+				return newlb, fmt.Errorf("BLB not exists:%s", lb.BlbId)
+			}
+			continue
 		}
 		lb = newlb
 		glog.V(3).Infof("BLB status is : %s", lb.Status)
-		if index == 9 && lb.Status != "available" {
+		if index >= 9 && lb.Status != "available" {
 			return nil, fmt.Errorf("waitForLoadBalancer failed after retry")
 		}
 	}
