@@ -163,11 +163,17 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 
 	// delete EIP
 	if result.LoadBalancerInternalVpc == "true" {
+		if service.Annotations != nil {
+			delete(service.Annotations, ServiceAnnotationLoadBalancerId)
+		}
 		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: use LoadBalancerInternalVpc, no EIP to delete", service.Namespace, service.Name, lb.Address)
 		glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
 		return nil
 	}
 	if len(service.Spec.LoadBalancerIP) != 0 {
+		if service.Annotations != nil {
+			delete(service.Annotations, ServiceAnnotationLoadBalancerId)
+		}
 		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: LoadBalancerIP is set, not delete EIP.", serviceName, clusterName)
 		glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
 		return nil
@@ -187,7 +193,9 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 	if err != nil {
 		return err
 	}
-
+	if service.Annotations != nil {
+		delete(service.Annotations, ServiceAnnotationLoadBalancerId)
+	}
 	glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
 	return nil
 }
