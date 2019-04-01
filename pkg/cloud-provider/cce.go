@@ -28,8 +28,11 @@ import (
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/tools/record"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 	"k8s.io/kubernetes/pkg/controller"
+	"k8s.io/client-go/kubernetes/scheme"
+	v1core "k8s.io/client-go/kubernetes/typed/core/v1"
 
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/clientset"
@@ -46,6 +49,8 @@ type Baiducloud struct {
 	CloudConfig
 	clientSet  clientset.Interface
 	kubeClient kubernetes.Interface
+	eventBroadcaster record.EventBroadcaster
+	eventRecorder    record.EventRecorder
 }
 
 // CloudConfig is the cloud config
@@ -122,6 +127,10 @@ func (bc *Baiducloud) ProviderName() string {
 // to perform housekeeping activities within the cloud provider.
 func (bc *Baiducloud) Initialize(clientBuilder controller.ControllerClientBuilder) {
 	bc.kubeClient = clientBuilder.ClientOrDie(ProviderName)
+	bc.eventBroadcaster = record.NewBroadcaster()
+	bc.eventBroadcaster.StartLogging(glog.Infof)
+	bc.eventBroadcaster.StartRecordingToSink(&v1core.EventSinkImpl{Interface: bc.kubeClient.CoreV1().Events("")})
+	bc.eventRecorder = bc.eventBroadcaster.NewRecorder(scheme.Scheme, v1.EventSource{Component: "CCM"})
 }
 
 // SetInformers sets the informer on the cloud object.

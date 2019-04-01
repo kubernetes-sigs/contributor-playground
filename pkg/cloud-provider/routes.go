@@ -28,6 +28,7 @@ import (
 
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/cce"
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/vpc"
+	"k8s.io/api/core/v1"
 )
 
 // Routes returns a routes interface along with whether the interface is supported.
@@ -48,6 +49,10 @@ func (bc *Baiducloud) ListRoutes(ctx context.Context, clusterName string) (route
 	if err != nil {
 		return nil, err
 	}
+
+	// routeTableConflictDetection
+	bc.routeTableConflictDetection()
+
 	inss, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
 	if err != nil {
 		return nil, err
@@ -254,4 +259,14 @@ func (bc *Baiducloud) getVpcID() (string, error) {
 		}
 	}
 	return bc.VpcID, nil
+}
+
+func (bc *Baiducloud) routeTableConflictDetection() {
+	glog.V(4).Infof("routeTableConflictDetection: %v", "")
+	if bc.eventRecorder != nil {
+		bc.eventRecorder.Eventf(&v1.ObjectReference{
+			Kind:      "VPC",
+			Name:      "RouteTableConflict",
+		}, v1.EventTypeWarning, "RouteTableConflictDetection", "RouteTable conflict detected: xxxxxxxxxxxxx")
+	}
 }
