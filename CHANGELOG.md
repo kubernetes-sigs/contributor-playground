@@ -20,7 +20,7 @@
 - add Chinese README: https://github.com/baidu/cloud-provider-baiducloud/blob/master/docs/tutorial_zh-CN.md
 
 **Bug Fix:**
-- fix blb leak issue #38
+- fix blb leak issue [#38](https://github.com/baidu/cloud-provider-baiducloud/issues/38)
 
 # v1.0.3
 **New Features:**
