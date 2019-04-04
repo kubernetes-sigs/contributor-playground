@@ -71,7 +71,7 @@ func (bc *Baiducloud) GetLoadBalancer(ctx context.Context, clusterName string, s
 // parameters as read-only and not modify them.
 // Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (bc *Baiducloud) EnsureLoadBalancer(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node) (*v1.LoadBalancerStatus, error) {
-	glog.V(3).Infof("[%v %v] EnsureLoadBalancer(%v, %v, %v, %v, %v, %v, %v)",
+	glog.V(3).Infof("[%v %v] EnsureLoadBalancer(%v, %v, %v, %v, %v)",
 		clusterName, service.Namespace, service.Name, bc.Region, service.Spec.LoadBalancerIP, service.Spec.Ports, service.Annotations)
 	// workaround to support old version, can be removed if not support old version
 	bc.workAround(service)
@@ -166,7 +166,7 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 		if service.Annotations != nil {
 			delete(service.Annotations, ServiceAnnotationLoadBalancerId)
 		}
-		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: use LoadBalancerInternalVpc, no EIP to delete", service.Namespace, service.Name, lb.Address)
+		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: use LoadBalancerInternalVpc, no EIP to delete", service.Namespace, service.Name)
 		glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
 		return nil
 	}
