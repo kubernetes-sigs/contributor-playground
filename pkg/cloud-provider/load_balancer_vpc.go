@@ -23,7 +23,6 @@ import (
 
 	"github.com/golang/glog"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/util"
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/vpc"
 )
 
@@ -82,7 +81,7 @@ func (bc *Baiducloud) getVpcInfoForBLB() (string, string, error) {
 			return "", "", fmt.Errorf("ParseCIDR failed: %v", err)
 		}
 		mask, _ := cidr.Mask.Size()
-		nextCidr, notExist := util.NextSubnet(cidr, mask)
+		nextCidr, notExist := NextSubnet(cidr, mask)
 		if notExist {
 			return "", "", fmt.Errorf("NextSubnet failed: %v", err)
 		}
