@@ -85,13 +85,13 @@ func init() {
 		}
 		glog.V(3).Infof("Init CCE cloud with cloudConfig: %v\n", cloudConfig)
 		if cloudConfig.MasterID == "" {
-			return nil, fmt.Errorf("Cloud config mast have a Master ID\n")
+			return nil, fmt.Errorf("Cloud config must have a Master ID\n")
 		}
 		if cloudConfig.ClusterID == "" {
-			return nil, fmt.Errorf("Cloud config mast have a ClusterID\n")
+			return nil, fmt.Errorf("Cloud config must have a ClusterID\n")
 		}
 		if cloudConfig.Endpoint == "" {
-			return nil, fmt.Errorf("Cloud config mast have a Endpoint\n")
+			return nil, fmt.Errorf("Cloud config must have a Endpoint\n")
 		}
 		cred := bce.NewCredentials(cloudConfig.AccessKeyID, cloudConfig.SecretAccessKey)
 		bceConfig := bce.NewConfig(cred)
