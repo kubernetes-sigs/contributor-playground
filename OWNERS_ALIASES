@@ -15,6 +15,4 @@ aliases:
     - spiffxp
     - timothysc
   foo-reviewers:
-    - nikhita-bot
-    - fejta-bot
     - nikhita
