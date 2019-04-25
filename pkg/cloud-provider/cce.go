@@ -97,7 +97,7 @@ func init() {
 		bceConfig := bce.NewConfig(cred)
 		bceConfig.Region = cloudConfig.Region
 		// timeout need to set
-		bceConfig.Timeout = 10 * time.Second
+		bceConfig.Timeout = 60 * time.Second
 		// fix endpoint
 		fixEndpoint := cloudConfig.Endpoint + "/internal-api"
 		bceConfig.Endpoint = fixEndpoint
