@@ -1,4 +1,4 @@
-# See the OWNERS_ALIASES docs: https://git.k8s.io/community/contributors/guide/owners.md#owners_aliases
+# See the OWNERS_ALIASES docs at https://go.k8s.io/owners#owners_aliases
 
 aliases:
   steering-committee:
