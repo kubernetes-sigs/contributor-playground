@@ -1,4 +1,4 @@
-# CCE Cloud Controller Manager(CCM)
+# ⎈ CCE Cloud Controller Manager(CCM)
 [![Build Status](https://travis-ci.org/baidu/cloud-provider-baiducloud.svg?branch=master)](https://travis-ci.org/baidu/cloud-provider-baiducloud)
 [![Go Report Card](https://goreportcard.com/badge/github.com/baidu/cloud-provider-baiducloud)](https://goreportcard.com/report/github.com/baidu/cloud-provider-baiducloud)
 
@@ -17,7 +17,7 @@ See [docs/cce-cloud-controller-manager.md](docs/cce-cloud-controller-manager.md)
 ## Usage
 
 - [English](docs/tutorial.md)
-- [中文](docs/release-tutorial_zh-CN.md)
+- [中文](docs/tutorial_zh-CN.md)
 
 ## Releases
 The below combinations have been tested on CCE. We don't do cross version testing or compatibility testing in other environments. 
@@ -25,6 +25,7 @@ The below combinations have been tested on CCE. We don't do cross version testin
 | Kubernetes Version  | CCM Version   |
 |--------|--------|
 | v1.11.x | v1.0.x  |
+| v1.13.x | v1.0.x  |
 
 ## Contribution
 Thank you for considering to help out with the source code! We welcome contributions from anyone on the internet, and are grateful for even the smallest of fixes!
