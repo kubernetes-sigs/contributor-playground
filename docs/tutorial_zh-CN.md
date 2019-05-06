@@ -3,11 +3,11 @@
   * [一、使用说明](#一、使用说明)
   * [二、快速开始](#二、快速开始)
   * [三、高级配置](#三、高级配置)
-    * [3.1固定EIP](#3.1固定EIP)
-    * [3.2自定义EIP配置](#3.2自定义EIP配置)
-    * [3.3不分配EIP，即VPC内BLB](#3.3不分配EIP，即VPC内BLB)
-    * [3.4UDP-Service](#3.4UDP-Service)
-    * [3.5BLB自动分配VIP](#3.5BLB自动分配VIP)
+    * [1.固定EIP](#1.固定EIP)
+    * [2.自定义EIP配置](#2.自定义EIP配置)
+    * [3.不分配EIP，即VPC内BLB](#3.不分配EIP，即VPC内BLB)
+    * [4.UDP-Service](#4.UDP-Service)
+    * [5.BLB自动分配VIP](#5.BLB自动分配VIP)
 
 # 一、使用说明
 本文档会详细介绍如何在CCE下创建类型是**LoadBalancer**的Service。  
@@ -74,7 +74,7 @@ $ curl -i http://8.8.8.8
 
 # 三、高级配置
 
-## 3.1固定EIP
+## 1.固定EIP
 当用户删除Service并重新创建的时候，EIP会变，这样就需要去更改依赖于此IP的其他所有服务，所以CCE提供一种方式来固定此EIP。  
 固定EIP的方案：  
 （1）用户预先百度云上购买一个EIP实例  
@@ -123,7 +123,7 @@ NAME                                    TYPE           CLUSTER-IP       EXTERNAL
 nginx-service-eip-with-loadBalancerIP   LoadBalancer   1.1.1.1          8.8.8.8          80:30601/TCP   1m
 ```
 
-## 3.2自定义EIP配置
+## 2.自定义EIP配置
 ### EIP支持配置类型
 #### 预付费（Prepaid）
 | 项目 | 限制 |
@@ -205,7 +205,7 @@ spec:
 （2）对于预付费，不需要设置计费方式
 （3）删除Service时，预付费EIP不会释放，到期后才会释放
 
-## 3.3不分配EIP，即VPC内BLB
+## 3.不分配EIP，即VPC内BLB
 用户使用时：  
 （1）设置Service.Spec.Type=LoadBalancer  
 （2）为Service添加annotations，即service.beta.kubernetes.io/cce-load-balancer-internal-vpc: "true"  
@@ -253,7 +253,7 @@ nginx-service-blb-internal-vpc   LoadBalancer   1.1.1.1          2.2.2.2        
 ```
 **注：此内网BLB只能在一个VPC内的集群间正常使用；在使用同一个集群内的内网BLB时，会存在问题，建议在同一个集群内直接使用Service的ClusterIP**
 
-## 3.4UDP-Service
+## 4.UDP-Service
 修改spec.ports.protocol为UDP即可使用UDP Service的功能，如下所示：
 ```yaml
 ---
@@ -319,7 +319,7 @@ Get Health Check, response OK
 ```
 **注：根据百度云负载均衡BLB的要求，对于监听UDP的服务，一定要通过UDP健康检查，BLB才会把流量转发到后端，所以需要用户的后端UDP服务响应健康检查字符串，详见：[UDP健康检查介绍](https://cloud.baidu.com/doc/BLB/GettingStart.html#.E9.85.8D.E7.BD.AEUDP.E7.9B.91.E5.90.AC.E5.99.A8)**
 
-## 3.5BLB自动分配VIP
+## 5.BLB自动分配VIP
 通过给Service添加Annotation，此时创建的BLB会自动分配VIP。  
 示例如下： 
 ```yaml
