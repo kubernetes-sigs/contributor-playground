@@ -1,0 +1,22 @@
+# See the OWNERS docs: https://go.k8s.io/community/contributors/guide/owners.md
+
+reviewers:
+  - guineveresaenger
+  - tpepper
+  - ameukam
+  - jeefy
+  - bartsmykla
+  - rosti
+  - smourapina
+  - kmova
+  - raelga 
+approvers:
+  - guineveresaenger
+  - tpepper
+  - ameukam
+  - jeefy
+  - bartsmykla
+  - rosti
+  - smourapina
+  - kmova
+  - raelga
