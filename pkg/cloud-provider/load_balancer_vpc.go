@@ -37,7 +37,7 @@ import (
 //		   Mask：第一台虚机所在子网的Mask
 // (4) VPC：第一台虚机所在VPC
 // (5) 类型：通用型
-func (bc *Baiducloud) getSubnetForBLB(serviceAnnotation *ServiceAnnotation) (string, string, error) {
+func (bc *Baiducloud) getVpcInfoForBLB(serviceAnnotation *ServiceAnnotation) (string, string, error) {
 	// get VPC id
 	vpcId, err := bc.getVpcID()
 	if err != nil {
@@ -63,7 +63,7 @@ func (bc *Baiducloud) getSubnetForBLB(serviceAnnotation *ServiceAnnotation) (str
 		return "", "", err
 	}
 	if len(ins) == 0 {
-		return "", "", fmt.Errorf("getSubnetForBLB failed since instance num is zero")
+		return "", "", fmt.Errorf("getVpcInfoForBLB failed since instance num is zero")
 	}
 	// random select a VM to choose subnet
 	randomVM := ins[rand.Intn(len(ins))]
