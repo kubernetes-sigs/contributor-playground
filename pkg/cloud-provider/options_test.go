@@ -28,7 +28,6 @@ func TestExtractServiceAnnotation(t *testing.T) {
 		t.Errorf("failed")
 	}
 
-
 	data := map[string]string{}
 	data[ServiceAnnotationLoadBalancerSubnetId] = ""
 
