@@ -40,29 +40,9 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 
 	if len(serviceAnnotation.LoadBalancerId) == 0 { // blb not exist, create one and update annotation
 		glog.V(3).Infof("[%v %v] EnsureLoadBalancer create blb!", service.Namespace, service.Name)
-
-		vpcId, err := bc.getVpcID()
+		vpcId, subnetId, err := bc.getSubnetForBLB(serviceAnnotation)
 		if err != nil {
-			return nil, fmt.Errorf("Can't get VPC for BLB: %v\n", err)
-		}
-
-		subnetId := serviceAnnotation.LoadBalancerSubnetId
-		if subnetId != "" {
-			glog.V(3).Infof("[%v %v] Find subnetId %v in annotation for BLB", service.Namespace, service.Name, subnetId)
-			subnet, err := bc.clientSet.Vpc().DescribeSubnet(subnetId)
-			if err != nil {
-				return nil, fmt.Errorf("Can't get subnet with subnetId %v in annotation: %v\n", subnetId, err)
-			}
-			if subnet.SubnetType != "BCC" {
-				return nil, fmt.Errorf("Can't use subnet with subnetId %v in annotation: subnet type is not BCC\n", subnetId)
-			}
-		} else {
-			glog.V(3).Infof("[%v %v] Auto select subnet for BLB", service.Namespace, service.Name)
-			subnetId, err = bc.getSubnetForBLB()
-			if err != nil {
-				return nil, fmt.Errorf("Can't get VPC info for BLB: %v\n", err)
-			}
-			glog.V(3).Infof("[%v %v] Auto selected subnet with id %v for BLB", service.Namespace, service.Name, subnetId)
+			return nil, fmt.Errorf("Can't get VPC info for BLB: %v\n", err)
 		}
 
 		allocateVip := false
