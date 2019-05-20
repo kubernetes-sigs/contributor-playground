@@ -3,3 +3,6 @@
 This is the location of our Seattle New Contributor Workshop Pull Request activities.
 
 
+Hello this is me.
+
+
