@@ -8,6 +8,7 @@
     * [3.不分配EIP，即VPC内BLB](#3不分配EIP，即VPC内BLB)
     * [4.UDP-Service](#4UDP-Service)
     * [5.BLB自动分配VIP](#5BLB自动分配VIP)
+    * [6.指定Subnet创建BLB](#6指定Subnet创建BLB)
 
 # 一、使用说明
 本文档会详细介绍如何在CCE下创建类型是**LoadBalancer**的Service。  
@@ -358,3 +359,44 @@ spec:
         - containerPort: 80
 ```
 **注：此VIP只能在百度内网使用，查询VIP请参考BLB的API**
+
+## 6.指定 Subnet 创建 BLB
+通过为 Service 添加 annotations，即 service.beta.kubernetes.io/cce-load-balancer-subnet-id: "sbn-*****"，指定
+BLB 所在的子网。
+
+示例如下。
+
+```yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-service-blb-subnet-id
+  annotations:
+    service.beta.kubernetes.io/cce-load-balancer-subnet-id: "sbn-*****"
+spec:
+  selector:
+    app: nginx
+  type: LoadBalancer
+  ports:
+  - name: nginx-port
+    port: 80
+    targetPort: 80
+    protocol: TCP
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-deployment-blb-subnet-id
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+```
