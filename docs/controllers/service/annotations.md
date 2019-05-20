@@ -10,6 +10,9 @@ Indicate that the Service only has a BLB and can only be accessed inside the VPC
 ### service.beta.kubernetes.io/cce-load-balancer-allocate-vip: "true"
 Indicate that the BLB for Service has a VIP.**(Baidu Internal Use)**
 
+### service.beta.kubernetes.io/cce-load-balancer-subnet-id: "sbn-25khfnxgfb73"
+Indicate that the BLB for Service will use the Subnet with this id.**(Only used when create Service)**
+
 ## EIP
 
 ### service.beta.kubernetes.io/cce-elastic-ip-payment-timing: ""

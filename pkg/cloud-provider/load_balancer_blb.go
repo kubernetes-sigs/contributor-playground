@@ -40,10 +40,11 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 
 	if len(serviceAnnotation.LoadBalancerId) == 0 { // blb not exist, create one and update annotation
 		glog.V(3).Infof("[%v %v] EnsureLoadBalancer create blb!", service.Namespace, service.Name)
-		vpcId, subnetId, err := bc.getVpcInfoForBLB()
+		vpcId, subnetId, err := bc.getVpcInfoForBLB(serviceAnnotation)
 		if err != nil {
 			return nil, fmt.Errorf("Can't get VPC info for BLB: %v\n", err)
 		}
+
 		allocateVip := false
 		if serviceAnnotation.LoadBalancerAllocateVip == "true" {
 			allocateVip = true

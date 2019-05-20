@@ -1,0 +1,33 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-service-blb-subnet-id
+  annotations:
+    service.beta.kubernetes.io/cce-load-balancer-subnet-id: ""
+spec:
+  selector:
+    app: nginx
+  type: LoadBalancer
+  ports:
+  - name: nginx-port
+    port: 80
+    targetPort: 80
+    protocol: TCP
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-deployment-blb-subnet-id
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80

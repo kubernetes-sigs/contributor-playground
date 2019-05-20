@@ -33,6 +33,8 @@ const (
 	ServiceAnnotationLoadBalancerInternalVpc = ServiceAnnotationLoadBalancerPrefix + "internal-vpc"
 	// ServiceAnnotationLoadBalancerAllocateVip is the annotation which indicates BLB with a VIP
 	ServiceAnnotationLoadBalancerAllocateVip = ServiceAnnotationLoadBalancerPrefix + "allocate-vip"
+	//ServiceAnnotationLoadBalancerSubnetId is the annotation which indicates the BCC type subnet the BLB will use
+	ServiceAnnotationLoadBalancerSubnetId = ServiceAnnotationLoadBalancerPrefix + "subnet-id"
 	// TODO:
 	// ServiceAnnotationLoadBalancerScheduler is the annotation of load balancer which can be "RoundRobin"/"LeastConnection"/"Hash"
 	ServiceAnnotationLoadBalancerScheduler = ServiceAnnotationLoadBalancerPrefix + "scheduler"
@@ -86,6 +88,7 @@ type ServiceAnnotation struct {
 	LoadBalancerId                         string
 	LoadBalancerInternalVpc                string
 	LoadBalancerAllocateVip                string
+	LoadBalancerSubnetId                   string
 	LoadBalancerScheduler                  string
 	LoadBalancerHealthCheckTimeoutInSecond int
 	LoadBalancerHealthCheckInterval        int
@@ -131,6 +134,11 @@ func ExtractServiceAnnotation(service *v1.Service) (*ServiceAnnotation, error) {
 	loadBalancerAllocateVip, ok := annotation[ServiceAnnotationLoadBalancerAllocateVip]
 	if ok {
 		result.LoadBalancerAllocateVip = loadBalancerAllocateVip
+	}
+
+	loadBalancerSubnetId, ok := annotation[ServiceAnnotationLoadBalancerSubnetId]
+	if ok {
+		result.LoadBalancerSubnetId = loadBalancerSubnetId
 	}
 
 	loadBalancerScheduler, ok := annotation[ServiceAnnotationLoadBalancerScheduler]

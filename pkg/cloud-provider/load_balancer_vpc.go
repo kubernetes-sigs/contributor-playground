@@ -18,6 +18,7 @@ package cloud_provider
 
 import (
 	"fmt"
+	"math/rand"
 	"net"
 	"time"
 
@@ -36,8 +37,27 @@ import (
 //		   Mask：第一台虚机所在子网的Mask
 // (4) VPC：第一台虚机所在VPC
 // (5) 类型：通用型
-func (bc *Baiducloud) getVpcInfoForBLB() (string, string, error) {
-	// get prefer vpc info
+func (bc *Baiducloud) getVpcInfoForBLB(serviceAnnotation *ServiceAnnotation) (string, string, error) {
+	// get VPC id
+	vpcId, err := bc.getVpcID()
+	if err != nil {
+		return "", "", fmt.Errorf("Can't get VPC for BLB: %v\n", err)
+	}
+	// user set subnet id in annotation
+	subnetId := serviceAnnotation.LoadBalancerSubnetId
+	if subnetId != "" {
+		glog.V(3).Infof("Find subnetId %v in annotation for BLB", subnetId)
+		subnet, err := bc.clientSet.Vpc().DescribeSubnet(subnetId)
+		if err != nil {
+			return "", "", fmt.Errorf("Can't get subnet with subnetId %v in annotation: %v\n", subnetId, err)
+		}
+		if subnet.SubnetType != "BCC" {
+			return "", "", fmt.Errorf("Can't use subnet with subnetId %v in annotation: subnet type is not BCC\n", subnetId)
+		}
+		glog.V(3).Infof("Use subnet with id %v in annotation for BLB", subnetId)
+		return vpcId, subnetId, nil
+	}
+	// get subnet id from instance
 	ins, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
 	if err != nil {
 		return "", "", err
@@ -45,8 +65,9 @@ func (bc *Baiducloud) getVpcInfoForBLB() (string, string, error) {
 	if len(ins) == 0 {
 		return "", "", fmt.Errorf("getVpcInfoForBLB failed since instance num is zero")
 	}
-	vpcId := ins[0].VpcId
-	subnetId := ins[0].SubnetId
+	// random select a VM to choose subnet
+	randomVM := ins[rand.Intn(len(ins))]
+	subnetId = randomVM.SubnetId
 
 	// check subnet
 	subnet, err := bc.clientSet.Vpc().DescribeSubnet(subnetId)
@@ -54,7 +75,7 @@ func (bc *Baiducloud) getVpcInfoForBLB() (string, string, error) {
 		return "", "", fmt.Errorf("DescribeSubnet failed: %v", err)
 	}
 	if subnet.SubnetType == "BCC" {
-		return vpcId, subnetId, nil
+		return subnet.VpcID, subnetId, nil
 	}
 
 	// get subnet list and choose preferred one
@@ -75,7 +96,12 @@ func (bc *Baiducloud) getVpcInfoForBLB() (string, string, error) {
 
 	// create one
 	currentCidr := subnet.Cidr
+	tryCount := 0
 	for { // loop
+		tryCount++
+		if tryCount > 10 {
+			return "", "", fmt.Errorf("CreateSubnet failed after 10 retries")
+		}
 		_, cidr, err := net.ParseCIDR(currentCidr)
 		if err != nil {
 			return "", "", fmt.Errorf("ParseCIDR failed: %v", err)
