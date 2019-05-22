@@ -69,6 +69,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 		glog.V(3).Infof("[%v %v] EnsureLoadBalancer create blb success, BLB name: %s, BLB id: %s, BLB address: %s.", service.Namespace, service.Name, resp.Name, resp.LoadBalancerId, resp.Address)
 		argsDesc := blb.DescribeLoadBalancersArgs{
 			LoadBalancerId: resp.LoadBalancerId,
+			ExactlyMatch:   true,
 		}
 		lbs, err := bc.clientSet.Blb().DescribeLoadBalancers(&argsDesc)
 		if err != nil {
