@@ -285,8 +285,8 @@ func (bc *Baiducloud) routeTableConflictDetection(rs []vpc.RouteRule) {
 				glog.V(4).Infof("RouteTable conflict detected, custom routeRule %v may conflict with cce routeRule %v", otherRR[i], cceRR[j])
 				if bc.eventRecorder != nil {
 					bc.eventRecorder.Eventf(&v1.ObjectReference{
-						Kind:      "VPC",
-						Name:      "RouteTableConflict",
+						Kind: "VPC",
+						Name: "RouteTableConflict",
 					}, v1.EventTypeWarning, "RouteTableConflictDetection", "RouteTable conflict detected, custom routeRule %v may conflict with cce routeRule %v", otherRR[i], cceRR[j])
 				}
 			}
@@ -312,7 +312,7 @@ func (bc *Baiducloud) isConflict(otherRR vpc.RouteRule, cceRR vpc.RouteRule) boo
 			glog.Errorf("otherRR %v net.ParseCIDR failed: %v", otherRR, err)
 			return false
 		}
-		err = VerifyNoOverlap([]*net.IPNet{cceCidr, otherCidr,}, cidrBlock)
+		err = VerifyNoOverlap([]*net.IPNet{cceCidr, otherCidr}, cidrBlock)
 		if err != nil {
 			glog.Errorf("VerifyNoOverlap: %v", err)
 			return true

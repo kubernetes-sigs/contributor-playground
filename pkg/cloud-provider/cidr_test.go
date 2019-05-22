@@ -22,11 +22,11 @@ func TestVerifyNoOverlap(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = VerifyNoOverlap([]*net.IPNet{cceCidr, customRightCidr,}, cidrBlock)
+	err = VerifyNoOverlap([]*net.IPNet{cceCidr, customRightCidr}, cidrBlock)
 	if err != nil {
 		t.Error(err)
 	}
-	err = VerifyNoOverlap([]*net.IPNet{cceCidr, customWrongCidr,}, cidrBlock)
+	err = VerifyNoOverlap([]*net.IPNet{cceCidr, customWrongCidr}, cidrBlock)
 	if err != nil {
 		t.Log(err)
 	}

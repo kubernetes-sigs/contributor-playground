@@ -41,6 +41,7 @@ type DescribeLoadBalancersArgs struct {
 	LoadBalancerName string
 	BCCId            string
 	Address          string
+	ExactlyMatch     bool
 }
 
 // DescribeLoadBalancersResponse is the response of DescribeLoadBalancers
@@ -118,11 +119,16 @@ func (c *Client) CreateLoadBalancer(args *CreateLoadBalancerArgs) (*CreateLoadBa
 func (c *Client) DescribeLoadBalancers(args *DescribeLoadBalancersArgs) ([]LoadBalancer, error) {
 	var params map[string]string
 	if args != nil {
+		exactlyMatch := "true"
+		if !args.ExactlyMatch {
+			exactlyMatch = "false"
+		}
 		params = map[string]string{
-			"blbId":   args.LoadBalancerId,
-			"name":    args.LoadBalancerName,
-			"bccId":   args.BCCId,
-			"address": args.Address,
+			"blbId":        args.LoadBalancerId,
+			"name":         args.LoadBalancerName,
+			"bccId":        args.BCCId,
+			"address":      args.Address,
+			"exactlyMatch": exactlyMatch,
 		}
 	}
 	req, err := bce.NewRequest("GET", c.GetURL("v1/blb", params), nil)

@@ -126,10 +126,10 @@ func (bc *Baiducloud) updateListener(lb *blb.LoadBalancer, pl PortListener) erro
 	switch pl.Protocol {
 	case "UDP":
 		args := blb.UpdateUDPListenerArgs{
-			LoadBalancerId: lb.BlbId,
-			ListenerPort:   pl.Port,
-			BackendPort:    int(pl.NodePort),
-			Scheduler:      "RoundRobin",
+			LoadBalancerId:    lb.BlbId,
+			ListenerPort:      pl.Port,
+			BackendPort:       int(pl.NodePort),
+			Scheduler:         "RoundRobin",
 			HealthCheckString: "HealthCheck",
 		}
 		err := bc.clientSet.Blb().UpdateUDPListener(&args)
