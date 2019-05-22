@@ -27,12 +27,12 @@ import (
 	"k8s.io/api/core/v1"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
+	v1core "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 	"k8s.io/kubernetes/pkg/controller"
-	"k8s.io/client-go/kubernetes/scheme"
-	v1core "k8s.io/client-go/kubernetes/typed/core/v1"
 
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/clientset"
@@ -47,8 +47,8 @@ const CceUserAgent = "cce-k8s:"
 // Baiducloud defines the main struct
 type Baiducloud struct {
 	CloudConfig
-	clientSet  clientset.Interface
-	kubeClient kubernetes.Interface
+	clientSet        clientset.Interface
+	kubeClient       kubernetes.Interface
 	eventBroadcaster record.EventBroadcaster
 	eventRecorder    record.EventRecorder
 }
