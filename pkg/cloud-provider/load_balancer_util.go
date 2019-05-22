@@ -70,6 +70,7 @@ func (bc *Baiducloud) getBCELoadBalancer(name string) (lb *blb.LoadBalancer, exi
 	}
 	args := blb.DescribeLoadBalancersArgs{
 		LoadBalancerName: name,
+		ExactlyMatch:     true,
 	}
 	lbs, err := bc.clientSet.Blb().DescribeLoadBalancers(&args)
 	if err != nil {
@@ -89,6 +90,7 @@ func (bc *Baiducloud) getBCELoadBalancerById(id string) (lb *blb.LoadBalancer, e
 	}
 	args := blb.DescribeLoadBalancersArgs{
 		LoadBalancerId: id,
+		ExactlyMatch:   true,
 	}
 	lbs, err := bc.clientSet.Blb().DescribeLoadBalancers(&args)
 	if err != nil {

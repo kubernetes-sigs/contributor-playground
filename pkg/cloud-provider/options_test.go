@@ -12,8 +12,7 @@ func buildService() *api.Service {
 			Name:      "foo",
 			Namespace: api.NamespaceDefault,
 		},
-		Spec: api.ServiceSpec{
-		},
+		Spec: api.ServiceSpec{},
 	}
 }
 
