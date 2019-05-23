@@ -19,12 +19,14 @@ package cloud_provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/golang/glog"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/blb"
+	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/eip"
 )
 
 // LoadBalancer returns a balancer interface. Also returns true if the interface is supported, false otherwise.
@@ -151,18 +153,110 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 		return nil
 	}
 
-	// start delete blb and eip, delete blb first
-	glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: Start delete BLB: %s", serviceName, clusterName, lb.BlbId)
-	args := blb.DeleteLoadBalancerArgs{
-		LoadBalancerId: lb.BlbId,
-	}
-	err = bc.clientSet.Blb().DeleteLoadBalancer(&args)
-	if err != nil {
-		return err
+	if len(result.LoadBalancerExistId) == 0 { //user does not assign the blbid in the annotation
+		// start delete blb and eip, delete blb first
+		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: Start delete BLB: %s", serviceName, clusterName, lb.BlbId)
+		args := blb.DeleteLoadBalancerArgs{
+			LoadBalancerId: lb.BlbId,
+		}
+		err = bc.clientSet.Blb().DeleteLoadBalancer(&args)
+		if err != nil {
+			return err
+		}
+	} else { //assign the blbid
+		//get allListeners & delete Listeners
+		allListeners, err := bc.getAllListeners(lb)
+		if err != nil {
+			return err
+		}
+		if len(allListeners) > 0 {
+			err = bc.deleteListener(lb, allListeners)
+			if err != nil {
+				return err
+			}
+		}
+		//get allServers & delete BackendServers
+		allServers, err := bc.getAllBackendServer(lb)
+		var removeList []string
+		if err != nil {
+			return err
+		}
+		for _, server := range allServers {
+			removeList = append(removeList, server.InstanceId)
+		}
+
+		if len(removeList) > 0 {
+			args := blb.RemoveBackendServersArgs{
+				LoadBalancerId:    lb.BlbId,
+				BackendServerList: removeList,
+			}
+			err = bc.clientSet.Blb().RemoveBackendServers(&args)
+			if err != nil {
+				return err
+			}
+		}
+
+		//unbind eip & blb when user assigned the eip
+		if len(service.Spec.LoadBalancerIP) != 0 { //use user’s eip, do not delete
+			unbindArgs := eip.EipArgs{
+				Ip: service.Spec.LoadBalancerIP,
+			}
+			// just unbind, not delete
+			err := bc.clientSet.Eip().UnbindEip(&unbindArgs)
+			if err != nil {
+				glog.V(3).Infof("Unbind Eip error : %s", err.Error())
+				return nil
+			}
+			return nil
+		}
+
+		//get targetEip
+		var targetEip string
+		if len(service.Status.LoadBalancer.Ingress) != 0 { // P0: use service EXTERNAL_IP
+			targetEip = service.Status.LoadBalancer.Ingress[0].IP
+		}
+		if len(targetEip) == 0 { // P1: use BLB public ip
+			targetEip = lb.PublicIp
+		}
+		if len(targetEip) == 0 { // get none EIP
+			return fmt.Errorf("EnsureLoadBalancerDeleted failed: can not get a EIP to delete")
+		}
+
+		glog.V(3).Infof("testest: %s", lb.Desc)
+		if strings.Contains(lb.Desc, "cce_auto_create_eip") {
+			unbindArgs := eip.EipArgs{
+				Ip: targetEip,
+			}
+			lb.Desc = strings.TrimPrefix(lb.Desc, "cce_auto_create_eip")
+			newLbArg := blb.UpdateLoadBalancerArgs{
+				LoadBalancerId: lb.BlbId,
+				Desc:           lb.Desc,
+				Name:           lb.Name,
+			}
+			err = bc.clientSet.Blb().UpdateLoadBalancer(&newLbArg)
+			if err != nil {
+				return err
+			}
+			// just unbind, not delete
+			err := bc.clientSet.Eip().UnbindEip(&unbindArgs)
+			if err != nil {
+				glog.V(3).Infof("Unbind Eip error : %s", err.Error())
+				return nil
+			}
+			err = bc.deleteEIP(targetEip)
+		}
+
+		if err != nil {
+			return err
+		}
+		if service.Annotations != nil {
+			delete(service.Annotations, ServiceAnnotationLoadBalancerId)
+		}
+		return nil
 	}
 
 	// delete EIP
-	if result.LoadBalancerInternalVpc == "true" {
+	if result.LoadBalancerInternalVpc == "true" { //do not assign the eip
 		if service.Annotations != nil {
 			delete(service.Annotations, ServiceAnnotationLoadBalancerId)
 		}
@@ -170,7 +264,7 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 		glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
 		return nil
 	}
-	if len(service.Spec.LoadBalancerIP) != 0 {
+	if len(service.Spec.LoadBalancerIP) != 0 { //use user’s eip, do not delete
 		if service.Annotations != nil {
 			delete(service.Annotations, ServiceAnnotationLoadBalancerId)
 		}
