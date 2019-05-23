@@ -17,11 +17,11 @@ limitations under the License.
 package cloud_provider
 
 import (
+	"fmt"
 	"strconv"
 
-	"fmt"
 	"github.com/golang/glog"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 )
 
 const (
@@ -29,6 +29,8 @@ const (
 	ServiceAnnotationLoadBalancerPrefix = "service.beta.kubernetes.io/cce-load-balancer-"
 	// ServiceAnnotationLoadBalancerId is the annotation of LoadBalancerId
 	ServiceAnnotationLoadBalancerId = ServiceAnnotationLoadBalancerPrefix + "id"
+
+	ServiceAnnotationLoadBalancerExistId = ServiceAnnotationLoadBalancerPrefix + "exist-id"
 	// ServiceAnnotationLoadBalancerInternalVpc is the annotation of LoadBalancerInternalVpc
 	ServiceAnnotationLoadBalancerInternalVpc = ServiceAnnotationLoadBalancerPrefix + "internal-vpc"
 	// ServiceAnnotationLoadBalancerAllocateVip is the annotation which indicates BLB with a VIP
@@ -86,6 +88,7 @@ const (
 type ServiceAnnotation struct {
 	/* BLB */
 	LoadBalancerId                         string
+	LoadBalancerExistId                    string
 	LoadBalancerInternalVpc                string
 	LoadBalancerAllocateVip                string
 	LoadBalancerSubnetId                   string
@@ -124,6 +127,11 @@ func ExtractServiceAnnotation(service *v1.Service) (*ServiceAnnotation, error) {
 	loadBalancerId, exist := annotation[ServiceAnnotationLoadBalancerId]
 	if exist {
 		result.LoadBalancerId = loadBalancerId
+	}
+
+	LoadBalancerExistId, exist := annotation[ServiceAnnotationLoadBalancerExistId]
+	if exist {
+		result.LoadBalancerExistId = LoadBalancerExistId
 	}
 
 	loadBalancerInternalVpc, exist := annotation[ServiceAnnotationLoadBalancerInternalVpc]
