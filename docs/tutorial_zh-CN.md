@@ -9,6 +9,7 @@
     * [4.UDP-Service](#4UDP-Service)
     * [5.BLB自动分配VIP](#5BLB自动分配VIP)
     * [6.指定Subnet创建BLB](#6指定Subnet创建BLB)
+    * [7.指定BLB创建LB Service](#7指定blb创建lb-service)
 
 # 一、使用说明
 本文档会详细介绍如何在CCE下创建类型是**LoadBalancer**的Service。  
@@ -129,7 +130,7 @@ nginx-service-eip-with-loadBalancerIP   LoadBalancer   1.1.1.1          8.8.8.8 
 #### 预付费（Prepaid）
 | 项目 | 限制 |
 | ------ | ------ |
-| 公网带宽 | 1-200Mbps，Int |
+| 公网带宽 | 1-200Mbps，Int |                             
 | 购买时长 | [1,2,3,4,5,6,7,8,9,12,24,36]，时间单位，month |
 
 #### 后付费（Postpaid）
@@ -387,6 +388,46 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: nginx-deployment-blb-subnet-id
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+```
+
+## 7.指定BLB创建LB Service
+通过为 Service 添加 annotations，即 service.beta.kubernetes.io/cce-load-balancer-exist-id: "lb-xxxxxxxx"，指定
+LB 的BLB。删除LB时，BLB会恢复成用户创建LB时BLB的状态。
+
+示例如下
+```yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-service-assign-blb
+  annotations:
+    service.beta.kubernetes.io/cce-load-balancer-exist-id: "lb-xxxxxxxx"
+spec:
+  selector:
+    app: nginx
+  type: LoadBalancer
+  ports:
+  - name: nginx-port
+    port: 80
+    targetPort: 80
+    protocol: TCP
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-service-assign-blb
 spec:
   replicas: 1
   template:
