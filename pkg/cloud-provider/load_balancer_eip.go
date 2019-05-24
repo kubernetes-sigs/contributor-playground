@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/golang/glog"
-	"k8s.io/api/core/v1"
 
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/blb"
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/eip"
 )
@@ -37,6 +37,17 @@ func (bc *Baiducloud) ensureEIPWithNoSpecificIP(ctx context.Context, clusterName
 		if len(args.Name) == 0 {
 			args.Name = lb.Name // default EIP name = lb name
 		}
+		lb.Desc = "cce_auto_create_eip" + lb.Desc
+		newLbArg := blb.UpdateLoadBalancerArgs{
+			LoadBalancerId: lb.BlbId,
+			Desc:           lb.Desc,
+			Name:           lb.Name,
+		}
+		err = bc.clientSet.Blb().UpdateLoadBalancer(&newLbArg)
+		if err != nil {
+			return "", err
+		}
+		glog.V(3).Infof("lb.Desc: %s", lb.Desc)
 		pubIP, err = bc.createEIP(args, lb)
 		if err != nil {
 			if pubIP != "" {
