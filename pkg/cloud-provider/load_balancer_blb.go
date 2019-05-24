@@ -14,9 +14,6 @@ import (
 func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node, serviceAnnotation *ServiceAnnotation) (*blb.LoadBalancer, error) {
 	var lb *blb.LoadBalancer
 	var err error
-
-	glog.V(3).Infof("serviceAnnotation.LoadBalancerId: %s", serviceAnnotation.LoadBalancerId)
-
 	//before checking LoadBalancerId checks LoadBalancerExistId firstly
 	// if serviceAnnotation.LoadBalancerId is none, we need to double check from cloud since user can update yaml in a short time causing annotation not attach.
 	// LOG:
