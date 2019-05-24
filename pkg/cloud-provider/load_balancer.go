@@ -196,6 +196,17 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 			}
 		}
 
+		// annotation "LoadBalancerInternalVpc" exists
+		if result.LoadBalancerInternalVpc == "true" { //do not assign the eip
+			if service.Annotations != nil {
+				delete(service.Annotations, ServiceAnnotationLoadBalancerId)
+			}
+			glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: use LoadBalancerInternalVpc, no EIP to delete", service.Namespace, service.Name)
+			glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
+			return nil
+		}
+
+		//annotation "LoadBalancerIP" exists
 		//unbind eip & blb when user assigned the eip
 		if len(service.Spec.LoadBalancerIP) != 0 { //use user’s eip, do not delete
 			unbindArgs := eip.EipArgs{
@@ -221,8 +232,6 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 		if len(targetEip) == 0 { // get none EIP
 			return fmt.Errorf("EnsureLoadBalancerDeleted failed: can not get a EIP to delete")
 		}
-
-		glog.V(3).Infof("testest: %s", lb.Desc)
 		if strings.Contains(lb.Desc, "cce_auto_create_eip") {
 			unbindArgs := eip.EipArgs{
 				Ip: targetEip,
@@ -237,7 +246,7 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 			if err != nil {
 				return err
 			}
-			// just unbind, not delete
+			// unbind & delete
 			err := bc.clientSet.Eip().UnbindEip(&unbindArgs)
 			if err != nil {
 				glog.V(3).Infof("Unbind Eip error : %s", err.Error())
