@@ -123,6 +123,23 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 		}
 		glog.V(3).Infof("[%v %v] EnsureLoadBalancer: blb already exists: %v", service.Namespace, service.Name, lb)
 		service.Annotations[ServiceAnnotationLoadBalancerId] = serviceAnnotation.LoadBalancerExistId
+
+		//blb has been used.
+		allListeners, err := bc.getAllListeners(lb)
+		if err != nil {
+			return nil, err
+		}
+		if len(allListeners) > 0 {
+			service.Annotations[ServiceAnnotationLoadBalancerExistId] = "error_blb_has_been_used"
+			return nil, fmt.Errorf("This blb has been used already!")
+		}
+
+		//use blb in vpc
+		if serviceAnnotation.LoadBalancerInternalVpc == "true" {
+			if len(lb.PublicIp) != 0 { //the blb has been bound, unbind
+				//todo blb has eip, unbind and record the ip for deleting to recover eip!
+			}
+		}
 	}
 
 	lb, err = bc.waitForLoadBalancer(lb)

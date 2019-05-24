@@ -163,7 +163,9 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 		if err != nil {
 			return err
 		}
-	} else { //assign the blbid
+	} else if result.LoadBalancerExistId == "error_blb_has_been_used" {
+		return nil
+	} else {
 		//get allListeners & delete Listeners
 		allListeners, err := bc.getAllListeners(lb)
 		if err != nil {
@@ -202,6 +204,7 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 				delete(service.Annotations, ServiceAnnotationLoadBalancerId)
 			}
 			glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: use LoadBalancerInternalVpc, no EIP to delete", service.Namespace, service.Name)
+			//todo recover eip for blb which has eip in the begin.
 			glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
 			return nil
 		}
@@ -232,6 +235,8 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 		if len(targetEip) == 0 { // get none EIP
 			return fmt.Errorf("EnsureLoadBalancerDeleted failed: can not get a EIP to delete")
 		}
+
+		// blb if has eip in the begin
 		if strings.Contains(lb.Desc, "cce_auto_create_eip") {
 			unbindArgs := eip.EipArgs{
 				Ip: targetEip,

@@ -9,11 +9,7 @@
     * [4.UDP-Service](#4UDP-Service)
     * [5.BLB自动分配VIP](#5BLB自动分配VIP)
     * [6.指定Subnet创建BLB](#6指定Subnet创建BLB)
-<<<<<<< HEAD
     * [7.指定BLB创建LB Service](#7指定blb创建lb-service)
-=======
-    *  [7.指定BLB创建LB Service](#7指定blb创建lb-service)
->>>>>>> 4e20a63746bfcd4d5a5a5ad8e44cc6674e1230ff
 
 # 一、使用说明
 本文档会详细介绍如何在CCE下创建类型是**LoadBalancer**的Service。  
