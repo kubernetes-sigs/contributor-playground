@@ -73,7 +73,7 @@ type CreateLoadBalancerResponse struct {
 // UpdateLoadBalancerArgs is the args to UpdateLoadBalancer
 type UpdateLoadBalancerArgs struct {
 	LoadBalancerId string `json:"blbId"`
-	Desc           string `json:"desc,omitempty"`
+	Desc           string `json:"desc"`
 	Name           string `json:"name,omitempty"`
 }
 
