@@ -259,10 +259,9 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 				return nil
 			}
 			err = bc.deleteEIP(targetEip)
-		}
-
-		if err != nil {
-			return err
+			if err != nil {
+				return err
+			}
 		}
 		if service.Annotations != nil {
 			delete(service.Annotations, ServiceAnnotationLoadBalancerId)

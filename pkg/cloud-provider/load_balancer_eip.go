@@ -38,7 +38,7 @@ func (bc *Baiducloud) ensureEIPWithNoSpecificIP(ctx context.Context, clusterName
 		if len(args.Name) == 0 {
 			args.Name = lb.Name // default EIP name = lb name
 		}
-		//sometimes there are serverl times to get EIP
+		//sometimes there are several times to get EIP
 		if !strings.Contains(lb.Desc, "cce_auto_create_eip") {
 			lb.Desc = "cce_auto_create_eip" + lb.Desc
 			newLbArg := blb.UpdateLoadBalancerArgs{
