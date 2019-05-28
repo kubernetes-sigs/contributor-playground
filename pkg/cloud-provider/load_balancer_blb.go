@@ -112,7 +112,8 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 			glog.V(3).Infof("[%v %v] EnsureLoadBalancer: blb already exists: %v", service.Namespace, service.Name, lb)
 		}
 
-	} else { //use annotations LoadBalancerExistId
+	} else { //use annotations LoadBalancerExistIdß
+		//blb has been used.
 		var exists bool
 		lb, exists, err = bc.getBCELoadBalancerById(serviceAnnotation.LoadBalancerExistId)
 		if err != nil {
@@ -121,24 +122,16 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 		if !exists {
 			return nil, fmt.Errorf("EnsureLoadBalancer getBCELoadBalancerById failed, target blb not exist, blb id: %v", serviceAnnotation.LoadBalancerId)
 		}
-		glog.V(3).Infof("[%v %v] EnsureLoadBalancer: blb already exists: %v", service.Namespace, service.Name, lb)
-		service.Annotations[ServiceAnnotationLoadBalancerId] = serviceAnnotation.LoadBalancerExistId
-
-		//blb has been used.
 		allListeners, err := bc.getAllListeners(lb)
 		if err != nil {
 			return nil, err
 		}
-		if len(allListeners) > 0 {
+		if len(allListeners) > 0 && len(serviceAnnotation.LoadBalancerId) == 0 {
 			service.Annotations[ServiceAnnotationLoadBalancerExistId] = "error_blb_has_been_used"
 			return nil, fmt.Errorf("This blb has been used already!")
-		}
-
-		//use blb in vpc
-		if serviceAnnotation.LoadBalancerInternalVpc == "true" {
-			if len(lb.PublicIp) != 0 { //the blb has been bound, unbind
-				//todo blb has eip, unbind and record the ip for deleting to recover eip!
-			}
+		} else {
+			glog.V(3).Infof("[%v %v] EnsureLoadBalancerexistid: blb already exists: %v", service.Namespace, service.Name, lb)
+			service.Annotations[ServiceAnnotationLoadBalancerId] = serviceAnnotation.LoadBalancerExistId
 		}
 	}
 
