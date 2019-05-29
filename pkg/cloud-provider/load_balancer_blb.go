@@ -112,7 +112,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 			glog.V(3).Infof("[%v %v] EnsureLoadBalancer: blb already exists: %v", service.Namespace, service.Name, lb)
 		}
 
-	} else { //use annotations LoadBalancerExistIdß
+	} else { //use annotations LoadBalancerExistId
 		//blb has been used.
 		var exists bool
 		lb, exists, err = bc.getBCELoadBalancerById(serviceAnnotation.LoadBalancerExistId)
