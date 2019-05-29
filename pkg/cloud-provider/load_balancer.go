@@ -238,6 +238,7 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 
 		// blb if has eip in the begin
 		if strings.Contains(lb.Desc, "cce_auto_create_eip") {
+			glog.V(3).Infof("EnsureLoadBalancerDeleted: delete eip created by cce: %s", lb.Desc)
 			unbindArgs := eip.EipArgs{
 				Ip: targetEip,
 			}
@@ -258,10 +259,9 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 				return nil
 			}
 			err = bc.deleteEIP(targetEip)
-		}
-
-		if err != nil {
-			return err
+			if err != nil {
+				return err
+			}
 		}
 		if service.Annotations != nil {
 			delete(service.Annotations, ServiceAnnotationLoadBalancerId)
