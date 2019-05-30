@@ -115,6 +115,43 @@ kubectl delete -f ./docs/controllers/service/examples/nginx-EIP-Postpaid-ByTraff
 echo "Test nginx-EIP-Postpaid-ByTraffic-1000M.yaml success"
 echo ""
 
+echo "Test nginx-BLB-assignedID.yaml"
+kubectl create -f ./docs/controllers/service/examples/nginx-BLB-assignedID.yaml
+status="Check: "
+while true
+do
+    if [ `kubectl get service |grep "nginx-service-blb-assigned-id"|grep -v "pending"|wc -l` -eq 1 ]; then
+        break
+    fi
+    sleep 10
+    status=$status"."
+    echo $status
+done
+echo "echo create successfully"
+sleep 10
+kubectl delete -f ./docs/controllers/service/examples/nginx-BLB-assignedID.yaml
+echo "Test nginx-BLB-assignedID.yaml successfully"
+echo ""
+
+echo "Test nginx-BLB-assignedID-EIP.yaml"
+kubectl create -f ./docs/controllers/service/examples/nginx-BLB-assignedID-EIP.yaml
+status="Check: "
+while true
+do
+    if [ `kubectl get service |grep "nginx-service-blb-assignedid-eip"|grep -v "pending"|wc -l` -eq 1 ]; then
+        break
+    fi
+    sleep 10
+    status=$status"."
+    echo $status
+done
+echo "echo create successfully"
+sleep 10
+kubectl delete -f ./docs/controllers/service/examples/nginx-BLB-assignedID-EIP.yaml
+echo "Test nginx-BLB-assignedID-EIP.yaml successfully"
+echo ""
+
+
 endTime=`date +%Y%m%d-%H:%M`
 endTime_s=`date +%s`
 sumTime=$[ $endTime_s - $startTime_s ]
