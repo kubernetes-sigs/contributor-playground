@@ -2,13 +2,14 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: nginx-service-blb-assign
+  name: nginx-service-blb-assignedid-eip
   annotations:
     service.beta.kubernetes.io/cce-load-balancer-exist-id: ""
 spec:
   selector:
     app: nginx
   type: LoadBalancer
+  loadBalancerIP: 
   ports:
   - name: nginx-port
     port: 80
@@ -18,7 +19,7 @@ spec:
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: nginx-deployment-blb-assign
+  name: nginx-deployment-blb-assignedid-eip
 spec:
   replicas: 1
   template:
