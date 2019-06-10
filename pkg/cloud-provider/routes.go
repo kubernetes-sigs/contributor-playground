@@ -18,6 +18,7 @@ package cloud_provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net"
 	"strings"
@@ -212,7 +213,9 @@ func (bc *Baiducloud) getVpcRouteTable() ([]vpc.RouteRule, error) {
 // node.alpha.kubernetes.io/vpc-route-table-id: "rt-xxx"
 // node.alpha.kubernetes.io/vpc-route-rule-id: "rr-xxx"
 func (bc *Baiducloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vpcRouteRuleId string) error {
+	glog.V(4).Infof("testensureRouteInfoToNode")
 	curNode, err := bc.kubeClient.CoreV1().Nodes().Get(nodeName, metav1.GetOptions{})
+	glog.V(4).Infof("test1:%v", curNode.Annotations)
 	if err != nil {
 		// skip unreachable node
 		if strings.Contains(err.Error(), "not found") {
@@ -227,26 +230,32 @@ func (bc *Baiducloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vp
 	if err != nil {
 		return err
 	}
-	ischanged := false
+	isChanged := false
 	if nodeAnnotation.VpcId != vpcId {
 		curNode.Annotations[NodeAnnotationVpcId] = vpcId
-		ischanged = true
+		isChanged = true
 	}
 	if nodeAnnotation.VpcRouteTableId != vpcRouteTableId {
 		curNode.Annotations[NodeAnnotationVpcRouteTableId] = vpcRouteTableId
-		ischanged = true
+		isChanged = true
 	}
 	if nodeAnnotation.VpcRouteRuleId != vpcRouteRuleId {
 		curNode.Annotations[NodeAnnotationVpcRouteRuleId] = vpcRouteRuleId
-		ischanged = true
+		isChanged = true
 	}
 	if nodeAnnotation.CCMVersion != CCMVersion {
 		curNode.Annotations[NodeAnnotationCCMVersion] = CCMVersion
-		ischanged = true
+		isChanged = true
 	}
-	if ischanged {
-		_, err = bc.kubeClient.CoreV1().Nodes().Update(curNode)
+	if isChanged {
+		j, err := json.Marshal(curNode.Annotations)
 		if err != nil {
+			return err
+		}
+		data := []byte(fmt.Sprintf(`{"metadata":{"annotations":%s}}`, j))
+		_, err = bc.kubeClient.CoreV1().Nodes().Patch(nodeName, types.StrategicMergePatchType, data)
+		if err != nil {
+			glog.V(4).Infof("Patch error!")
 			return err
 		}
 	}
