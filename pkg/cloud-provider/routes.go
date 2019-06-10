@@ -27,7 +27,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/cce"
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/vpc"
 )
@@ -227,21 +227,28 @@ func (bc *Baiducloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vp
 	if err != nil {
 		return err
 	}
+	ischanged := false
 	if nodeAnnotation.VpcId != vpcId {
 		curNode.Annotations[NodeAnnotationVpcId] = vpcId
+		ischanged = true
 	}
 	if nodeAnnotation.VpcRouteTableId != vpcRouteTableId {
 		curNode.Annotations[NodeAnnotationVpcRouteTableId] = vpcRouteTableId
+		ischanged = true
 	}
 	if nodeAnnotation.VpcRouteRuleId != vpcRouteRuleId {
 		curNode.Annotations[NodeAnnotationVpcRouteRuleId] = vpcRouteRuleId
+		ischanged = true
 	}
 	if nodeAnnotation.CCMVersion != CCMVersion {
 		curNode.Annotations[NodeAnnotationCCMVersion] = CCMVersion
+		ischanged = true
 	}
-	_, err = bc.kubeClient.CoreV1().Nodes().Update(curNode)
-	if err != nil {
-		return err
+	if ischanged {
+		_, err = bc.kubeClient.CoreV1().Nodes().Update(curNode)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

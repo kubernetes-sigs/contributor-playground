@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	"github.com/golang/glog"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 
@@ -92,12 +92,30 @@ func (bc *Baiducloud) InstanceID(ctx context.Context, name types.NodeName) (stri
 
 // InstanceType returns the type of the specified instance.
 func (bc *Baiducloud) InstanceType(ctx context.Context, name types.NodeName) (string, error) {
+	ins, err := bc.clientSet.Cce().DescribeCluster(bc.ClusterID)
+	if err != nil {
+		return "", err
+	}
+	if ins.NodeConfig.GpuCount > 0 {
+		return string("GPU"), nil
+
+	}
 	return string("BCC"), nil
+
 }
 
 // InstanceTypeByProviderID returns the type of the specified instance.
 func (bc *Baiducloud) InstanceTypeByProviderID(ctx context.Context, providerID string) (string, error) {
+	ins, err := bc.clientSet.Cce().DescribeCluster(bc.ClusterID)
+	if err != nil {
+		return "", err
+	}
+	if ins.NodeConfig.GpuCount > 0 {
+		return string("GPU"), nil
+
+	}
 	return string("BCC"), nil
+
 }
 
 // AddSSHKeyToAllInstances adds an SSH public key as a legal identity for all instances

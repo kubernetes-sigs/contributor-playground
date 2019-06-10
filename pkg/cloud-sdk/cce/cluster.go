@@ -62,6 +62,51 @@ type ListInstancesResponse struct {
 	Instances []CceInstance `json:"instances"`
 }
 
+// NodeConfig is the config for node
+type NodeConfig struct {
+	InstanceType int    `json:"instanceType"`
+	CPU          int    `json:"cpu,omitempty"`
+	Memory       int    `json:"memory,omitempty"`
+	GpuCount     int    `json:"gpuCount,omitempty"`
+	GpuCard      string `json:"gpuCard,omitempty"`
+	DiskSize     int    `json:"diskSize,omitempty"`
+}
+
+// CceCluster define cluster of cce
+type CceCluster struct {
+	ClusterUuid string     `json:"clusterUuid"`
+	NodeConfig  NodeConfig `json:"nodeConfig"`
+}
+
+// DescribeCluster describe the cluster
+func (c *Client) DescribeCluster(clusterID string) (*CceCluster, error) {
+	if clusterID == "" {
+		return nil, fmt.Errorf("clusterID should not be nil")
+	}
+	req, err := bce.NewRequest("GET", c.GetURL("/v1/cluster/"+clusterID, nil), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.SendRequest(req, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	bodyContent, err := resp.GetBodyContent()
+	if err != nil {
+		return nil, err
+	}
+
+	var cceCluster CceCluster
+	err = json.Unmarshal(bodyContent, &cceCluster)
+	if err != nil {
+		return nil, err
+	}
+
+	return &cceCluster, nil
+}
+
 // ListInstances gets all Instances of a cluster.
 func (c *Client) ListInstances(clusterID string) ([]CceInstance, error) {
 	if clusterID == "" {
