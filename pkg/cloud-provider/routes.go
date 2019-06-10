@@ -213,9 +213,7 @@ func (bc *Baiducloud) getVpcRouteTable() ([]vpc.RouteRule, error) {
 // node.alpha.kubernetes.io/vpc-route-table-id: "rt-xxx"
 // node.alpha.kubernetes.io/vpc-route-rule-id: "rr-xxx"
 func (bc *Baiducloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vpcRouteRuleId string) error {
-	glog.V(4).Infof("testensureRouteInfoToNode")
 	curNode, err := bc.kubeClient.CoreV1().Nodes().Get(nodeName, metav1.GetOptions{})
-	glog.V(4).Infof("test1:%v", curNode.Annotations)
 	if err != nil {
 		// skip unreachable node
 		if strings.Contains(err.Error(), "not found") {
