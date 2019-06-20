@@ -38,6 +38,7 @@ const (
 type CceInstance struct {
 	InstanceId            string `json:"id"`
 	InstanceName          string `json:"name"`
+	InstanceType          string `json:"instancetype"`
 	Description           string `json:"desc"`
 	Status                string `json:"status"`
 	PaymentTiming         string `json:"paymentTiming"`
