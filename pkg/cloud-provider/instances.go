@@ -92,11 +92,11 @@ func (bc *Baiducloud) InstanceID(ctx context.Context, name types.NodeName) (stri
 
 // InstanceType returns the type of the specified instance.
 func (bc *Baiducloud) InstanceType(ctx context.Context, name types.NodeName) (string, error) {
-	ins, err := bc.clientSet.Cce().DescribeCluster(bc.ClusterID)
+	ins, err := bc.getInstanceByNodeName(name)
 	if err != nil {
 		return "", err
 	}
-	if ins.NodeConfig.GpuCount > 0 {
+	if ins.InstanceType == "9" {
 		return string("GPU"), nil
 
 	}
@@ -106,11 +106,11 @@ func (bc *Baiducloud) InstanceType(ctx context.Context, name types.NodeName) (st
 
 // InstanceTypeByProviderID returns the type of the specified instance.
 func (bc *Baiducloud) InstanceTypeByProviderID(ctx context.Context, providerID string) (string, error) {
-	ins, err := bc.clientSet.Cce().DescribeCluster(bc.ClusterID)
+	ins, err := bc.getInstanceByProviderID(providerID)
 	if err != nil {
 		return "", err
 	}
-	if ins.NodeConfig.GpuCount > 0 {
+	if ins.InstanceType == "9" {
 		return string("GPU"), nil
 
 	}
@@ -188,6 +188,29 @@ func (bc *Baiducloud) getInstanceByID(instanceID string) (*cce.CceInstance, erro
 	}
 	for _, i := range ins {
 		if i.InstanceId == instanceID {
+			return &i, nil
+		}
+	}
+
+	return nil, cloudprovider.InstanceNotFound
+}
+
+// Returns the instance with the providerID
+func (bc *Baiducloud) getInstanceByProviderID(providerID string) (*cce.CceInstance, error) {
+	splitted := strings.Split(providerID, "//")
+	if len(splitted) != 2 {
+		return nil, fmt.Errorf("parse ProviderID failed: %v", providerID)
+	}
+	instanceId := splitted[1]
+	ins, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
+	if err != nil {
+		return nil, err
+	}
+	if len(ins) == 0 {
+		return nil, cloudprovider.InstanceNotFound
+	}
+	for _, i := range ins {
+		if i.InstanceId == instanceId {
 			return &i, nil
 		}
 	}
