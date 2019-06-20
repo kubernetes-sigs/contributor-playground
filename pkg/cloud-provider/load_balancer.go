@@ -256,7 +256,10 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 			err := bc.clientSet.Eip().UnbindEip(&unbindArgs)
 			if err != nil {
 				glog.V(3).Infof("Unbind Eip error : %s", err.Error())
-				return nil
+				if strings.Contains(err.Error(), "EipNotFound") {
+					return nil
+				}
+				return err
 			}
 			err = bc.deleteEIP(targetEip)
 			if err != nil {
