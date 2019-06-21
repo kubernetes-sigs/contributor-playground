@@ -18,6 +18,7 @@ package cloud_provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net"
 	"strings"
@@ -27,7 +28,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/cce"
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/vpc"
 )
@@ -227,21 +228,34 @@ func (bc *Baiducloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vp
 	if err != nil {
 		return err
 	}
+	isChanged := false
 	if nodeAnnotation.VpcId != vpcId {
 		curNode.Annotations[NodeAnnotationVpcId] = vpcId
+		isChanged = true
 	}
 	if nodeAnnotation.VpcRouteTableId != vpcRouteTableId {
 		curNode.Annotations[NodeAnnotationVpcRouteTableId] = vpcRouteTableId
+		isChanged = true
 	}
 	if nodeAnnotation.VpcRouteRuleId != vpcRouteRuleId {
 		curNode.Annotations[NodeAnnotationVpcRouteRuleId] = vpcRouteRuleId
+		isChanged = true
 	}
 	if nodeAnnotation.CCMVersion != CCMVersion {
 		curNode.Annotations[NodeAnnotationCCMVersion] = CCMVersion
+		isChanged = true
 	}
-	_, err = bc.kubeClient.CoreV1().Nodes().Update(curNode)
-	if err != nil {
-		return err
+	if isChanged {
+		j, err := json.Marshal(curNode.Annotations)
+		if err != nil {
+			return err
+		}
+		data := []byte(fmt.Sprintf(`{"metadata":{"annotations":%s}}`, j))
+		_, err = bc.kubeClient.CoreV1().Nodes().Patch(nodeName, types.StrategicMergePatchType, data)
+		if err != nil {
+			glog.V(4).Infof("Patch error!")
+			return err
+		}
 	}
 	return nil
 }
