@@ -1,0 +1,38 @@
+# See the OWNERS docs at https://go.k8s.io/owners
+
+approvers:
+  - jberkus
+  - tpepper
+  - idealhack
+  - puja
+  - xiangpengzhao
+  - qedrakmar
+  - congfairy
+  - godliness
+  - AkihiroSuda
+  - yylin1
+  - yuqi-zhang
+  - KaiWu
+  - ms4720
+  - niyue
+  - jojohappy
+  - girikuncoro
+  - godliness
+
+reviewers:
+  - m13m
+  - indigophillips
+  - ewt_tang
+  - quietcoolwu
+  - fanfanbj
+  - cscmucmm
+  - aylei
+  - shabicheng
+  - mandianjun
+  - Mark
+  - mporier
+  - tdihp
+  - dwmkerr
+  - yumima
+  - tan-c
+  - jojohappy
