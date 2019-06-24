@@ -1,4 +1,4 @@
-# KubeCon Shanghai 2017 New Kubernetes Contributor Workshop
+# KubeCon Shanghai 2019 New Kubernetes Contributor Workshop
 
 This is the location of our Shanghai New Contributor Worshop Pull Request activity.
 
