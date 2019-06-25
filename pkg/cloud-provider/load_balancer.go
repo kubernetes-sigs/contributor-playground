@@ -46,10 +46,10 @@ func (bc *Baiducloud) GetLoadBalancer(ctx context.Context, clusterName string, s
 		return nil, false, err
 	}
 
-	if len(result.LoadBalancerId) == 0 {
+	if len(result.CceAutoAddLoadBalancerId) == 0 {
 		return nil, false, nil
 	}
-	lb, exists, err := bc.getBCELoadBalancerById(result.LoadBalancerId)
+	lb, exists, err := bc.getBCELoadBalancerById(result.CceAutoAddLoadBalancerId)
 	if err != nil {
 		return nil, false, err
 	}
@@ -132,17 +132,17 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 		return nil
 	}
 	serviceName := getServiceName(service)
-	if len(result.LoadBalancerId) == 0 {
+	if len(result.CceAutoAddLoadBalancerId) == 0 {
 		glog.V(1).Infof("[%v %v] EnsureLoadBalancerDeleted: target load balancer not create successful. So, no need to delete BLB and EIP", serviceName, clusterName)
 		return nil
 	}
 
-	glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: START lbId=%q", serviceName, clusterName, result.LoadBalancerId)
+	glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: START lbId=%q", serviceName, clusterName, result.CceAutoAddLoadBalancerId)
 
 	// reconcile logic is capable of fully reconcile, so we can use this to delete
 	service.Spec.Ports = []v1.ServicePort{}
 
-	lb, existsLb, err := bc.getBCELoadBalancerById(result.LoadBalancerId)
+	lb, existsLb, err := bc.getBCELoadBalancerById(result.CceAutoAddLoadBalancerId)
 	glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: getBCELoadBalancer : %s", serviceName, clusterName, lb.BlbId)
 	if err != nil {
 		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted get error: %s", serviceName, clusterName, err.Error())
@@ -201,7 +201,7 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 		// annotation "LoadBalancerInternalVpc" exists
 		if result.LoadBalancerInternalVpc == "true" { //do not assign the eip
 			if service.Annotations != nil {
-				delete(service.Annotations, ServiceAnnotationLoadBalancerId)
+				delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
 			}
 			glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: use LoadBalancerInternalVpc, no EIP to delete", service.Namespace, service.Name)
 			//todo recover eip for blb which has eip in the begin.
@@ -267,7 +267,7 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 			}
 		}
 		if service.Annotations != nil {
-			delete(service.Annotations, ServiceAnnotationLoadBalancerId)
+			delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
 		}
 		return nil
 	}
@@ -275,7 +275,7 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 	// delete EIP
 	if result.LoadBalancerInternalVpc == "true" { //do not assign the eip
 		if service.Annotations != nil {
-			delete(service.Annotations, ServiceAnnotationLoadBalancerId)
+			delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
 		}
 		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: use LoadBalancerInternalVpc, no EIP to delete", service.Namespace, service.Name)
 		glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
@@ -283,7 +283,7 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 	}
 	if len(service.Spec.LoadBalancerIP) != 0 { //use user’s eip, do not delete
 		if service.Annotations != nil {
-			delete(service.Annotations, ServiceAnnotationLoadBalancerId)
+			delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
 		}
 		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: LoadBalancerIP is set, not delete EIP.", serviceName, clusterName)
 		glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
@@ -305,7 +305,7 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 		return err
 	}
 	if service.Annotations != nil {
-		delete(service.Annotations, ServiceAnnotationLoadBalancerId)
+		delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
 	}
 	glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
 	return nil
