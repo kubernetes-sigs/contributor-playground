@@ -14,8 +14,8 @@ import (
 func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node, serviceAnnotation *ServiceAnnotation) (*blb.LoadBalancer, error) {
 	var lb *blb.LoadBalancer
 	var err error
-	//before checking LoadBalancerId checks LoadBalancerExistId firstly
-	// if serviceAnnotation.LoadBalancerId is none, we need to double check from cloud since user can update yaml in a short time causing annotation not attach.
+	//before checking CceAutoAddLoadBalancerId checks LoadBalancerExistId firstly
+	// if serviceAnnotation.CceAutoAddLoadBalancerId is none, we need to double check from cloud since user can update yaml in a short time causing annotation not attach.
 	// LOG:
 	// Event(v1.ObjectReference{Kind:"Service", Namespace:"default", Name:"eip-lb-service5",
 	// UID:"887fc095-3b25-11e9-8eab-fa163e80f2ac", APIVersion:"v1", ResourceVersion:"172548", FieldPath:""}): type: 'Warning'
@@ -23,23 +23,23 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 	// 'default/eip-lb-service5' that has been changed since we received it: Operation cannot be fulfilled on services
 	// "eip-lb-service5": the object has been modified; please apply your changes to the latest version and try again
 	if len(serviceAnnotation.LoadBalancerExistId) == 0 { //do not use annotations LoadBalancerExistId
-		if len(serviceAnnotation.LoadBalancerId) == 0 {
+		if len(serviceAnnotation.CceAutoAddLoadBalancerId) == 0 {
 			var exists bool
 			lb, exists, err = bc.getBCELoadBalancer(bc.ClusterID + "/" + getServiceName(service))
 			if err != nil {
 				return nil, err
 			}
 			if exists {
-				glog.V(3).Infof("[%v %v] EnsureLoadBalancer serviceAnnotation.LoadBalancerId is none, but we got blb from cloud", service.Namespace, service.Name)
-				serviceAnnotation.LoadBalancerId = lb.BlbId
+				glog.V(3).Infof("[%v %v] EnsureLoadBalancer serviceAnnotation.CceAutoAddLoadBalancerId is none, but we got blb from cloud", service.Namespace, service.Name)
+				serviceAnnotation.CceAutoAddLoadBalancerId = lb.BlbId
 				if service.Annotations == nil {
 					service.Annotations = make(map[string]string)
 				}
-				service.Annotations[ServiceAnnotationLoadBalancerId] = lb.BlbId
+				service.Annotations[ServiceAnnotationCceAutoAddLoadBalancerId] = lb.BlbId
 			}
 		}
 
-		if len(serviceAnnotation.LoadBalancerId) == 0 { // blb not exist, create one and update annotation
+		if len(serviceAnnotation.CceAutoAddLoadBalancerId) == 0 { // blb not exist, create one and update annotation
 			glog.V(3).Infof("[%v %v] EnsureLoadBalancer create blb!", service.Namespace, service.Name)
 			vpcId, subnetId, err := bc.getVpcInfoForBLB(serviceAnnotation)
 			if err != nil {
@@ -99,15 +99,15 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 			if service.Annotations == nil {
 				service.Annotations = make(map[string]string)
 			}
-			service.Annotations[ServiceAnnotationLoadBalancerId] = lb.BlbId
+			service.Annotations[ServiceAnnotationCceAutoAddLoadBalancerId] = lb.BlbId
 		} else if lb == nil { // blb already exist, get info from cloud
 			var exists bool
-			lb, exists, err = bc.getBCELoadBalancerById(serviceAnnotation.LoadBalancerId)
+			lb, exists, err = bc.getBCELoadBalancerById(serviceAnnotation.CceAutoAddLoadBalancerId)
 			if err != nil {
 				return nil, err
 			}
 			if !exists {
-				return nil, fmt.Errorf("EnsureLoadBalancer getBCELoadBalancerById failed, target blb not exist, blb id: %v", serviceAnnotation.LoadBalancerId)
+				return nil, fmt.Errorf("EnsureLoadBalancer getBCELoadBalancerById failed, target blb not exist, blb id: %v", serviceAnnotation.CceAutoAddLoadBalancerId)
 			}
 			glog.V(3).Infof("[%v %v] EnsureLoadBalancer: blb already exists: %v", service.Namespace, service.Name, lb)
 		}
@@ -120,18 +120,18 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 			return nil, err
 		}
 		if !exists {
-			return nil, fmt.Errorf("EnsureLoadBalancer getBCELoadBalancerById failed, target blb not exist, blb id: %v", serviceAnnotation.LoadBalancerId)
+			return nil, fmt.Errorf("EnsureLoadBalancer getBCELoadBalancerById failed, target blb not exist, blb id: %v", serviceAnnotation.CceAutoAddLoadBalancerId)
 		}
 		allListeners, err := bc.getAllListeners(lb)
 		if err != nil {
 			return nil, err
 		}
-		if len(allListeners) > 0 && len(serviceAnnotation.LoadBalancerId) == 0 {
+		if len(allListeners) > 0 && len(serviceAnnotation.CceAutoAddLoadBalancerId) == 0 {
 			service.Annotations[ServiceAnnotationLoadBalancerExistId] = "error_blb_has_been_used"
 			return nil, fmt.Errorf("This blb has been used already!")
 		} else {
 			glog.V(3).Infof("[%v %v] EnsureLoadBalancerexistid: blb already exists: %v", service.Namespace, service.Name, lb)
-			service.Annotations[ServiceAnnotationLoadBalancerId] = serviceAnnotation.LoadBalancerExistId
+			service.Annotations[ServiceAnnotationCceAutoAddLoadBalancerId] = serviceAnnotation.LoadBalancerExistId
 		}
 	}
 
