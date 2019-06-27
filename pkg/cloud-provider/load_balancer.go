@@ -232,8 +232,10 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 		if len(targetEip) == 0 { // P1: use BLB public ip
 			targetEip = lb.PublicIp
 		}
+		//users may unbind eip manually
 		if len(targetEip) == 0 { // get none EIP
-			return fmt.Errorf("EnsureLoadBalancerDeleted failed: can not get a EIP to delete")
+			glog.V(3).Infof("Eip does not exist, Delete completed ")
+			return nil
 		}
 
 		// blb if has eip in the begin
