@@ -386,8 +386,5 @@ func (bc *Baiducloud) advertiseRoute(nodename string) (bool, error) {
 	if err != nil {
 		return true, err
 	}
-	if !nodeAnnotation.AdvertiseRoute {
-		return false, nil
-	}
-	return true, nil
+	return nodeAnnotation.AdvertiseRoute, nil
 }
