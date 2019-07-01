@@ -14,6 +14,7 @@ import (
 func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node, serviceAnnotation *ServiceAnnotation) (*blb.LoadBalancer, error) {
 	var lb *blb.LoadBalancer
 	var err error
+  
 	//before checking CceAutoAddLoadBalancerId checks LoadBalancerExistId firstly
 	// if serviceAnnotation.CceAutoAddLoadBalancerId is none, we need to double check from cloud since user can update yaml in a short time causing annotation not attach.
 	// LOG:
@@ -126,6 +127,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 		if err != nil {
 			return nil, err
 		}
+
 		if len(allListeners) > 0 && len(serviceAnnotation.CceAutoAddLoadBalancerId) == 0 {
 			service.Annotations[ServiceAnnotationLoadBalancerExistId] = "error_blb_has_been_used"
 			return nil, fmt.Errorf("This blb has been used already!")
@@ -153,7 +155,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 
 	// update backend server
 	glog.V(2).Infof("[%v %v] EnsureLoadBalancer: reconcileBackendServers!", service.Namespace, service.Name)
-	err = bc.reconcileBackendServers(nodes, lb)
+	err = bc.reconcileBackendServers(service, nodes, lb)
 	if err != nil {
 		return nil, err
 	}

@@ -63,6 +63,7 @@ type ListInstancesResponse struct {
 	Instances []CceInstance `json:"instances"`
 }
 
+
 // NodeConfig is the config for node
 type NodeConfig struct {
 	InstanceType int    `json:"instanceType"`

@@ -37,6 +37,9 @@ const (
 	ServiceAnnotationLoadBalancerAllocateVip = ServiceAnnotationLoadBalancerPrefix + "allocate-vip"
 	//ServiceAnnotationLoadBalancerSubnetId is the annotation which indicates the BCC type subnet the BLB will use
 	ServiceAnnotationLoadBalancerSubnetId = ServiceAnnotationLoadBalancerPrefix + "subnet-id"
+	// ServiceAnnotationLoadBalancerRsMaxNum is the annotation which set max num of rs of the BLB
+	ServiceAnnotationLoadBalancerRsMaxNum = ServiceAnnotationLoadBalancerPrefix + "rs-max-num"
+
 	// TODO:
 	// ServiceAnnotationLoadBalancerScheduler is the annotation of load balancer which can be "RoundRobin"/"LeastConnection"/"Hash"
 	ServiceAnnotationLoadBalancerScheduler = ServiceAnnotationLoadBalancerPrefix + "scheduler"
@@ -93,6 +96,8 @@ type ServiceAnnotation struct {
 	LoadBalancerAllocateVip                string
 	LoadBalancerSubnetId                   string
 	LoadBalancerScheduler                  string
+	LoadBalancerRsMaxNum                   int
+
 	LoadBalancerHealthCheckTimeoutInSecond int
 	LoadBalancerHealthCheckInterval        int
 	LoadBalancerUnhealthyThreshold         int
@@ -147,6 +152,18 @@ func ExtractServiceAnnotation(service *v1.Service) (*ServiceAnnotation, error) {
 	loadBalancerSubnetId, ok := annotation[ServiceAnnotationLoadBalancerSubnetId]
 	if ok {
 		result.LoadBalancerSubnetId = loadBalancerSubnetId
+	}
+
+	loadBalancerRsNum, ok := annotation[ServiceAnnotationLoadBalancerRsMaxNum]
+	if ok {
+		i, err := strconv.Atoi(loadBalancerRsNum)
+		if err != nil {
+			return nil, fmt.Errorf("ServiceAnnotationLoadBalancerRsMaxNum must be int, err: %v", err)
+		} else if i <= 0 || i > BLBMaxRSNum {
+			return nil, fmt.Errorf("ServiceAnnotationLoadBalancerRsMaxNum must be in (0, 50)")
+		} else {
+			result.LoadBalancerRsMaxNum = i
+		}
 	}
 
 	loadBalancerScheduler, ok := annotation[ServiceAnnotationLoadBalancerScheduler]
