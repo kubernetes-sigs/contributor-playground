@@ -440,3 +440,48 @@ func (bc *Baiducloud) resizeEip(service *v1.Service, serviceAnnotation *ServiceA
 		Ip:              targetEip,
 	})
 }
+
+func (bc *Baiducloud) DeleteEipFinally(service *v1.Service, result *ServiceAnnotation, lb *blb.LoadBalancer, serviceName, clusterName string) error {
+	// delete EIP
+	if result.LoadBalancerInternalVpc == "true" { //do not assign the eip
+		if service.Annotations != nil {
+			delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
+		}
+		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: use LoadBalancerInternalVpc, no EIP to delete", service.Namespace, service.Name)
+		glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
+		return nil
+	}
+	if len(service.Spec.LoadBalancerIP) != 0 { //use user’s eip, do not delete
+		if service.Annotations != nil {
+			delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
+		}
+		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: LoadBalancerIP is set, not delete EIP.", serviceName, clusterName)
+		glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
+		return nil
+	}
+	glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: Start delete EIP: %s", serviceName, clusterName, lb.PublicIp)
+	var targetEip string
+	if len(service.Status.LoadBalancer.Ingress) != 0 { // P0: use service EXTERNAL_IP
+		targetEip = service.Status.LoadBalancer.Ingress[0].IP
+	}
+	if len(targetEip) == 0 { // P1: use BLB public ip
+		targetEip = lb.PublicIp
+	}
+	if len(targetEip) == 0 {
+		targetEip = result.CceAutoAddEip
+	}
+	if len(targetEip) == 0 { // get none EIP
+		glog.V(3).Infof("Eip does not exist, Delete completed ")
+		return nil
+	}
+	err := bc.deleteEIP(targetEip)
+	if err != nil {
+		return err
+	}
+	if service.Annotations != nil {
+		delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
+		delete(service.Annotations, ServiceAnnotationCceAutoAddEip)
+	}
+	glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
+	return nil
+}

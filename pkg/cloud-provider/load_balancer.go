@@ -18,7 +18,6 @@ package cloud_provider
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/golang/glog"
@@ -101,7 +100,7 @@ func (bc *Baiducloud) EnsureLoadBalancer(ctx context.Context, clusterName string
 	if err != nil {
 		return nil, err
 	}
-
+	service.Annotations[ServiceAnnotationCceAutoAddEip] = pubIP
 	glog.V(3).Infof("[%v %v] EnsureLoadBalancer: EXTERNAL-IP is %s", service.Namespace, service.Name, pubIP)
 	return &v1.LoadBalancerStatus{Ingress: []v1.LoadBalancerIngress{{IP: pubIP}}}, nil
 }
@@ -150,6 +149,10 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 	}
 	if !existsLb {
 		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: target blb not exist", serviceName, clusterName)
+		err = bc.DeleteEipFinally(service, result, lb, serviceName, clusterName)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 
@@ -273,42 +276,10 @@ func (bc *Baiducloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName
 		}
 		return nil
 	}
-
-	// delete EIP
-	if result.LoadBalancerInternalVpc == "true" { //do not assign the eip
-		if service.Annotations != nil {
-			delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
-		}
-		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: use LoadBalancerInternalVpc, no EIP to delete", service.Namespace, service.Name)
-		glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
-		return nil
-	}
-	if len(service.Spec.LoadBalancerIP) != 0 { //use user’s eip, do not delete
-		if service.Annotations != nil {
-			delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
-		}
-		glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: LoadBalancerIP is set, not delete EIP.", serviceName, clusterName)
-		glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
-		return nil
-	}
-	glog.V(3).Infof("[%v %v] EnsureLoadBalancerDeleted: Start delete EIP: %s", serviceName, clusterName, lb.PublicIp)
-	var targetEip string
-	if len(service.Status.LoadBalancer.Ingress) != 0 { // P0: use service EXTERNAL_IP
-		targetEip = service.Status.LoadBalancer.Ingress[0].IP
-	}
-	if len(targetEip) == 0 { // P1: use BLB public ip
-		targetEip = lb.PublicIp
-	}
-	if len(targetEip) == 0 { // get none EIP
-		return fmt.Errorf("EnsureLoadBalancerDeleted failed: can not get a EIP to delete")
-	}
-	err = bc.deleteEIP(targetEip)
+	// does not assign blb, delete EIP
+	err = bc.DeleteEipFinally(service, result, lb, serviceName, clusterName)
 	if err != nil {
 		return err
 	}
-	if service.Annotations != nil {
-		delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
-	}
-	glog.V(2).Infof("[%v %v] EnsureLoadBalancerDeleted: delete %v FINISH", serviceName, clusterName, serviceName)
 	return nil
 }

@@ -29,6 +29,8 @@ const (
 	ServiceAnnotationLoadBalancerPrefix = "service.beta.kubernetes.io/cce-load-balancer-"
 	// CceAutoAddLoadBalancerId is the annotation of CCE adding LoadBalancerId
 	ServiceAnnotationCceAutoAddLoadBalancerId = ServiceAnnotationLoadBalancerPrefix + "cce-add-id"
+	// CceAutoAddEip is the annotation of CCE adding Eip
+	ServiceAnnotationCceAutoAddEip = ServiceAnnotationLoadBalancerPrefix + "cce-add-eip"
 
 	ServiceAnnotationLoadBalancerExistId = ServiceAnnotationLoadBalancerPrefix + "exist-id"
 	// ServiceAnnotationLoadBalancerInternalVpc is the annotation of LoadBalancerInternalVpc
@@ -88,6 +90,7 @@ const (
 type ServiceAnnotation struct {
 	/* BLB */
 	CceAutoAddLoadBalancerId               string
+	CceAutoAddEip                          string
 	LoadBalancerExistId                    string
 	LoadBalancerInternalVpc                string
 	LoadBalancerAllocateVip                string
@@ -128,7 +131,11 @@ func ExtractServiceAnnotation(service *v1.Service) (*ServiceAnnotation, error) {
 	if exist {
 		result.CceAutoAddLoadBalancerId = loadBalancerId
 	}
+	cceAddEip, exist := annotation[ServiceAnnotationCceAutoAddEip]
+	if exist {
+		result.CceAutoAddEip = cceAddEip
 
+	}
 	LoadBalancerExistId, exist := annotation[ServiceAnnotationLoadBalancerExistId]
 	if exist {
 		result.LoadBalancerExistId = LoadBalancerExistId
