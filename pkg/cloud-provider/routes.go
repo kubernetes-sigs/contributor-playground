@@ -79,6 +79,16 @@ func (bc *Baiducloud) ListRoutes(ctx context.Context, clusterName string) (route
 			DestinationCIDR: r.DestinationAddress,
 			TargetNode:      types.NodeName(insName),
 		}
+
+		advertiseRoute, err := bc.advertiseRoute(insName)
+		if err != nil {
+			continue
+		}
+		// use route.Blackhole to mark this route to be deleted
+		if !advertiseRoute {
+			route.Blackhole = true
+		}
+
 		vpcId, err := bc.getVpcID()
 		if err != nil {
 			return nil, err
@@ -104,6 +114,17 @@ func (bc *Baiducloud) CreateRoute(ctx context.Context, clusterName string, nameH
 	if len(vpcRoutes) < 1 {
 		return fmt.Errorf("VPC route length error: length is : %d", len(vpcRoutes))
 	}
+
+	advertiseRoute, err := bc.advertiseRoute(string(kubeRoute.TargetNode))
+	if err != nil {
+		return err
+	}
+
+	if !advertiseRoute {
+		glog.V(3).Infof("Node %s has annotation not to advertise route", string(kubeRoute.TargetNode))
+		return nil
+	}
+
 	var insID string
 	inss, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
 	if err != nil {
@@ -139,6 +160,11 @@ func (bc *Baiducloud) CreateRoute(ctx context.Context, clusterName string, nameH
 				return err
 			}
 		}
+	}
+
+	if insID == "" {
+		glog.Errorf("InstanceId not found for k8s node %s, not create route", string(kubeRoute.TargetNode))
+		return fmt.Errorf("InstanceId not found for k8s node %s, create route failed", string(kubeRoute.TargetNode))
 	}
 
 	args := vpc.CreateRouteRuleArgs{
@@ -228,7 +254,7 @@ func (bc *Baiducloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vp
 	if err != nil {
 		return err
 	}
-  
+
 	isChanged := false
 	if nodeAnnotation.VpcId != vpcId {
 		curNode.Annotations[NodeAnnotationVpcId] = vpcId
@@ -341,4 +367,24 @@ func (bc *Baiducloud) isConflict(otherRR vpc.RouteRule, cceRR vpc.RouteRule) boo
 	}
 
 	return false
+}
+
+func (bc *Baiducloud) advertiseRoute(nodename string) (bool, error) {
+
+	// check node resource in k8s has advertise route annotation, if is false, not create route
+	curNode, err := bc.kubeClient.CoreV1().Nodes().Get(nodename, metav1.GetOptions{})
+	if err != nil {
+		if !strings.Contains(err.Error(), "not found") {
+			return true, err
+		}
+	}
+
+	if curNode.Annotations == nil {
+		curNode.Annotations = make(map[string]string)
+	}
+	nodeAnnotation, err := ExtractNodeAnnotation(curNode)
+	if err != nil {
+		return true, err
+	}
+	return nodeAnnotation.AdvertiseRoute, nil
 }
