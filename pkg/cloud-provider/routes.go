@@ -163,8 +163,8 @@ func (bc *Baiducloud) CreateRoute(ctx context.Context, clusterName string, nameH
 	}
 
 	if insID == "" {
-		glog.Warningf("InstanceId not found for k8s node %s, not create route", string(kubeRoute.TargetNode))
-		return nil
+		glog.Errorf("InstanceId not found for k8s node %s, not create route", string(kubeRoute.TargetNode))
+		return fmt.Errorf("InstanceId not found for k8s node %s, create route failed", string(kubeRoute.TargetNode))
 	}
 
 	args := vpc.CreateRouteRuleArgs{
