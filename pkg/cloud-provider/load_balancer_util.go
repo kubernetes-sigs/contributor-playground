@@ -38,7 +38,7 @@ func (bc *Baiducloud) workAround(service *v1.Service) {
 	if service.Annotations == nil {
 		service.Annotations = make(map[string]string)
 	}
-	// TODO: 不会更新最终Service的annotaion，因为ip没变
+
 	service.Annotations[ServiceAnnotationCceAutoAddLoadBalancerId] = lb.BlbId
 	glog.V(2).Infof("[%v %v] WorkAround for old version, lb: %v", service.Namespace, service.Name, lb)
 }
