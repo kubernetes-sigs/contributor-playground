@@ -228,6 +228,7 @@ func (bc *Baiducloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vp
 	if err != nil {
 		return err
 	}
+  
 	isChanged := false
 	if nodeAnnotation.VpcId != vpcId {
 		curNode.Annotations[NodeAnnotationVpcId] = vpcId
