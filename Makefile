@@ -1,10 +1,13 @@
-VERSION ?= $(shell git describe --always --dirty)
+include hack/Makefile.buildinfo
+
 GOOS ?= linux
 ARCH ?= amd64
 REGISTRY := hub.baidubce.com/jpaas-public
 BIN := cce-cloud-controller-manager
 IMAGE := $(REGISTRY)/$(BIN)
 SRC_DIRS := cmd pkg # directories which hold app source (not vendored)
+
+LDFLAGS=$(VERSION_LDFLAGS)
 
 .PHONY: all
 all: build
@@ -20,6 +23,7 @@ build: build-output
 	    -o output/${BIN}  \
 	    -installsuffix "static"               \
 	    -ldflags "-X main.version=${VERSION}" \
+	    -ldflags "${LDFLAGS}" \
 	    ./cmd/cce-cloud-controller-manager
 
 .PHONY: local-build
@@ -29,6 +33,7 @@ local-build: build-output
 	    -o output/${BIN}  \
 	    -installsuffix "static"               \
 	    -ldflags "-X main.version=${VERSION}" \
+	    -ldflags "${LDFLAGS}" \
 	    ./cmd/cce-cloud-controller-manager
 
 .PHONY: image-build
