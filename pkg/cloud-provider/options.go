@@ -96,6 +96,7 @@ const (
 type ServiceAnnotation struct {
 	/* BLB */
 	CceAutoAddLoadBalancerId string
+	CceAutoAddEip            string
 	LoadBalancerExistId      string
 	LoadBalancerInternalVpc  string
 	LoadBalancerAllocateVip  string
