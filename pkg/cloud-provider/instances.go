@@ -138,6 +138,10 @@ func (bc *Baiducloud) CurrentNodeName(ctx context.Context, hostname string) (typ
 // InstanceExistsByProviderID returns true if the instance with the given provider id still exists and is running.
 // If false is returned with no error, the instance will be immediately deleted by the cloud controller manager.
 func (bc *Baiducloud) InstanceExistsByProviderID(ctx context.Context, providerID string) (bool, error) {
+	// when node.spec.providerID is not set, providerID is only instanceID, not start with cce://
+	if !strings.HasPrefix(providerID, bc.ProviderName() + "://") {
+		providerID = bc.ProviderName() + "://" + providerID
+	}
 	splitted := strings.Split(providerID, "//")
 	if len(splitted) != 2 {
 		return false, fmt.Errorf("parse ProviderID failed: %v", providerID)
