@@ -48,7 +48,7 @@ func (bc *Baiducloud) reconcileBackendServers(service *v1.Service, nodes []*v1.N
 	var candidateBackends []blb.BackendServer
 	for _, node := range nodes {
 		splitted := strings.Split(node.Spec.ProviderID, "//")
-		if len(splitted) < 1 {
+		if len(splitted) != 2 {
 			glog.Warningf("node %s has no spec.providerId", node.Name)
 			continue
 		}
