@@ -29,6 +29,8 @@ const (
 	ServiceAnnotationLoadBalancerPrefix = "service.beta.kubernetes.io/cce-load-balancer-"
 	// CceAutoAddLoadBalancerId is the annotation of CCE adding LoadBalancerId
 	ServiceAnnotationCceAutoAddLoadBalancerId = ServiceAnnotationLoadBalancerPrefix + "cce-add-id"
+	// CceAutoAddEip is the annotation of CCE adding Eip
+	ServiceAnnotationCceAutoAddEip = ServiceAnnotationLoadBalancerPrefix + "cce-add-eip"
 
 	ServiceAnnotationLoadBalancerExistId = ServiceAnnotationLoadBalancerPrefix + "exist-id"
 	// ServiceAnnotationLoadBalancerInternalVpc is the annotation of LoadBalancerInternalVpc
@@ -85,18 +87,21 @@ const (
 
 	// NodeAnnotationCCMVersion is the version of CCM
 	NodeAnnotationCCMVersion = NodeAnnotationPrefix + "ccm-version"
+
+	// NodeAnnotationAdvertiseRoute indicates whether to advertise route to vpc route table
+	NodeAnnotationAdvertiseRoute = NodeAnnotationPrefix + "advertise-route"
 )
 
 // ServiceAnnotation contains annotations from service
 type ServiceAnnotation struct {
 	/* BLB */
-	CceAutoAddLoadBalancerId               string
-	LoadBalancerExistId                    string
-	LoadBalancerInternalVpc                string
-	LoadBalancerAllocateVip                string
-	LoadBalancerSubnetId                   string
-	LoadBalancerScheduler                  string
-	LoadBalancerRsMaxNum                   int
+	CceAutoAddLoadBalancerId string
+	LoadBalancerExistId      string
+	LoadBalancerInternalVpc  string
+	LoadBalancerAllocateVip  string
+	LoadBalancerSubnetId     string
+	LoadBalancerScheduler    string
+	LoadBalancerRsMaxNum     int
 
 	LoadBalancerHealthCheckTimeoutInSecond int
 	LoadBalancerHealthCheckInterval        int
@@ -118,6 +123,7 @@ type NodeAnnotation struct {
 	VpcRouteTableId string
 	VpcRouteRuleId  string
 	CCMVersion      string
+	AdvertiseRoute  bool
 }
 
 // ExtractServiceAnnotation extract annotations from service
@@ -133,7 +139,11 @@ func ExtractServiceAnnotation(service *v1.Service) (*ServiceAnnotation, error) {
 	if exist {
 		result.CceAutoAddLoadBalancerId = loadBalancerId
 	}
+	cceAddEip, exist := annotation[ServiceAnnotationCceAutoAddEip]
+	if exist {
+		result.CceAutoAddEip = cceAddEip
 
+	}
 	LoadBalancerExistId, exist := annotation[ServiceAnnotationLoadBalancerExistId]
 	if exist {
 		result.LoadBalancerExistId = LoadBalancerExistId
@@ -281,6 +291,17 @@ func ExtractNodeAnnotation(node *v1.Node) (*NodeAnnotation, error) {
 	ccmVersion, ok := annotation[NodeAnnotationCCMVersion]
 	if ok {
 		result.CCMVersion = ccmVersion
+	}
+
+	advertiseRoute, ok := annotation[NodeAnnotationAdvertiseRoute]
+	if ok {
+		advertise, err := strconv.ParseBool(advertiseRoute)
+		if err != nil {
+			return nil, fmt.Errorf("NodeAnnotationAdvertiseRoute syntex error: %v", err)
+		}
+		result.AdvertiseRoute = advertise
+	} else {
+		result.AdvertiseRoute = true
 	}
 
 	return result, nil
