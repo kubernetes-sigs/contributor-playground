@@ -14,7 +14,7 @@ import (
 func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node, serviceAnnotation *ServiceAnnotation) (*blb.LoadBalancer, error) {
 	var lb *blb.LoadBalancer
 	var err error
-  
+
 	//before checking CceAutoAddLoadBalancerId checks LoadBalancerExistId firstly
 	// if serviceAnnotation.CceAutoAddLoadBalancerId is none, we need to double check from cloud since user can update yaml in a short time causing annotation not attach.
 	// LOG:
@@ -137,7 +137,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 		}
 	}
 
-	lb, err = bc.waitForLoadBalancer(lb)
+	lb, err = bc.waitForLoadBalancer(lb, service)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 	if err != nil {
 		return nil, err
 	}
-	lb, err = bc.waitForLoadBalancer(lb)
+	lb, err = bc.waitForLoadBalancer(lb, service)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 	if err != nil {
 		return nil, err
 	}
-	lb, err = bc.waitForLoadBalancer(lb)
+	lb, err = bc.waitForLoadBalancer(lb, service)
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +167,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 	return lb, nil
 }
 
-func (bc *Baiducloud) waitForLoadBalancer(lb *blb.LoadBalancer) (*blb.LoadBalancer, error) {
+func (bc *Baiducloud) waitForLoadBalancer(lb *blb.LoadBalancer, service *v1.Service) (*blb.LoadBalancer, error) {
 	lb.Status = "unknown" // add here to do loop
 	for index := 0; (index < 10) && (lb.Status != "available"); index++ {
 		glog.V(3).Infof("BLB: %s is not available, retry:  %d", lb.BlbId, index)
@@ -180,6 +180,9 @@ func (bc *Baiducloud) waitForLoadBalancer(lb *blb.LoadBalancer) (*blb.LoadBalanc
 		if !exist {
 			glog.V(3).Infof("getBCELoadBalancer not exist: %s, retry", lb.BlbId)
 			if index >= 9 {
+				if service.Annotations != nil {
+					delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
+				}
 				return newlb, fmt.Errorf("BLB not exists:%s", lb.BlbId)
 			}
 			continue
