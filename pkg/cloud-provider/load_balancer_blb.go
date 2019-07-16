@@ -2,6 +2,7 @@ package cloud_provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -11,10 +12,12 @@ import (
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/blb"
 )
 
+var errBlbNotExist = errors.New(" BLB does not exist during ensuring BLB! ")
+
 func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node, serviceAnnotation *ServiceAnnotation) (*blb.LoadBalancer, error) {
 	var lb *blb.LoadBalancer
 	var err error
-  
+
 	//before checking CceAutoAddLoadBalancerId checks LoadBalancerExistId firstly
 	// if serviceAnnotation.CceAutoAddLoadBalancerId is none, we need to double check from cloud since user can update yaml in a short time causing annotation not attach.
 	// LOG:
@@ -44,7 +47,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 			glog.V(3).Infof("[%v %v] EnsureLoadBalancer create blb!", service.Namespace, service.Name)
 			vpcId, subnetId, err := bc.getVpcInfoForBLB(serviceAnnotation)
 			if err != nil {
-				return nil, fmt.Errorf("Can't get VPC info for BLB: %v\n", err)
+				return nil, fmt.Errorf(" Can't get VPC info for BLB: %v\n ", err)
 			}
 
 			allocateVip := false
@@ -130,7 +133,7 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 
 		if len(allListeners) > 0 && len(serviceAnnotation.CceAutoAddLoadBalancerId) == 0 {
 			service.Annotations[ServiceAnnotationLoadBalancerExistId] = "error_blb_has_been_used"
-			return nil, fmt.Errorf("This blb has been used already!")
+			return nil, fmt.Errorf(" This blb has been used already! ")
 		} else {
 			glog.V(3).Infof("[%v %v] EnsureLoadBalancerexistid: blb already exists: %v", service.Namespace, service.Name, lb)
 			service.Annotations[ServiceAnnotationCceAutoAddLoadBalancerId] = serviceAnnotation.LoadBalancerExistId
@@ -139,6 +142,11 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 
 	lb, err = bc.waitForLoadBalancer(lb)
 	if err != nil {
+		if err == errBlbNotExist {
+			if service.Annotations != nil {
+				delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
+			}
+		}
 		return nil, err
 	}
 
@@ -150,9 +158,13 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 	}
 	lb, err = bc.waitForLoadBalancer(lb)
 	if err != nil {
+		if err == errBlbNotExist {
+			if service.Annotations != nil {
+				delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
+			}
+		}
 		return nil, err
 	}
-
 	// update backend server
 	glog.V(2).Infof("[%v %v] EnsureLoadBalancer: reconcileBackendServers!", service.Namespace, service.Name)
 	err = bc.reconcileBackendServers(service, nodes, lb)
@@ -161,9 +173,13 @@ func (bc *Baiducloud) ensureBLB(ctx context.Context, clusterName string, service
 	}
 	lb, err = bc.waitForLoadBalancer(lb)
 	if err != nil {
+		if err == errBlbNotExist {
+			if service.Annotations != nil {
+				delete(service.Annotations, ServiceAnnotationCceAutoAddLoadBalancerId)
+			}
+		}
 		return nil, err
 	}
-
 	return lb, nil
 }
 
@@ -180,7 +196,8 @@ func (bc *Baiducloud) waitForLoadBalancer(lb *blb.LoadBalancer) (*blb.LoadBalanc
 		if !exist {
 			glog.V(3).Infof("getBCELoadBalancer not exist: %s, retry", lb.BlbId)
 			if index >= 9 {
-				return newlb, fmt.Errorf("BLB not exists:%s", lb.BlbId)
+				err = errBlbNotExist
+				return newlb, err
 			}
 			continue
 		}
@@ -190,6 +207,5 @@ func (bc *Baiducloud) waitForLoadBalancer(lb *blb.LoadBalancer) (*blb.LoadBalanc
 			return nil, fmt.Errorf("waitForLoadBalancer failed after retry")
 		}
 	}
-
 	return lb, nil
 }
