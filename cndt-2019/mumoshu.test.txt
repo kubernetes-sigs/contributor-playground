@@ -1,5 +1,0 @@
-This is a fake content used for a test pr for the purpose of getting used to contribute k/k.
-
-Also - here's my very first pull request to k/k made possible thanks to this upstream training program. Big kudos to you folks!
-
-https://github.com/kubernetes/kubernetes/pull/80413
