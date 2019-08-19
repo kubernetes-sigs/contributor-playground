@@ -110,8 +110,24 @@ func (bc *Baiducloud) EnsureLoadBalancer(ctx context.Context, clusterName string
 // parameters as read-only and not modify them.
 // Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (bc *Baiducloud) UpdateLoadBalancer(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node) error {
-	_, err := bc.EnsureLoadBalancer(ctx, clusterName, service, nodes)
-	return err
+	glog.V(3).Infof("[%v %v] UpdateLoadBalancer(%v, %v, %v, %v, %v)",
+		clusterName, service.Namespace, service.Name, bc.Region, service.Spec.LoadBalancerIP, service.Spec.Ports, service.Annotations)
+	result, err := ExtractServiceAnnotation(service)
+	if err != nil {
+		return err
+	}
+	err = bc.validateService(service)
+	if err != nil {
+		return err
+	}
+
+	if len(result.CceAutoAddLoadBalancerId) != 0 {
+		_, err = bc.EnsureLoadBalancer(ctx, clusterName, service, nodes)
+		return err
+	}
+	glog.V(3).Infof("UpdateLoadBalancer is not necessary")
+	return nil
+
 }
 
 // EnsureLoadBalancerDeleted deletes the specified load balancer if it
