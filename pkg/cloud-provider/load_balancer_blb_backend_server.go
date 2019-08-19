@@ -39,10 +39,6 @@ func (bc *Baiducloud) reconcileBackendServers(service *v1.Service, nodes []*v1.N
 	if anno.LoadBalancerRsMaxNum > 0 {
 		targetRsNum = anno.LoadBalancerRsMaxNum
 	}
-	if len(nodes) < targetRsNum {
-		targetRsNum = len(nodes)
-	}
-	glog.Infof("nodes num is %d, target rs num is %d", len(nodes), targetRsNum)
 
 	// turn kube nodes list to backend list
 	var candidateBackends []blb.BackendServer
@@ -57,6 +53,11 @@ func (bc *Baiducloud) reconcileBackendServers(service *v1.Service, nodes []*v1.N
 			InstanceId: name,
 		})
 	}
+
+	if len(candidateBackends) < targetRsNum {
+		targetRsNum = len(candidateBackends)
+	}
+	glog.Infof("nodes num is %d, target rs num is %d", len(candidateBackends), targetRsNum)
 
 	// get all existing rs from lb and change to map
 	existingBackends, err := bc.getAllBackendServer(lb)
