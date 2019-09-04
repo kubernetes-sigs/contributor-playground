@@ -20,8 +20,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-
 	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/bce"
+	"net/http"
 )
 
 type Eip struct {
@@ -269,6 +269,12 @@ func (c *Client) DeleteEip(args *EipArgs) error {
 	}
 	_, err = c.SendRequest(req, nil)
 	if err != nil {
+		// if 404, think it as already deleted
+		if e, ok := err.(*bce.Error); ok {
+			if e.StatusCode == http.StatusNotFound {
+				return nil
+			}
+		}
 		return err
 	}
 	return nil
