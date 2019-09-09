@@ -18,13 +18,8 @@ package cloud_provider
 
 import (
 	"fmt"
-	"math/rand"
-	"net"
-	"time"
-
 	"github.com/golang/glog"
-
-	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/vpc"
+	"math/rand"
 )
 
 // TODO: 存在很大的优化空间
@@ -94,37 +89,5 @@ func (bc *Baiducloud) getVpcInfoForBLB(serviceAnnotation *ServiceAnnotation) (st
 		}
 	}
 
-	// create one
-	currentCidr := subnet.Cidr
-	tryCount := 0
-	for { // loop
-		tryCount++
-		if tryCount > 10 {
-			return "", "", fmt.Errorf("CreateSubnet failed after 10 retries")
-		}
-		_, cidr, err := net.ParseCIDR(currentCidr)
-		if err != nil {
-			return "", "", fmt.Errorf("ParseCIDR failed: %v", err)
-		}
-		mask, _ := cidr.Mask.Size()
-		nextCidr, notExist := NextSubnet(cidr, mask)
-		if notExist {
-			return "", "", fmt.Errorf("NextSubnet failed: %v", err)
-		}
-		currentCidr = nextCidr.String()
-		createSubnetArgs := &vpc.CreateSubnetArgs{
-			Name:       "CCE-Reserve",
-			ZoneName:   subnet.ZoneName,
-			Cidr:       nextCidr.String(),
-			VpcID:      subnet.VpcID,
-			SubnetType: "BCC",
-		}
-		newSubnetId, err := bc.clientSet.Vpc().CreateSubnet(createSubnetArgs)
-		if err != nil {
-			glog.V(3).Infof("CreateSubnet failed: %v, will try again.", err)
-			time.Sleep(3 * time.Second)
-			continue
-		}
-		return subnet.VpcID, newSubnetId, nil
-	}
+	return "", "", fmt.Errorf("failed to find Subnet for BLB, maybe need to create a Subnet of type BCC")
 }
