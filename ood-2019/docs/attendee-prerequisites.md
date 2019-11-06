@@ -26,10 +26,20 @@
     - Github の Primary email address を LF に登録したアドレスとして登録すること。
     - Github 上で別の email を公開したい場合は、そのメールアドレスを Public email address として登録すればよい。
 
+# コマンドのインストール
+* 以下のコマンドをインストールしておいてください。
+  + git
+  + golang
+  + docker
+
 # Git や GitHub の操作
 * 基本的な Git や GitHub の操作には慣れておいてください。
+* 以下も参考にしてください。
+  + https://github.com/kubernetes/community/blob/master/contributors/guide/contributor-cheatsheet/README-ja.md#%E8%B2%A2%E7%8C%AE%E3%81%99%E3%82%8B
 
 # リポジトリのフォークとクローン
-* このリポジトリを自分の GitHub アカウントにフォークしておいてください。
-* 自分のアカウントにフォークしたリポジトリを自分の PC にクローンしておいてください。
+* 以下のリポジトリを自分の GitHub アカウントにフォークしておいてください。
+  + https://github.com/kubernetes-sigs/contributor-playground
+  + https://github.com/kubernetes/kubernetes
+* 次に自分のアカウントにフォークしたリポジトリを自分の PC にクローンしておいてください。
 
