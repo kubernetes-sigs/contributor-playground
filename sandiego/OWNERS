@@ -1,0 +1,18 @@
+# See the OWNERS docs: https://go.k8s.io/owners
+
+reviewers:
+  - alisondy
+  - ameukam
+  - chris-short
+  - guineveresaenger
+  - markyjackson-taulia
+  - mrbobbytables
+  - raelga
+approvers:
+  - alisondy
+  - ameukam
+  - chris-short
+  - guineveresaenger
+  - markyjackson-taulia
+  - mrbobbytables
+  - raelga
