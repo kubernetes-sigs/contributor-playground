@@ -14,5 +14,12 @@ This is the location of our San Diego Contributor Summit 2019 New Contributor Wo
 
 Get started with [Kubernbetes documentation](https://kubernetes.io/docs/home/)
 
+
 Have fun!
 
+
+## First PR
+
+Room 15 says hello! 
+
+Try creating a new pull request to this repository
