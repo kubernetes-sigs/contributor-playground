@@ -2,6 +2,8 @@
 
 _November 18th 2019_
 
+Hello from NCW!!!
+
 
 ![](https://github.com/cncf/artwork/raw/master/projects/kubernetes/horizontal/all-blue-color/kubernetes-horizontal-all-blue-color.png)
 
