@@ -16,3 +16,5 @@ Get started with [Kubernbetes documentation](https://kubernetes.io/docs/home/)
 
 Have fun!
 
+## Slide Deck - Intermedidate GitHub Session
+[Google Slide Deck](https://docs.google.com/presentation/d/18LcwvqyNn74HgqIk7O-ChgfSsJAqDIYm7obguEXto4Q/edit?usp=sharing)
