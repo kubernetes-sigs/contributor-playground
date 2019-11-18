@@ -17,3 +17,5 @@ Get started with [Kubernbetes documentation](https://kubernetes.io/docs/home/)
 Have fun!
 
 Have fun Edith!
+
+Hello friend!
