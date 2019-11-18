@@ -16,3 +16,13 @@ Get started with [Kubernbetes documentation](https://kubernetes.io/docs/home/)
 
 Have fun!
 
+<<<<<<< HEAD
+=======
+Room 15 says hello! 
+
+## Another 1st PR
+
+We are supposed to get this done before we get our afternoon break! -er1p
+
+Woot! San Diego.
+>>>>>>> modified for San Diego Contributor Summit
