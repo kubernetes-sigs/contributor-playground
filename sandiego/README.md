@@ -15,7 +15,6 @@ Kartik from the summit says hello!
 
 Get started with [Kubernbetes documentation](https://kubernetes.io/docs/home/)
 
-## First PR
+Have fun!
 
 Room 15 says hello! 
-
