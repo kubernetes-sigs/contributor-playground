@@ -2,6 +2,7 @@
 ============================
 
 # GitHub アカウントの作成
+GitHub アカウント持っていない人は作成しておいてください。
 
 # CNCF CLA へのサインアップ
 * [LF sign up](https://identity.linuxfoundation.org/)
@@ -25,6 +26,11 @@
     - これをしないと PullRequest した時に Kubernetes の CI テストで失敗し、`cncf-cla: no`のラベルが付いてしまい、マージできない。
     - Github の Primary email address を LF に登録したアドレスとして登録すること。
     - Github 上で別の email を公開したい場合は、そのメールアドレスを Public email address として登録すればよい。
+
+# Kubernetes の Slack を登録
+* ここから登録します。https://slack.k8s.io/
+* ログイン後に以下のチャンネルに入ってください。
+  + #jp-dev
 
 # コマンドのインストール
 * 以下のコマンドをインストールしておいてください。
