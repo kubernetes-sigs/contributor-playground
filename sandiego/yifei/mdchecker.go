@@ -14,13 +14,16 @@ const (
 	greeting = "greeting"
 )
 
+/**
+	check if the greeting MD file has the minimum requirements: name, and the greeting word
+ */
 func GreetingCheck() error {
 
 	if _, err := os.Stat(file); err != nil {
 		return err
 	}
 
-	reader := strings.NewReader("Unit test")
+	reader := strings.NewReader("Greeting file")
 	data, err := ioutil.ReadAll(reader)
 
 	if err != nil {
