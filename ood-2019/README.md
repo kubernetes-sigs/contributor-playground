@@ -1,6 +1,6 @@
 # Okinawa Open Days 2019: Kubernetes Upstream Training
 
-<a href="https://github.com/kubernetes/kubernetes"><img src="https://github.com/kubernetes/kubernetes/raw/master/logo/logo.png" width="64"></a><a href="https://www.okinawaopendays.com">OKINAWA OPEN DAYS</a>
+<a href="https://github.com/kubernetes/kubernetes"><img src="https://github.com/kubernetes/kubernetes/raw/master/logo/logo.png" width="64"></a><a href="https://www.okinawaopendays.com"><img src="./images/ood2019-logo.png"></a>
 
 Welcome to Kubernetes Upstream Training!!
 
