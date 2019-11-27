@@ -2,14 +2,14 @@
 ============================
 
 # GitHub アカウントの作成
-GitHub アカウント持っていない人は作成しておいてください。
+GitHub アカウントを持っていない人は作成してください。
 
 # CNCF CLA へのサインアップ
 * [LF sign up](https://identity.linuxfoundation.org/)
   The Linux Foundation ID の取得
   + 企業の開発者として登録する場合は、メールアドレスは企業ドメインのアドレスを登録する必要がある。
-    _企業として参画する予定だが、ワークショップまでにに間に合わない場合は、個人開発者としてサインアップしておいてください。_
-  + 持っていない場合は[ここ](https://identity.linuxfoundation.org/)から作成する
+    _企業として参画する予定だが、ワークショップまでに間に合わない場合は、個人開発者としてサインアップしておいてください。_
+  + 持っていない場合は[ここ](https://identity.linuxfoundation.org/)から作成する。
     - ユーザ名、メールアドレスなどを入力して登録ボタンを押下
     - メールアドレス宛に確認メールが来るので、メール中のURLにブラウザからアクセスする。
 * CNCF CLA sign up
@@ -18,8 +18,8 @@ GitHub アカウント持っていない人は作成しておいてください�
   3. The Linux Foudation ID を使ってログインする。
   4. "To sign up as a contributor to this project you must associate a GitHub account."が表示されることを確認する。
   5. [https://identity.linuxfoundation.org/user/me/hybridauth](https://identity.linuxfoundation.org/user/me/hybridauth)  で github アカウントと紐付ける。
-  6. [https://identity.linuxfoundation.org/user/me](https://identity.linuxfoundation.org/user/me)  に下記が表示されることを確認する。
-    - CNCF-<企業名が判断できる名称>
+  6. [https://identity.linuxfoundation.org/user/me](https://identity.linuxfoundation.org/user/me) に下記が表示されることを確認する。
+    - CNCF-<企業名が判断できる名称> ※企業の開発者として登録している場合
     - Groups:Authorized CNCF Contributors
     - **Note**: もし "CNCF-<企業名が判断できる名称>" が付いているが、"Groups:Authorized CNCF Contributors" が付いてない場合は、再度手順2から実施する。
   7. LF に登録しているメールアドレスを github のユーザ情報に登録する。
