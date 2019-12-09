@@ -14,5 +14,5 @@ This is the location of our OOD 2019 Kubernetes Upstream Training (Dec 9th 2019)
 
 ## We got new contributors!! 
 
-![group photo (not yet)](group-photo.jpg)
-
+![group photo](images/ood2019-photo.jpg
+)
