@@ -1,0 +1,279 @@
+# -*- ii: y; -*-
+#+TITLE: tilt.kubemacs.org config
+* Before we begin
+** namespaces
+  #+begin_src shell
+    kubectl get ns
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  NAME                 STATUS   AGE
+  default              Active   45m
+  ii                   Active   42m
+  kube-node-lease      Active   45m
+  kube-public          Active   45m
+  kube-system          Active   45m
+  local-path-storage   Active   45m
+  #+end_example
+** get services
+  #+begin_src shell
+    kubectl get services
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  NAME            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)     AGE
+  kubemacs-tilt   ClusterIP   10.96.185.30   <none>        10350/TCP   54m
+  #+end_example
+** kubemacs within the ii namespace
+  #+NAME: kubemacs service account cluster
+  #+begin_src shell :wrap "SRC yaml"
+    kubectl get clusterrolebinding kubemacs-crb -o yaml
+  #+end_src
+
+  #+RESULTS: kubemacs service account cluster
+  #+begin_SRC yaml
+  apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRoleBinding
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"ClusterRoleBinding","metadata":{"annotations":{},"name":"kubemacs-crb"},"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"ClusterRole","name":"cluster-admin"},"subjects":[{"kind":"ServiceAccount","name":"kubemacs-sa","namespace":"ii"}]}
+    creationTimestamp: "2020-02-05T22:00:37Z"
+    name: kubemacs-crb
+    resourceVersion: "1075"
+    selfLink: /apis/rbac.authorization.k8s.io/v1/clusterrolebindings/kubemacs-crb
+    uid: 280cbcc1-0970-48cc-a1c1-9bc4c1a70910
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: cluster-admin
+  subjects:
+  - kind: ServiceAccount
+    name: kubemacs-sa
+    namespace: ii
+  #+end_SRC
+
+  #+NAME: kubemacs within the ii namespace
+  #+begin_src shell
+    kubectl get all -n ii
+  #+end_src
+
+While ~service/kubemacs-tilt~ service may exist, the kubemacs container is not yet running tilt.
+
+  #+RESULTS: kubemacs within the ii namespace
+  #+begin_example
+  NAMESPACE            NAME                                             READY   STATUS    RESTARTS   AGE
+  ii                   pod/kubemacs-0                                   1/1     Running   0          42m
+  kube-system          pod/coredns-6955765f44-gfn55                     1/1     Running   0          46m
+  kube-system          pod/coredns-6955765f44-sjb79                     1/1     Running   0          46m
+  kube-system          pod/etcd-kind-control-plane                      1/1     Running   0          46m
+  kube-system          pod/kindnet-9tflf                                1/1     Running   0          45m
+  kube-system          pod/kindnet-tt5tk                                1/1     Running   0          46m
+  kube-system          pod/kube-apiserver-kind-control-plane            1/1     Running   0          46m
+  kube-system          pod/kube-controller-manager-kind-control-plane   1/1     Running   0          46m
+  kube-system          pod/kube-proxy-gks55                             1/1     Running   0          46m
+  kube-system          pod/kube-proxy-w5pgp                             1/1     Running   0          45m
+  kube-system          pod/kube-scheduler-kind-control-plane            1/1     Running   0          46m
+  local-path-storage   pod/local-path-provisioner-7745554f7f-zkzqp      1/1     Running   0          46m
+
+  NAMESPACE     NAME                    TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                  AGE
+  default       service/kubernetes      ClusterIP   10.96.0.1      <none>        443/TCP                  46m
+  ii            service/kubemacs-tilt   ClusterIP   10.96.185.30   <none>        10350/TCP                42m
+  kube-system   service/kube-dns        ClusterIP   10.96.0.10     <none>        53/UDP,53/TCP,9153/TCP   46m
+
+  NAMESPACE     NAME                        DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR                 AGE
+  kube-system   daemonset.apps/kindnet      2         2         2       2            2           <none>                        46m
+  kube-system   daemonset.apps/kube-proxy   2         2         2       2            2           beta.kubernetes.io/os=linux   46m
+
+  NAMESPACE            NAME                                     READY   UP-TO-DATE   AVAILABLE   AGE
+  kube-system          deployment.apps/coredns                  2/2     2            2           46m
+  local-path-storage   deployment.apps/local-path-provisioner   1/1     1            1           46m
+
+  NAMESPACE            NAME                                                DESIRED   CURRENT   READY   AGE
+  kube-system          replicaset.apps/coredns-6955765f44                  2         2         2       46m
+  local-path-storage   replicaset.apps/local-path-provisioner-7745554f7f   1         1         1       46m
+
+  NAMESPACE   NAME                        READY   AGE
+  ii          statefulset.apps/kubemacs   1/1     42m
+  #+end_example
+
+** kubemacs statefulset
+  #+NAME: kubemacs statefulset
+  #+begin_src shell
+    kubectl describe statefulset/kubemacs
+  #+end_src
+
+Note that we set ~GIT_*~, ~INIT_*~ env vars to influence how git and kubemacs loads.
+We also use hostpath to mount ~/tmp~ ~/workspace~ and ~/var/run/docker.sock~ from outside kind, into our kubemacs container.
+Mounting ~/tmp~ allows us to set *SSH_AUTH_SOCK* to allow ~ssh-agent~ and ~ssh -A~
+
+  #+RESULTS: kubemacs statefulset
+  #+begin_example
+  Name:               kubemacs
+  Namespace:          ii
+  CreationTimestamp:  Thu, 06 Feb 2020 11:00:37 +1300
+  Selector:           app=kubemacs
+  Labels:             <none>
+  Annotations:        kubectl.kubernetes.io/last-applied-configuration:
+                        {"apiVersion":"apps/v1","kind":"StatefulSet","metadata":{"annotations":{},"name":"kubemacs","namespace":"ii"},"spec":{"replicas":1,"select...
+  Replicas:           1 desired | 1 total
+  Update Strategy:    RollingUpdate
+    Partition:        824644665128
+  Pods Status:        1 Running / 0 Waiting / 0 Succeeded / 0 Failed
+  Pod Template:
+    Labels:           app=kubemacs
+    Service Account:  kubemacs-sa
+    Containers:
+     kubemacs:
+      Image:      gcr.io/apisnoop/kubemacs:0.9.32
+      Port:       <none>
+      Host Port:  <none>
+      Command:
+        /usr/local/bin/simple-init.sh
+        $INIT_ORG_FILE
+      Environment:
+        TZ:                   <set to the key 'TZ' of config map 'kubemacs-configuration'>                 Optional: false
+        GIT_COMMITTER_EMAIL:  <set to the key 'GIT_EMAIL' of config map 'kubemacs-configuration'>          Optional: false
+        GIT_COMMITTER_NAME:   <set to the key 'GIT_NAME' of config map 'kubemacs-configuration'>           Optional: false
+        GIT_AUTHOR_EMAIL:     <set to the key 'GIT_EMAIL' of config map 'kubemacs-configuration'>          Optional: false
+        GIT_AUTHOR_NAME:      <set to the key 'GIT_NAME' of config map 'kubemacs-configuration'>           Optional: false
+        INIT_DEFAULT_REPO:    <set to the key 'INIT_DEFAULT_REPO' of config map 'kubemacs-configuration'>  Optional: false
+        INIT_DEFAULT_DIR:     <set to the key 'INIT_DEFAULT_DIR' of config map 'kubemacs-configuration'>   Optional: false
+        INIT_ORG_FILE:        <set to the key 'INIT_ORG_FILE' of config map 'kubemacs-configuration'>      Optional: false
+      Mounts:
+        /home/ii/workspace from kubemacs-hostpath (rw)
+        /tmp from host-tmp (rw)
+        /var/run/docker.sock from docker (rw)
+    Volumes:
+     kubemacs-hostpath:
+      Type:          HostPath (bare host directory volume)
+      Path:          /workspace
+      HostPathType:  
+     docker:
+      Type:          HostPath (bare host directory volume)
+      Path:          /var/run/docker.sock
+      HostPathType:  Socket
+     host-tmp:
+      Type:          HostPath (bare host directory volume)
+      Path:          /var/host/tmp
+      HostPathType:  
+  Volume Claims:     <none>
+  Events:
+    Type    Reason            Age   From                    Message
+    ----    ------            ----  ----                    -------
+    Normal  SuccessfulCreate  45m   statefulset-controller  create Pod kubemacs-0 in StatefulSet kubemacs successful
+  #+end_example
+** simple-init.sh
+This is the command, and the arument is what file/folder.
+[[file:/usr/local/bin/simple-init.sh]]
+This defaults to ~INIT_ORG_FILE~ in the configmap applied to the statefulset.
+** attach
+This is the command, and the arument is what file/folder.
+[[file:/usr/local/bin/attach]]
+We use attach to connect to spawned tmate sessions via *kubectl exec -ti kubemacs-0 attach SESSION* 
+** tmate
+tmate config currently uses the hosted, but we CAN run this in cluster... later.
+#+begin_src shell
+ps ax | grep tmate
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   93 ?        S      0:03 tmate -F -v -S /tmp/ii.default.target.iisocket new-session -d -c /home/ii/apisnoop/deployment/k8s/kubemacs.org emacsclient --tty /home/ii/apisnoop/deployment/k8s/kubemacs.org/ncw.org
+  142 pts/0    S+     0:00 tmate -S /tmp/ii.default.target.iisocket at
+ 1529 ?        S      0:00 grep tmate
+#+end_example
+
+* Bring up tilt
+#+begin_src tmate :dir "." :session ii:tilt
+  tilt up --host 0.0.0.0
+#+end_src
+#+begin_src tmate :dir "." :session ii:tilt
+  x
+#+end_src
+
+If you attempt to do *docker build* and get permissions problems... just
+#+begin_src shell
+  id
+#+end_src
+
+#+RESULTS:
+#+begin_example
+uid=2000(ii) gid=2000(ii) groups=2000(ii),27(sudo),100(users),107(docker)
+#+end_example
+
+#+begin_src shell
+  ls -la /var/run/docker.sock
+#+end_src
+
+#+RESULTS:
+#+begin_example
+srw-rw---- 1 root users 0 Feb  6 10:52 /var/run/docker.sock
+#+end_example
+
+#+begin_src tmate :dir "." :session ii:docker-fix
+  sudo chgrp users /var/run/docker.sock
+#+end_src
+* These files/folders map to these *.localho.st sites on 127.0.0.1
+These will ask for a password.
+It is stored in the ~basic-auth~ secrets.
+You can set what it is by running this code:
+#+begin_src shell
+LOGIN=hh
+PASSWORD=ii 
+kubectl delete secret basic-auth
+kubectl create secret generic basic-auth \
+--from-literal=auth=$(echo $PASSWORD | htpasswd -i -n $LOGIN)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+secret "basic-auth" deleted
+secret/basic-auth created
+#+end_example
+
+** [[http://tilt.kubemacs.org]]
+Our [[file:Tiltfile::k8s_yaml(kustomize('.'))][./Tiltfile]] uses the [[file:kustomization.yaml::kind:%20Kustomization][./kustomization.yaml]] to figure out what resources to
+deploy. Changes to any file referenced will result in immediate changes to the
+deployed resources. If [[file:Tiltfile::docker_build(][docker_build()]] entries are uncommented, those images will
+be rebuilt, pushed, and pods restarted automatically.
+** [[file:~/apisnoop/deployment/k8s/hasura][deployment/k8s/hasura]] -> [[../../../apps/hasura][apps/hasura]] -> [[http://hasura.kubemacs.org]]
+[[file:~/apisnoop/org/tables_and_views_bot.org][org/tables_and_views_bot.org]] can be tangled and primarily updates hasura, but can also be run interactively
+** [[file:~/apisnoop/deployment/k8s/webapp][deployment/k8s/webapp]] -> [[../../../apps/webapp][apps/webapp]] -> [[http://apisnoop.kubemacs.org/coverage]]
+[[file:~/apisnoop/org/webapp.org][org/webapp.org]] can be tangled and primarily updates 
+** [[../pgadmin][deployment/k8s/pgadmin]] -> [[http://pgadmin.kubemacs.org]]
+*** test sql connections
+
+#+begin_src shell
+echo foo
+#+end_src
+
+  #+NAME: Test Connection
+  #+BEGIN_SRC sql-mode :results silent
+    \conninfo
+  #+END_SRC
+  #+NAME: Test Connection
+  #+BEGIN_SRC sql-mode
+    select 1;
+  #+END_SRC
+
+  #+RESULTS: Test Connection
+  #+begin_SRC example
+   ?column? 
+  ----------
+          1
+  (1 row)
+
+  #+end_SRC
+
+*** permissions need to be super strict
+So we use a set of [[file:~/apisnoop/deployment/k8s/pgadmin/deployment.yaml::-%20name:%20cp-servers-json][initContainers]] to copy [[file:~/apisnoop/deployment/k8s/pgadmin/configuration.yaml::servers.json][servers.json]] and [[file:~/apisnoop/deployment/k8s/pgadmin/configuration.yaml::pgpass:][pgpass]] out of a mounted configMap volume and set user/group/perms.
+** [[file:~/apisnoop/deployment/k8s/postgres][deployment/k8s/postgres]] -> [[../../../apps/postgres][apps/postgres]]
+
+* Visit these sites
+- http://tilt.kubemacs.org
+- http://pgadmin.kubemacs.org
+- http://hasura.kubemacs.org
+- http://apisnoop.kubemacs.org

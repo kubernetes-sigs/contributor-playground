@@ -1,0 +1,84 @@
+# -*- ii: cool -*-
+#+TITLE: Webapp
+
+* Purpose
+  This holds any info related to the structure, development, or context of the web app.  It does not hold the code itself, this we work on directly in the ~apps/webapp~ folder.  Instead it holds our data definitions, useful resources, outline of the app structure, and anything else that makes the development of the web app easier.
+* Structure
+* Flow
+* Resources
+* Queries
+* Data Definitions
+** Endpoints
+***  Example
+    Endpoints is an array of Objects, with each key an OperationID. They are the endpoints within the paths hit in our audit log
+    #+NAME: Single Endpoint
+    #+begin_example json
+   "getCodeVersion": {
+     "category": "version",
+     "kind": "",
+     "group": "",
+     "description": "get the code version",
+     "conformanceHits": 0,
+     "level": "stable",
+     "isDeprecated": false,
+     "hits": 0,
+     "testHits": 0,
+     "version": "",
+     "path": "/version/"
+   }
+    #+end_example
+*** Query 
+     #+NAME: Array of  Endpoints
+     #+begin_example json
+       "endpoints": [
+         "getCodeVersion": {...},
+         "listCodeVersion": {...},
+         "createNodeSuchAndSuch": {...}
+       ]
+     #+end_example
+
+** Sunburst
+
+An Object built for the d3 sunburst graph. It requires a root that contains children, with each children containing children, all the way to the end.
+
+In this case we have root>level>category>operationId.  The key details are in our operationID, which are then grouped by their category, and the categories grouped by their level.
+
+#+begin_example js
+{
+  name: "root",
+  children: [
+    {
+      name: "level",
+      color: rgba color,
+      children: [
+        {
+          name: "core",
+          color: rgba color,
+          children: [
+            {
+              name: "createNodeSuchAndSuch",
+              size: 1,
+              testHits: 3,
+              conformanceTestHits: 2,
+              hits: 10,
+              color: rgba color
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+#+end_example
+* Resources
+* TODO's
+** TODO all necessary views are tracked in hasura
+   - endpoint_coverage
+   - api_operation
+** TODO figure out how to include object and array relationships in hasura migration.
+   - we want to be able to do a nested query, which come from having relationships in the graphql schema.  Thse are derived from sql, and so look into how to write the sql view to have these built in.  likely with foreign key relationship.s
+** TODO Speed up queries for endpoint_coverage
+   - do we need to have the test hits as a #?  It doesn't affect the size of the sunburst, and it can be easily derived form other views.  Instead it should be 'is tested'.  This would spee dup the view I do believe. 
+** TODO queries in webapp use variables based on route
+   for example our endpoints grab from a bucket/job based on the current route.
+* Footnotes

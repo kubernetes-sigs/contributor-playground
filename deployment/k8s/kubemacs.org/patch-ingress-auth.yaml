@@ -1,0 +1,9 @@
+- op: add
+  path: "/metadata/annotations/nginx.ingress.kubernetes.io~1auth-type"
+  value: "basic"
+- op: add
+  path: "/metadata/annotations/nginx.ingress.kubernetes.io~1auth-secret"
+  value: "basic-auth"
+- op: add
+  path: "/metadata/annotations/nginx.ingress.kubernetes.io~1auth-realm"
+  value: "You'll need to know the basic-auth login/password to continue!"
