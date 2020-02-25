@@ -1,4 +1,4 @@
-include hack/Makefile.buildinfo
+# include hack/Makefile.buildinfo
 
 GOOS ?= linux
 ARCH ?= amd64
@@ -18,6 +18,7 @@ build-output:
 
 .PHONY: build
 build: build-output
+	go mod tidy
 	@GOOS=${GOOS} GOARCH=${ARCH} go build     \
 	    -i                                    \
 	    -o output/${BIN}  \

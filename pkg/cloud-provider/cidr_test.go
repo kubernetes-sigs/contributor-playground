@@ -31,3 +31,13 @@ func TestVerifyNoOverlap(t *testing.T) {
 		t.Log(err)
 	}
 }
+
+func TestInsertNumIntoIP(t *testing.T) {
+	ip := []byte{10, 0, 0, 1}
+	num := 1
+	prefixLen := 1
+	newIp := insertNumIntoIP(ip, num, prefixLen)
+	if newIp[0] != 138 {
+		t.Error("err")
+	}
+}
