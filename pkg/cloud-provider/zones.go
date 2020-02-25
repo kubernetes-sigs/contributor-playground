@@ -18,11 +18,9 @@ package cloud_provider
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/kubernetes/pkg/cloudprovider"
+	cloudprovider "k8s.io/cloud-provider"
 )
 
 // Zones returns a zones interface. Also returns true if the interface is supported, false otherwise.
@@ -39,13 +37,13 @@ func (bc *Baiducloud) GetZone(ctx context.Context) (cloudprovider.Zone, error) {
 		FailureDomain: "unknow",
 		Region:        bc.Region,
 	}
-	if bc.NodeIP != "" {
-		ins, err := bc.getInstanceByNodeName(types.NodeName(bc.NodeIP))
+	if bc.NodeName != "" {
+		ins, err := bc.getInstanceByNodeName(ctx, types.NodeName(bc.NodeName))
 		// ins, err := bc.getVirtualMachine(types.NodeName(bc.NodeIP))
 		if err != nil {
 			return zone, err
 		}
-		zone.FailureDomain = ins.ZoneName
+		zone.FailureDomain = ins.AvailableZone
 	}
 	return zone, nil
 }
@@ -54,17 +52,13 @@ func (bc *Baiducloud) GetZone(ctx context.Context) (cloudprovider.Zone, error) {
 // This method is particularly used in the context of external cloud providers where node initialization must be down
 // outside the kubelets.
 func (bc *Baiducloud) GetZoneByProviderID(ctx context.Context, providerID string) (cloudprovider.Zone, error) {
-	splitted := strings.Split(providerID, "//")
-	if len(splitted) != 2 {
-		return cloudprovider.Zone{}, fmt.Errorf("parse ProviderID failed: %v", providerID)
-	}
-	instance, err := bc.getInstanceByID(string(splitted[1]))
+	instance, err := bc.getInstanceByProviderID(ctx, providerID)
 	if err != nil {
 		return cloudprovider.Zone{}, err
 	}
 
 	return cloudprovider.Zone{
-		FailureDomain: instance.ZoneName,
+		FailureDomain: instance.AvailableZone,
 		Region:        bc.Region,
 	}, nil
 }
@@ -73,12 +67,12 @@ func (bc *Baiducloud) GetZoneByProviderID(ctx context.Context, providerID string
 // This method is particularly used in the context of external cloud providers where node initialization must be down
 // outside the kubelets.
 func (bc *Baiducloud) GetZoneByNodeName(ctx context.Context, nodeName types.NodeName) (cloudprovider.Zone, error) {
-	instance, err := bc.getInstanceByNodeName(nodeName)
+	instance, err := bc.getInstanceByNodeName(ctx, nodeName)
 	if err != nil {
 		return cloudprovider.Zone{}, err
 	}
 	zone := cloudprovider.Zone{
-		FailureDomain: instance.ZoneName,
+		FailureDomain: instance.AvailableZone,
 		Region:        bc.Region,
 	}
 	return zone, nil

@@ -22,12 +22,12 @@ import (
 	"net"
 	"strings"
 
-	"github.com/golang/glog"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/kubernetes/pkg/cloudprovider"
+	cloudprovider "k8s.io/cloud-provider"
+	"k8s.io/klog"
 
-	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/cce"
+	cce "icode.baidu.com/baidu/jpaas-caas/cloud-provider-baiducloud/pkg/temp-cce"
 )
 
 // Instances returns an instances interface. Also returns true if the interface is supported, false otherwise.
@@ -40,14 +40,24 @@ func (bc *Baiducloud) Instances() (cloudprovider.Instances, bool) {
 // returns the address of the calling instance. We should do a rename to
 // make this clearer.
 func (bc *Baiducloud) NodeAddresses(ctx context.Context, name types.NodeName) ([]v1.NodeAddress, error) {
+	var IP string
+
+	// TODO if hostname is x.x.x.x ?
 	nameStr := string(name)
 	nodeIP := net.ParseIP(nameStr)
-	if nodeIP == nil {
-		return nil, fmt.Errorf("Node name: %s should be an IP address\n", nameStr)
+	if nodeIP != nil {
+		IP = nameStr
+	} else {
+		instance, err := bc.getInstanceByNodeName(ctx, name)
+		if err != nil {
+			return nil, err
+		}
+		IP = instance.IP
 	}
+
 	return []v1.NodeAddress{
-		{Type: v1.NodeInternalIP, Address: nameStr},
-		{Type: v1.NodeHostName, Address: nameStr},
+		{Type: v1.NodeInternalIP, Address: IP},
+		{Type: v1.NodeHostName, Address: IP},
 	}, nil
 }
 
@@ -61,19 +71,20 @@ func (bc *Baiducloud) NodeAddressesByProviderID(ctx context.Context, providerID 
 	if len(splitted) != 2 {
 		return nil, fmt.Errorf("parse ProviderID failed: %v", providerID)
 	}
-	instanceId := splitted[1]
+	instanceID := splitted[1]
 	var addresses []v1.NodeAddress
-	instances, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
+	instanceResponse, err := bc.clientSet.CCEClient.ListClusterNodes(ctx, bc.ClusterID, bc.getSignOption(ctx))
 	if err != nil {
 		return nil, err
 	}
+	instances := instanceResponse.Nodes
 	if len(instances) == 0 {
 		return addresses, nil
 	}
 	for _, instance := range instances {
-		if instance.InstanceId == instanceId {
-			addresses = append(addresses, v1.NodeAddress{Type: v1.NodeHostName, Address: instance.InternalIP})
-			addresses = append(addresses, v1.NodeAddress{Type: v1.NodeInternalIP, Address: instance.InternalIP})
+		if instance.InstanceID == instanceID {
+			addresses = append(addresses, v1.NodeAddress{Type: v1.NodeHostName, Address: instance.IP})
+			addresses = append(addresses, v1.NodeAddress{Type: v1.NodeInternalIP, Address: instance.IP})
 			return addresses, nil
 		}
 	}
@@ -83,16 +94,16 @@ func (bc *Baiducloud) NodeAddressesByProviderID(ctx context.Context, providerID 
 // InstanceID returns the cloud provider ID of the node with the specified NodeName.
 // Note that if the instance does not exist or is no longer running, we must return ("", cloudprovider.InstanceNotFound)
 func (bc *Baiducloud) InstanceID(ctx context.Context, name types.NodeName) (string, error) {
-	instance, err := bc.getInstanceByNodeName(name)
+	instance, err := bc.getInstanceByNodeName(ctx, name)
 	if err != nil {
 		return "", err
 	}
-	return instance.InstanceId, nil
+	return instance.InstanceID, nil
 }
 
 // InstanceType returns the type of the specified instance.
 func (bc *Baiducloud) InstanceType(ctx context.Context, name types.NodeName) (string, error) {
-	ins, err := bc.getInstanceByNodeName(name)
+	ins, err := bc.getInstanceByNodeName(ctx, name)
 	if err != nil {
 		return "", err
 	}
@@ -106,7 +117,7 @@ func (bc *Baiducloud) InstanceType(ctx context.Context, name types.NodeName) (st
 
 // InstanceTypeByProviderID returns the type of the specified instance.
 func (bc *Baiducloud) InstanceTypeByProviderID(ctx context.Context, providerID string) (string, error) {
-	ins, err := bc.getInstanceByProviderID(providerID)
+	ins, err := bc.getInstanceByProviderID(ctx, providerID)
 	if err != nil {
 		return "", err
 	}
@@ -127,10 +138,8 @@ func (bc *Baiducloud) AddSSHKeyToAllInstances(ctx context.Context, user string, 
 // CurrentNodeName returns the name of the node we are currently running on
 // On most clouds (e.g. GCE) this is the hostname, so we provide the hostname
 func (bc *Baiducloud) CurrentNodeName(ctx context.Context, hostname string) (types.NodeName, error) {
-	// excepting hostname is an ip address
-	nodeIP := net.ParseIP(hostname)
-	if nodeIP != nil {
-		bc.NodeIP = hostname
+	if len(hostname) != 0 {
+		bc.NodeName = hostname
 	}
 	return types.NodeName(hostname), nil
 }
@@ -138,15 +147,7 @@ func (bc *Baiducloud) CurrentNodeName(ctx context.Context, hostname string) (typ
 // InstanceExistsByProviderID returns true if the instance with the given provider id still exists and is running.
 // If false is returned with no error, the instance will be immediately deleted by the cloud controller manager.
 func (bc *Baiducloud) InstanceExistsByProviderID(ctx context.Context, providerID string) (bool, error) {
-	// when node.spec.providerID is not set, providerID is only instanceID, not start with cce://
-	if !strings.HasPrefix(providerID, bc.ProviderName() + "://") {
-		providerID = bc.ProviderName() + "://" + providerID
-	}
-	splitted := strings.Split(providerID, "//")
-	if len(splitted) != 2 {
-		return false, fmt.Errorf("parse ProviderID failed: %v", providerID)
-	}
-	instance, err := bc.getInstanceByID(string(splitted[1]))
+	instance, err := bc.getInstanceByProviderID(ctx, providerID)
 	if err != nil {
 		return false, err
 	}
@@ -159,63 +160,51 @@ func (bc *Baiducloud) InstanceExistsByProviderID(ctx context.Context, providerID
 // InstanceShutdownByProviderID returns true if the instance is shutdown in cloudprovider
 func (bc *Baiducloud) InstanceShutdownByProviderID(ctx context.Context, providerID string) (bool, error) {
 	// TODO
-	glog.V(2).Infoln("InstanceShutdownByProviderID unimplemented, return false temp")
+	klog.V(2).Infoln("InstanceShutdownByProviderID unimplemented, return false temp")
 	return false, nil
 }
 
-func (bc *Baiducloud) getInstanceByNodeName(name types.NodeName) (vm cce.CceInstance, err error) {
+func (bc *Baiducloud) getInstanceByNodeName(ctx context.Context, name types.NodeName) (vm *cce.Node, err error) {
 	nameStr := string(name)
-	nodeIP := net.ParseIP(nameStr)
-	if nodeIP == nil {
-		return vm, fmt.Errorf("Node name: %s should be an IP address\n", nameStr)
+	if len(nameStr) == 0 {
+		return vm, fmt.Errorf("Node name: %s is nil\n ", nameStr)
 	}
-	ins, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
+	instanceResponse, err := bc.clientSet.CCEClient.ListClusterNodes(ctx, bc.ClusterID, bc.getSignOption(ctx))
 	if err != nil {
 		return vm, err
 	}
+	ins := instanceResponse.Nodes
 	for _, i := range ins {
-		if i.InternalIP == nameStr {
+		// nodeName can be a ip or a hostname
+		if i.Hostname == nameStr || i.IP == nameStr {
 			return i, nil
 		}
 	}
 	return vm, cloudprovider.InstanceNotFound
 }
 
-// Returns the instance with the specified ID
-func (bc *Baiducloud) getInstanceByID(instanceID string) (*cce.CceInstance, error) {
-	ins, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
-	if err != nil {
-		return nil, err
-	}
-	if len(ins) == 0 {
-		return nil, cloudprovider.InstanceNotFound
-	}
-	for _, i := range ins {
-		if i.InstanceId == instanceID {
-			return &i, nil
-		}
-	}
-
-	return nil, cloudprovider.InstanceNotFound
-}
-
 // Returns the instance with the providerID
-func (bc *Baiducloud) getInstanceByProviderID(providerID string) (*cce.CceInstance, error) {
+func (bc *Baiducloud) getInstanceByProviderID(ctx context.Context, providerID string) (*cce.Node, error) {
+	// when node.spec.providerID is not set, providerID is only instanceID, not start with cce://
+	if !strings.HasPrefix(providerID, bc.ProviderName()+"://") {
+		providerID = bc.ProviderName() + "://" + providerID
+	}
 	splitted := strings.Split(providerID, "//")
 	if len(splitted) != 2 {
 		return nil, fmt.Errorf("parse ProviderID failed: %v", providerID)
 	}
-	instanceId := splitted[1]
-	ins, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
+	instanceID := splitted[1]
+	instanceResponse, err := bc.clientSet.CCEClient.ListClusterNodes(ctx, bc.ClusterID, bc.getSignOption(ctx))
 	if err != nil {
 		return nil, err
 	}
+	ins := instanceResponse.Nodes
 	if len(ins) == 0 {
 		return nil, cloudprovider.InstanceNotFound
 	}
 	for _, i := range ins {
-		if i.InstanceId == instanceId {
-			return &i, nil
+		if i.InstanceID == instanceID {
+			return i, nil
 		}
 	}
 

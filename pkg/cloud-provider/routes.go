@@ -22,15 +22,17 @@ import (
 	"fmt"
 	"net"
 	"strings"
-
-	"github.com/golang/glog"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/kubernetes/pkg/cloudprovider"
+	"time"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/cce"
-	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/vpc"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	cloudprovider "k8s.io/cloud-provider"
+	"k8s.io/klog"
+
+	"icode.baidu.com/baidu/jpaas-caas/bce-sdk-go/vpc"
+	cce "icode.baidu.com/baidu/jpaas-caas/cloud-provider-baiducloud/pkg/temp-cce"
 )
 
 // Routes returns a routes interface along with whether the interface is supported.
@@ -40,36 +42,42 @@ func (bc *Baiducloud) Routes() (cloudprovider.Routes, bool) {
 
 // ListRoutes lists all managed routes that belong to the specified clusterName
 func (bc *Baiducloud) ListRoutes(ctx context.Context, clusterName string) (routes []*cloudprovider.Route, err error) {
-	vpcid, err := bc.getVpcID()
-	if err != nil {
-		return nil, err
-	}
-	args := vpc.ListRouteArgs{
-		VpcID: vpcid,
-	}
-	rs, err := bc.clientSet.Vpc().ListRouteTable(&args)
+	ctx = context.WithValue(ctx, RequestID, GetRandom())
+	startTime := time.Now()
+	defer func() {
+		klog.Infof(Message(ctx, fmt.Sprintf("Finished ListRoutes (%v)", time.Since(startTime))))
+	}()
+	rs, err := bc.getVpcRouteTable(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	// routeTableConflictDetection
-	go bc.routeTableConflictDetection(rs)
+	go bc.routeTableConflictDetection(ctx, rs)
 
-	inss, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
+	instanceResponse, err := bc.clientSet.CCEClient.ListClusterNodes(ctx, bc.ClusterID, bc.getSignOption(ctx))
 	if err != nil {
 		return nil, err
 	}
-	var kubeRoutes []*cloudprovider.Route
+	inss := instanceResponse.Nodes
+	// Deprecated: there is no need to check node annotaions every cycle
+	//vpcID := inss[0].VPCID
 	nodename := make(map[string]string)
 	for _, ins := range inss {
-		nodename[ins.InstanceId] = ins.InternalIP
+		if len(ins.Hostname) == 0 {
+			nodename[ins.InstanceID] = ins.IP
+		} else {
+			nodename[ins.InstanceID] = ins.Hostname
+		}
 	}
+
+	var kubeRoutes []*cloudprovider.Route
 	for _, r := range rs {
 		// filter instance route
 		if r.NexthopType != "custom" {
 			continue
 		}
-		var insName string
+
 		insName, ok := nodename[r.NexthopID]
 		if !ok {
 			continue
@@ -85,18 +93,12 @@ func (bc *Baiducloud) ListRoutes(ctx context.Context, clusterName string) (route
 			continue
 		}
 		// use route.Blackhole to mark this route to be deleted
-		if !advertiseRoute {
-			route.Blackhole = true
-		}
+		route.Blackhole = !advertiseRoute
 
-		vpcId, err := bc.getVpcID()
-		if err != nil {
-			return nil, err
-		}
-		err = bc.ensureRouteInfoToNode(string(route.TargetNode), vpcId, r.RouteTableID, r.RouteRuleID)
-		if err != nil {
-			return nil, err
-		}
+		// no need to check err
+		// Deprecated: there is no need to check node annotaions every cycle
+		//_ = bc.ensureRouteInfoToNode(insName, vpcID, r.RouteTableID, r.RouteRuleID)
+
 		kubeRoutes = append(kubeRoutes, route)
 	}
 	return kubeRoutes, nil
@@ -106,14 +108,11 @@ func (bc *Baiducloud) ListRoutes(ctx context.Context, clusterName string) (route
 // route.Name will be ignored, although the cloud-provider may use nameHint
 // to create a more user-meaningful name.
 func (bc *Baiducloud) CreateRoute(ctx context.Context, clusterName string, nameHint string, kubeRoute *cloudprovider.Route) error {
-	glog.V(3).Infof("CreateRoute: creating route. clusterName=%v instance=%v cidr=%v", clusterName, kubeRoute.TargetNode, kubeRoute.DestinationCIDR)
-	vpcRoutes, err := bc.getVpcRouteTable()
-	if err != nil {
-		return err
-	}
-	if len(vpcRoutes) < 1 {
-		return fmt.Errorf("VPC route length error: length is : %d", len(vpcRoutes))
-	}
+	startTime := time.Now()
+	defer func() {
+		klog.Infof(Message(ctx, fmt.Sprintf("Finished CreateRoutes %+v (%v)", kubeRoute, time.Since(startTime))))
+	}()
+	klog.Infof(Message(ctx, fmt.Sprintf("CreateRoute: creating route. instance=%v cidr=%v", kubeRoute.TargetNode, kubeRoute.DestinationCIDR)))
 
 	advertiseRoute, err := bc.advertiseRoute(string(kubeRoute.TargetNode))
 	if err != nil {
@@ -121,115 +120,77 @@ func (bc *Baiducloud) CreateRoute(ctx context.Context, clusterName string, nameH
 	}
 
 	if !advertiseRoute {
-		glog.V(3).Infof("Node %s has annotation not to advertise route", string(kubeRoute.TargetNode))
+		klog.V(3).Infof("Node %s has annotation not to advertise route", string(kubeRoute.TargetNode))
 		return nil
 	}
 
-	var insID string
-	inss, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
-	if err != nil {
-		return err
-	}
-	for _, ins := range inss {
-		if ins.InternalIP == string(kubeRoute.TargetNode) {
-			insID = ins.InstanceId
-			if ins.Status == cce.InstanceStatusCreateFailed || ins.Status == cce.InstanceStatusDeleted || ins.Status == cce.InstanceStatusDeleting || ins.Status == cce.InstanceStatusError {
-				glog.V(3).Infof("No need to create route, instance has a wrong status: %s", ins.Status)
-				return nil
-			}
-			break
-		}
-	}
-
-	// update
-	var needDelete []string
-	for _, vr := range vpcRoutes {
-		if vr.DestinationAddress == kubeRoute.DestinationCIDR && vr.SourceAddress == "0.0.0.0/0" && vr.NexthopID == insID {
-			glog.V(3).Infof("Route rule already exists.")
-			return nil
-		}
-		if vr.DestinationAddress == kubeRoute.DestinationCIDR && vr.SourceAddress == "0.0.0.0/0" {
-			needDelete = append(needDelete, vr.RouteRuleID)
-		}
-	}
-	if len(needDelete) > 0 {
-		for _, delRoute := range needDelete {
-			err := bc.clientSet.Vpc().DeleteRoute(delRoute)
-			if err != nil {
-				glog.V(3).Infof("Delete VPC route error %s", err)
-				return err
-			}
-		}
-	}
-
-	if insID == "" {
-		glog.Errorf("InstanceId not found for k8s node %s, not create route", string(kubeRoute.TargetNode))
-		return fmt.Errorf("InstanceId not found for k8s node %s, create route failed", string(kubeRoute.TargetNode))
-	}
-
-	args := vpc.CreateRouteRuleArgs{
-		RouteTableID:       vpcRoutes[0].RouteTableID,
-		NexthopType:        "custom",
-		Description:        fmt.Sprintf("auto generated by cce:%s", bc.ClusterID),
-		DestinationAddress: kubeRoute.DestinationCIDR,
-		SourceAddress:      "0.0.0.0/0",
-		NexthopID:          insID,
-	}
-	glog.V(3).Infof("CreateRoute: create args %v", args)
-	routeRuleID, err := bc.clientSet.Vpc().CreateRouteRule(&args)
+	insID, err := bc.checkClusterNode(ctx, kubeRoute)
 	if err != nil {
 		return err
 	}
 
-	vpcId, err := bc.getVpcID()
-	if err != nil {
-		return err
-	}
-	err = bc.ensureRouteInfoToNode(string(kubeRoute.TargetNode), vpcId, vpcRoutes[0].RouteTableID, routeRuleID)
+	routeRule, err := bc.ensureCreateRule(ctx, kubeRoute, insID)
 	if err != nil {
 		return err
 	}
 
-	glog.V(3).Infof("CreateRoute for cluster: %v node: %v success", clusterName, kubeRoute.TargetNode)
+	vpcID, err := bc.getVpcID(ctx)
+	if err != nil {
+		return err
+	}
+	err = bc.ensureRouteInfoToNode(string(kubeRoute.TargetNode), vpcID, routeRule.RouteTableID, routeRule.RouteRuleID)
+	if err != nil {
+		return err
+	}
+
+	klog.Infof(Message(ctx, fmt.Sprintf("CreateRoute for cluster: %v node: %v success", clusterName, kubeRoute.TargetNode)))
 	return nil
 }
 
 // DeleteRoute deletes the specified managed route
 // Route should be as returned by ListRoutes
 func (bc *Baiducloud) DeleteRoute(ctx context.Context, clusterName string, kubeRoute *cloudprovider.Route) error {
-	glog.V(3).Infof("DeleteRoute: deleting route. clusterName=%q instance=%q cidr=%q", clusterName, kubeRoute.TargetNode, kubeRoute.DestinationCIDR)
-	vpcTable, err := bc.getVpcRouteTable()
+	startTime := time.Now()
+	defer func() {
+		klog.Infof(Message(ctx, fmt.Sprintf("Finished DeleteRoutes %v (%v)", kubeRoute, time.Since(startTime))))
+	}()
+	klog.Infof(Message(ctx, fmt.Sprintf("DeleteRoute: instance=%q cidr=%q", kubeRoute.TargetNode, kubeRoute.DestinationCIDR)))
+	vpcTable, err := bc.getVpcRouteTable(ctx)
 	if err != nil {
-		glog.V(3).Infof("getVpcRouteTable error %s", err.Error())
+		klog.V(3).Infof("getVpcRouteTable error %s", err.Error())
 		return err
 	}
 	for _, vr := range vpcTable {
 		if vr.DestinationAddress == kubeRoute.DestinationCIDR && vr.SourceAddress == "0.0.0.0/0" {
-			glog.V(3).Infof("DeleteRoute: DestinationAddress is %s .", vr.DestinationAddress)
-			err := bc.clientSet.Vpc().DeleteRoute(vr.RouteRuleID)
+			klog.V(3).Infof("DeleteRoute: DestinationAddress is %s .", vr.DestinationAddress)
+			err := bc.clientSet.VPCClient.DeleteRoute(ctx, vr.RouteRuleID, bc.getSignOption(ctx))
 			if err != nil {
-				glog.V(3).Infof("Delete VPC route error %s", err.Error())
+				klog.V(3).Infof("Delete VPC route error %s", err.Error())
 				return err
 			}
 		}
 	}
 
-	glog.V(3).Infof("DeleteRoute: success, clusterName=%q instance=%q cidr=%q", clusterName, kubeRoute.TargetNode, kubeRoute.DestinationCIDR)
+	klog.Infof(Message(ctx, fmt.Sprintf("DeleteRoute: success, instance=%q cidr=%q", kubeRoute.TargetNode, kubeRoute.DestinationCIDR)))
 
 	return nil
 }
 
-func (bc *Baiducloud) getVpcRouteTable() ([]vpc.RouteRule, error) {
-	vpcid, err := bc.getVpcID()
+func (bc *Baiducloud) getVpcRouteTable(ctx context.Context) ([]vpc.RouteRule, error) {
+	vpcid, err := bc.getVpcID(ctx)
 	if err != nil {
 		return nil, err
 	}
 	args := vpc.ListRouteArgs{
 		VpcID: vpcid,
 	}
-	rs, err := bc.clientSet.Vpc().ListRouteTable(&args)
+	rs, err := bc.clientSet.VPCClient.ListRouteTable(ctx, &args, bc.getSignOption(ctx))
 	if err != nil {
 		return nil, err
+	}
+
+	if len(rs) < 1 {
+		return nil, fmt.Errorf("VPC route length error: length is : %d", len(rs))
 	}
 	return rs, nil
 }
@@ -238,11 +199,11 @@ func (bc *Baiducloud) getVpcRouteTable() ([]vpc.RouteRule, error) {
 // node.alpha.kubernetes.io/vpc-id: "vpc-xxx"
 // node.alpha.kubernetes.io/vpc-route-table-id: "rt-xxx"
 // node.alpha.kubernetes.io/vpc-route-rule-id: "rr-xxx"
-func (bc *Baiducloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vpcRouteRuleId string) error {
+func (bc *Baiducloud) ensureRouteInfoToNode(nodeName, vpcID, vpcRouteTableID, vpcRouteRuleID string) error {
 	curNode, err := bc.kubeClient.CoreV1().Nodes().Get(nodeName, metav1.GetOptions{})
 	if err != nil {
 		// skip unreachable node
-		if strings.Contains(err.Error(), "not found") {
+		if errors.IsNotFound(err) {
 			return nil
 		}
 		return err
@@ -256,16 +217,16 @@ func (bc *Baiducloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vp
 	}
 
 	isChanged := false
-	if nodeAnnotation.VpcId != vpcId {
-		curNode.Annotations[NodeAnnotationVpcId] = vpcId
+	if nodeAnnotation.VpcID != vpcID {
+		curNode.Annotations[NodeAnnotationVpcID] = vpcID
 		isChanged = true
 	}
-	if nodeAnnotation.VpcRouteTableId != vpcRouteTableId {
-		curNode.Annotations[NodeAnnotationVpcRouteTableId] = vpcRouteTableId
+	if nodeAnnotation.VpcRouteTableID != vpcRouteTableID {
+		curNode.Annotations[NodeAnnotationVpcRouteTableID] = vpcRouteTableID
 		isChanged = true
 	}
-	if nodeAnnotation.VpcRouteRuleId != vpcRouteRuleId {
-		curNode.Annotations[NodeAnnotationVpcRouteRuleId] = vpcRouteRuleId
+	if nodeAnnotation.VpcRouteRuleID != vpcRouteRuleID {
+		curNode.Annotations[NodeAnnotationVpcRouteRuleID] = vpcRouteRuleID
 		isChanged = true
 	}
 	if nodeAnnotation.CCMVersion != CCMVersion {
@@ -280,31 +241,32 @@ func (bc *Baiducloud) ensureRouteInfoToNode(nodeName, vpcId, vpcRouteTableId, vp
 		data := []byte(fmt.Sprintf(`{"metadata":{"annotations":%s}}`, j))
 		_, err = bc.kubeClient.CoreV1().Nodes().Patch(nodeName, types.StrategicMergePatchType, data)
 		if err != nil {
-			glog.V(4).Infof("Patch error!")
+			klog.V(4).Infof("Patch error!")
 			return err
 		}
 	}
 	return nil
 }
 
-func (bc *Baiducloud) getVpcID() (string, error) {
+func (bc *Baiducloud) getVpcID(ctx context.Context) (string, error) {
 	if bc.VpcID == "" {
-		ins, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
+		instanceResponse, err := bc.clientSet.CCEClient.ListClusterNodes(ctx, bc.ClusterID, bc.getSignOption(ctx))
 		if err != nil {
 			return "", err
 		}
+		ins := instanceResponse.Nodes
 		if len(ins) > 0 {
-			bc.VpcID = ins[0].VpcId
-			bc.SubnetID = ins[0].SubnetId
+			bc.VpcID = ins[0].VPCID
+			bc.SubnetID = ins[0].SubnetID
 		} else {
-			return "", fmt.Errorf("Get vpcid error\n")
+			return "", fmt.Errorf("Get vpcid error\n ")
 		}
 	}
 	return bc.VpcID, nil
 }
 
-func (bc *Baiducloud) routeTableConflictDetection(rs []vpc.RouteRule) {
-	glog.V(4).Infof("start routeTable conflict detection.")
+func (bc *Baiducloud) routeTableConflictDetection(ctx context.Context, rs []vpc.RouteRule) {
+	klog.Infof(Message(ctx, fmt.Sprintf("start routeTable conflict detection.")))
 	if len(rs) < 2 {
 		return
 	}
@@ -323,7 +285,7 @@ func (bc *Baiducloud) routeTableConflictDetection(rs []vpc.RouteRule) {
 	for i := 0; i < len(otherRR); i++ {
 		for j := 0; j < len(cceRR); j++ {
 			if bc.isConflict(otherRR[i], cceRR[j]) {
-				glog.V(4).Infof("RouteTable conflict detected, custom routeRule %v may conflict with cce routeRule %v", otherRR[i], cceRR[j])
+				klog.V(4).Infof("RouteTable conflict detected, custom routeRule %v may conflict with cce routeRule %v", otherRR[i], cceRR[j])
 				if bc.eventRecorder != nil {
 					bc.eventRecorder.Eventf(&v1.ObjectReference{
 						Kind: "VPC",
@@ -340,33 +302,28 @@ func (bc *Baiducloud) isConflict(otherRR vpc.RouteRule, cceRR vpc.RouteRule) boo
 	{
 		_, cidrBlock, err := net.ParseCIDR("0.0.0.0/0")
 		if err != nil {
-			glog.Errorf("cidrBlock net.ParseCIDR failed: %v", err)
+			klog.Errorf("cidrBlock net.ParseCIDR failed: %v", err)
 			return false
 		}
 		_, cceCidr, err := net.ParseCIDR(cceRR.DestinationAddress)
 		if err != nil {
-			glog.Errorf("cceRR %v net.ParseCIDR failed: %v", cceRR, err)
+			klog.Errorf("cceRR %v net.ParseCIDR failed: %v", cceRR, err)
 			return false
 		}
 		_, otherCidr, err := net.ParseCIDR(otherRR.DestinationAddress)
 		if err != nil {
-			glog.Errorf("otherRR %v net.ParseCIDR failed: %v", otherRR, err)
+			klog.Errorf("otherRR %v net.ParseCIDR failed: %v", otherRR, err)
 			return false
 		}
 		err = VerifyNoOverlap([]*net.IPNet{cceCidr, otherCidr}, cidrBlock)
 		if err != nil {
-			glog.Errorf("VerifyNoOverlap: %v", err)
+			klog.Errorf("VerifyNoOverlap: %v", err)
 			return true
 		}
 		return false
 	}
 
 	// rule 2: TODO
-	{
-
-	}
-
-	return false
 }
 
 func (bc *Baiducloud) advertiseRoute(nodename string) (bool, error) {
@@ -374,9 +331,10 @@ func (bc *Baiducloud) advertiseRoute(nodename string) (bool, error) {
 	// check node resource in k8s has advertise route annotation, if is false, not create route
 	curNode, err := bc.kubeClient.CoreV1().Nodes().Get(nodename, metav1.GetOptions{})
 	if err != nil {
-		if !strings.Contains(err.Error(), "not found") {
-			return true, err
+		if errors.IsNotFound(err) {
+			return false, nil
 		}
+		return true, err
 	}
 
 	if curNode.Annotations == nil {
@@ -387,4 +345,76 @@ func (bc *Baiducloud) advertiseRoute(nodename string) (bool, error) {
 		return true, err
 	}
 	return nodeAnnotation.AdvertiseRoute, nil
+}
+
+func (bc *Baiducloud) checkClusterNode(ctx context.Context, kubeRoute *cloudprovider.Route) (string, error) {
+	var node *cce.Node
+	instanceResponse, err := bc.clientSet.CCEClient.ListClusterNodes(ctx, bc.ClusterID, bc.getSignOption(ctx))
+	if err != nil {
+		return "", err
+	}
+
+	for _, ins := range instanceResponse.Nodes {
+		if ins.Hostname == string(kubeRoute.TargetNode) || ins.IP == string(kubeRoute.TargetNode) {
+			node = ins
+			break
+		}
+	}
+
+	if node == nil {
+		klog.Errorf(Message(ctx, fmt.Sprintf("InstanceId not found for k8s node %s, not create route", string(kubeRoute.TargetNode))))
+		return "", fmt.Errorf("InstanceId not found for k8s node %s, create route failed", string(kubeRoute.TargetNode))
+	}
+
+	if node.Status == cce.InstanceStatusCreateFailed || node.Status == cce.InstanceStatusDeleted ||
+		node.Status == cce.InstanceStatusDeleting || node.Status == cce.InstanceStatusError {
+		klog.V(3).Infof("No need to create route, instance has a wrong status: %s", node.Status)
+		return "", nil
+	}
+
+	return node.InstanceID, nil
+}
+
+func (bc *Baiducloud) ensureCreateRule(ctx context.Context, kubeRoute *cloudprovider.Route, insID string) (vpc.RouteRule, error) {
+	vpcRoutes, err := bc.getVpcRouteTable(ctx)
+	if err != nil {
+		return vpc.RouteRule{}, err
+	}
+
+	for _, vr := range vpcRoutes {
+		if vr.DestinationAddress == kubeRoute.DestinationCIDR && vr.SourceAddress == "0.0.0.0/0" && vr.NexthopID == insID {
+			klog.Infof(Message(ctx, fmt.Sprintf("route rule %+v already exist", vr)))
+			return vr, nil
+		}
+		if vr.DestinationAddress == kubeRoute.DestinationCIDR && vr.SourceAddress == "0.0.0.0/0" {
+			err := bc.clientSet.VPCClient.DeleteRoute(ctx, vr.RouteRuleID, bc.getSignOption(ctx))
+			if err != nil {
+				klog.Infof("Delete VPC route error %s", err)
+				return vpc.RouteRule{}, err
+			}
+		}
+	}
+
+	args := vpc.CreateRouteRuleArgs{
+		RouteTableID:       vpcRoutes[0].RouteTableID,
+		NexthopType:        "custom",
+		Description:        fmt.Sprintf("auto generated by cce:%s", bc.ClusterID),
+		DestinationAddress: kubeRoute.DestinationCIDR,
+		SourceAddress:      "0.0.0.0/0",
+		NexthopID:          insID,
+	}
+	klog.Infof(Message(ctx, fmt.Sprintf("CreateRoute: create args %v", args)))
+	routeRuleID, err := bc.clientSet.VPCClient.CreateRouteRule(ctx, &args, bc.getSignOption(ctx))
+	if err != nil {
+		return vpc.RouteRule{}, err
+	}
+	return vpc.RouteRule{
+		RouteTableID:       args.RouteTableID,
+		NexthopType:        args.NexthopType,
+		Description:        args.Description,
+		DestinationAddress: args.DestinationAddress,
+		SourceAddress:      args.SourceAddress,
+		NexthopID:          args.NexthopID,
+		RouteRuleID:        routeRuleID,
+	}, nil
 }
