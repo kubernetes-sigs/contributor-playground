@@ -20,27 +20,34 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	v1 "k8s.io/api/core/v1"
 )
 
 const (
 	// ServiceAnnotationLoadBalancerPrefix is the annotation prefix of LoadBalancer
 	ServiceAnnotationLoadBalancerPrefix = "service.beta.kubernetes.io/cce-load-balancer-"
-	// CceAutoAddLoadBalancerId is the annotation of CCE adding LoadBalancerId
-	ServiceAnnotationCceAutoAddLoadBalancerId = ServiceAnnotationLoadBalancerPrefix + "cce-add-id"
-	// CceAutoAddEip is the annotation of CCE adding Eip
+	// ServiceAnnotationCceAutoAddLoadBalancerID is the annotation of CCE adding LoadBalancerID
+	ServiceAnnotationCceAutoAddLoadBalancerID = ServiceAnnotationLoadBalancerPrefix + "cce-add-id"
+	// ServiceAnnotationCceAutoAddEip is the annotation of CCE adding Eip
 	ServiceAnnotationCceAutoAddEip = ServiceAnnotationLoadBalancerPrefix + "cce-add-eip"
+	// ServiceAnnotationLoadBalancerExistID is the annotation of user assign blbid
+	ServiceAnnotationLoadBalancerExistID = ServiceAnnotationLoadBalancerPrefix + "exist-id"
 
-	ServiceAnnotationLoadBalancerExistId = ServiceAnnotationLoadBalancerPrefix + "exist-id"
+	ServiceAnnotationLoadBalancerId = ServiceAnnotationLoadBalancerPrefix + "id"
+
 	// ServiceAnnotationLoadBalancerInternalVpc is the annotation of LoadBalancerInternalVpc
 	ServiceAnnotationLoadBalancerInternalVpc = ServiceAnnotationLoadBalancerPrefix + "internal-vpc"
 	// ServiceAnnotationLoadBalancerAllocateVip is the annotation which indicates BLB with a VIP
 	ServiceAnnotationLoadBalancerAllocateVip = ServiceAnnotationLoadBalancerPrefix + "allocate-vip"
-	//ServiceAnnotationLoadBalancerSubnetId is the annotation which indicates the BCC type subnet the BLB will use
-	ServiceAnnotationLoadBalancerSubnetId = ServiceAnnotationLoadBalancerPrefix + "subnet-id"
+	//ServiceAnnotationLoadBalancerSubnetID is the annotation which indicates the BCC type subnet the BLB will use
+	ServiceAnnotationLoadBalancerSubnetID = ServiceAnnotationLoadBalancerPrefix + "subnet-id"
 	// ServiceAnnotationLoadBalancerRsMaxNum is the annotation which set max num of rs of the BLB
 	ServiceAnnotationLoadBalancerRsMaxNum = ServiceAnnotationLoadBalancerPrefix + "rs-max-num"
+	// ServiceAnnotationLoadBalancerReserveBLB is the annotation which not delete BLB when delete service
+	ServiceAnnotationLoadBalancerReserveLB = ServiceAnnotationLoadBalancerPrefix + "reserve-lb"
+
+	ServiceAnnotationLoadBalancerBLBName = ServiceAnnotationLoadBalancerPrefix + "lb-name"
 
 	// TODO:
 	// ServiceAnnotationLoadBalancerScheduler is the annotation of load balancer which can be "RoundRobin"/"LeastConnection"/"Hash"
@@ -78,12 +85,12 @@ const (
 const (
 	// NodeAnnotationPrefix is the annotation prefix of Node
 	NodeAnnotationPrefix = "node.alpha.kubernetes.io/"
-	// NodeAnnotationVpcId is the annotation of VpcId on node
-	NodeAnnotationVpcId = NodeAnnotationPrefix + "vpc-id"
-	// NodeAnnotationVpcRouteTableId is the annotation of VpcRouteTableId on node
-	NodeAnnotationVpcRouteTableId = NodeAnnotationPrefix + "vpc-route-table-id"
-	// NodeAnnotationVpcRouteRuleId is the annotation of VpcRouteRuleId on node
-	NodeAnnotationVpcRouteRuleId = NodeAnnotationPrefix + "vpc-route-rule-id"
+	// NodeAnnotationVpcID is the annotation of VpcId on node
+	NodeAnnotationVpcID = NodeAnnotationPrefix + "vpc-id"
+	// NodeAnnotationVpcRouteTableID is the annotation of VpcRouteTableId on node
+	NodeAnnotationVpcRouteTableID = NodeAnnotationPrefix + "vpc-route-table-id"
+	// NodeAnnotationVpcRouteRuleID is the annotation of VpcRouteRuleId on node
+	NodeAnnotationVpcRouteRuleID = NodeAnnotationPrefix + "vpc-route-rule-id"
 
 	// NodeAnnotationCCMVersion is the version of CCM
 	NodeAnnotationCCMVersion = NodeAnnotationPrefix + "ccm-version"
@@ -95,14 +102,17 @@ const (
 // ServiceAnnotation contains annotations from service
 type ServiceAnnotation struct {
 	/* BLB */
-	CceAutoAddLoadBalancerId string
+	LoadBalancerName         string
+	LoadBalancerID           string
+	CceAutoAddLoadBalancerID string
 	CceAutoAddEip            string
-	LoadBalancerExistId      string
+	LoadBalancerExistID      string
 	LoadBalancerInternalVpc  string
 	LoadBalancerAllocateVip  string
-	LoadBalancerSubnetId     string
+	LoadBalancerSubnetID     string
 	LoadBalancerScheduler    string
 	LoadBalancerRsMaxNum     int
+	LoadBalancerReserveLB    string
 
 	LoadBalancerHealthCheckTimeoutInSecond int
 	LoadBalancerHealthCheckInterval        int
@@ -120,34 +130,44 @@ type ServiceAnnotation struct {
 
 // NodeAnnotation contains annotations from node
 type NodeAnnotation struct {
-	VpcId           string
-	VpcRouteTableId string
-	VpcRouteRuleId  string
+	VpcID           string
+	VpcRouteTableID string
+	VpcRouteRuleID  string
 	CCMVersion      string
 	AdvertiseRoute  bool
 }
 
 // ExtractServiceAnnotation extract annotations from service
 func ExtractServiceAnnotation(service *v1.Service) (*ServiceAnnotation, error) {
-	glog.V(4).Infof("start to ExtractServiceAnnotation: %v", service.Annotations)
+	klog.V(4).Infof("start to ExtractServiceAnnotation: %v", service.Annotations)
 	result := &ServiceAnnotation{}
 	annotation := make(map[string]string)
 	for k, v := range service.Annotations {
 		annotation[k] = v
 	}
 
-	loadBalancerId, exist := annotation[ServiceAnnotationCceAutoAddLoadBalancerId]
+	loadBalancerName, exist := annotation[ServiceAnnotationLoadBalancerBLBName]
 	if exist {
-		result.CceAutoAddLoadBalancerId = loadBalancerId
+		result.LoadBalancerName = loadBalancerName
+	}
+
+	loadBalancerID, exist := annotation[ServiceAnnotationLoadBalancerId]
+	if exist {
+		result.LoadBalancerID = loadBalancerID
+	}
+
+	autoAddLoadBalancerID, exist := annotation[ServiceAnnotationCceAutoAddLoadBalancerID]
+	if exist {
+		result.CceAutoAddLoadBalancerID = autoAddLoadBalancerID
 	}
 	cceAddEip, exist := annotation[ServiceAnnotationCceAutoAddEip]
 	if exist {
 		result.CceAutoAddEip = cceAddEip
 
 	}
-	LoadBalancerExistId, exist := annotation[ServiceAnnotationLoadBalancerExistId]
+	LoadBalancerExistID, exist := annotation[ServiceAnnotationLoadBalancerExistID]
 	if exist {
-		result.LoadBalancerExistId = LoadBalancerExistId
+		result.LoadBalancerExistID = LoadBalancerExistID
 	}
 
 	loadBalancerInternalVpc, exist := annotation[ServiceAnnotationLoadBalancerInternalVpc]
@@ -160,9 +180,9 @@ func ExtractServiceAnnotation(service *v1.Service) (*ServiceAnnotation, error) {
 		result.LoadBalancerAllocateVip = loadBalancerAllocateVip
 	}
 
-	loadBalancerSubnetId, ok := annotation[ServiceAnnotationLoadBalancerSubnetId]
+	loadBalancerSubnetID, ok := annotation[ServiceAnnotationLoadBalancerSubnetID]
 	if ok {
-		result.LoadBalancerSubnetId = loadBalancerSubnetId
+		result.LoadBalancerSubnetID = loadBalancerSubnetID
 	}
 
 	loadBalancerRsNum, ok := annotation[ServiceAnnotationLoadBalancerRsMaxNum]
@@ -170,7 +190,7 @@ func ExtractServiceAnnotation(service *v1.Service) (*ServiceAnnotation, error) {
 		i, err := strconv.Atoi(loadBalancerRsNum)
 		if err != nil {
 			return nil, fmt.Errorf("ServiceAnnotationLoadBalancerRsMaxNum must be int, err: %v", err)
-		} else if i <= 0 || i > BLBMaxRSNum {
+		} else if i <= 0 || i > blbMaxRSNum {
 			return nil, fmt.Errorf("ServiceAnnotationLoadBalancerRsMaxNum must be in (0, 50)")
 		} else {
 			result.LoadBalancerRsMaxNum = i
@@ -180,6 +200,11 @@ func ExtractServiceAnnotation(service *v1.Service) (*ServiceAnnotation, error) {
 	loadBalancerScheduler, ok := annotation[ServiceAnnotationLoadBalancerScheduler]
 	if ok {
 		result.LoadBalancerScheduler = loadBalancerScheduler
+	}
+
+	loadBalancerReserveLB, ok := annotation[ServiceAnnotationLoadBalancerReserveLB]
+	if ok {
+		result.LoadBalancerReserveLB = loadBalancerReserveLB
 	}
 
 	loadBalancerHealthCheckTimeoutInSecond, exist := annotation[ServiceAnnotationLoadBalancerHealthCheckTimeoutInSecond]
@@ -267,26 +292,26 @@ func ExtractServiceAnnotation(service *v1.Service) (*ServiceAnnotation, error) {
 
 // ExtractNodeAnnotation extract annotations from node
 func ExtractNodeAnnotation(node *v1.Node) (*NodeAnnotation, error) {
-	glog.V(4).Infof("start to ExtractNodeAnnotation: %v", node.Annotations)
+	klog.V(4).Infof("start to ExtractNodeAnnotation: %v", node.Annotations)
 	result := &NodeAnnotation{}
 	annotation := make(map[string]string)
 	for k, v := range node.Annotations {
 		annotation[k] = v
 	}
 
-	vpcId, ok := annotation[NodeAnnotationVpcId]
+	vpcID, ok := annotation[NodeAnnotationVpcID]
 	if ok {
-		result.VpcId = vpcId
+		result.VpcID = vpcID
 	}
 
-	vpcRouteTableId, ok := annotation[NodeAnnotationVpcRouteTableId]
+	vpcRouteTableID, ok := annotation[NodeAnnotationVpcRouteTableID]
 	if ok {
-		result.VpcRouteTableId = vpcRouteTableId
+		result.VpcRouteTableID = vpcRouteTableID
 	}
 
-	vpcRouteRuleId, ok := annotation[NodeAnnotationVpcRouteRuleId]
+	vpcRouteRuleID, ok := annotation[NodeAnnotationVpcRouteRuleID]
 	if ok {
-		result.VpcRouteRuleId = vpcRouteRuleId
+		result.VpcRouteRuleID = vpcRouteRuleID
 	}
 
 	ccmVersion, ok := annotation[NodeAnnotationCCMVersion]

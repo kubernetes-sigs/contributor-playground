@@ -17,12 +17,13 @@ limitations under the License.
 package cloud_provider
 
 import (
+	"context"
 	"fmt"
+	"time"
 
-	"k8s.io/api/core/v1"
-
-	"github.com/golang/glog"
-	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/blb"
+	"icode.baidu.com/baidu/jpaas-caas/bce-sdk-go/blb"
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/klog"
 )
 
 // PortListener describe listener port
@@ -32,7 +33,12 @@ type PortListener struct {
 	NodePort int32
 }
 
-func (bc *Baiducloud) reconcileListeners(service *v1.Service, lb *blb.LoadBalancer) error {
+func (bc *Baiducloud) reconcileListeners(ctx context.Context, clusterName string, service *v1.Service) error {
+	startTime := time.Now()
+	serviceKey := fmt.Sprintf("%s/%s", service.Namespace, service.Name)
+	defer func() {
+		klog.V(4).Infof(Message(ctx, fmt.Sprintf("Finished reconcileListeners for service %q (%v)", serviceKey, time.Since(startTime))))
+	}()
 	// add expected ports
 	expected := make(map[int]PortListener)
 	for _, servicePort := range service.Spec.Ports {
@@ -43,8 +49,16 @@ func (bc *Baiducloud) reconcileListeners(service *v1.Service, lb *blb.LoadBalanc
 		}
 	}
 
+	lb, exist, err := bc.getServiceAssociatedBLB(ctx, clusterName, service)
+	if err != nil {
+		return err
+	}
+	if !exist {
+		return fmt.Errorf("failed to reconcileListeners: lb not exist")
+	}
+
 	// delete or update unexpected ports
-	all, err := bc.getAllListeners(lb)
+	all, err := bc.getAllListeners(ctx, lb)
 	if err != nil {
 		return err
 	}
@@ -58,8 +72,8 @@ func (bc *Baiducloud) reconcileListeners(service *v1.Service, lb *blb.LoadBalanc
 		} else {
 			if l != port {
 				// update listener port
-				glog.V(2).Infof("[%v %v] reconcileListeners: update listener with new config: %v", service.Namespace, service.Name, port)
-				err := bc.updateListener(lb, port)
+				klog.Infof(Message(ctx, fmt.Sprintf("reconcileListeners for service %s: update listener with new config: %v", serviceKey, port)))
+				err := bc.updateListener(ctx, lb, port)
 				if err != nil {
 					return err
 				}
@@ -69,25 +83,26 @@ func (bc *Baiducloud) reconcileListeners(service *v1.Service, lb *blb.LoadBalanc
 	}
 	// delete listener
 	if len(deleteList) > 0 {
-		glog.V(2).Infof("[%v %v] reconcileListeners: delete unexpected listener: %v", service.Namespace, service.Name, deleteList)
-		err = bc.deleteListener(lb, deleteList)
+		klog.Infof(Message(ctx, fmt.Sprintf("reconcileListeners for service %s: delete unexpected listener: %v", serviceKey, deleteList)))
+		err = bc.deleteListener(ctx, lb, deleteList)
 		if err != nil {
 			return err
 		}
 	}
 
 	// create expected listener
-	glog.V(2).Infof("[%v %v] reconcileListeners: create expected listener: %v", service.Namespace, service.Name, expected)
+	klog.Infof(Message(ctx, fmt.Sprintf("reconcileListeners for service %s: create expected listener: %v", serviceKey, expected)))
 	for _, pl := range expected {
-		err := bc.createListener(lb, pl)
+		err := bc.createListener(ctx, lb, pl)
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
-func (bc *Baiducloud) createListener(lb *blb.LoadBalancer, pl PortListener) error {
+func (bc *Baiducloud) createListener(ctx context.Context, lb *blb.LoadBalancer, pl PortListener) error {
 	switch pl.Protocol {
 	case "UDP":
 		args := blb.CreateUDPListenerArgs{
@@ -97,7 +112,7 @@ func (bc *Baiducloud) createListener(lb *blb.LoadBalancer, pl PortListener) erro
 			Scheduler:         "RoundRobin",
 			HealthCheckString: "HealthCheck",
 		}
-		err := bc.clientSet.Blb().CreateUDPListener(&args)
+		err := bc.clientSet.BLBClient.CreateUDPListener(ctx, &args, bc.getSignOption(ctx))
 		if err != nil {
 			return err
 		}
@@ -109,7 +124,7 @@ func (bc *Baiducloud) createListener(lb *blb.LoadBalancer, pl PortListener) erro
 			BackendPort:    int(pl.NodePort),
 			Scheduler:      "RoundRobin",
 		}
-		err := bc.clientSet.Blb().CreateTCPListener(&args)
+		err := bc.clientSet.BLBClient.CreateTCPListener(ctx, &args, bc.getSignOption(ctx))
 		if err != nil {
 			return err
 		}
@@ -122,7 +137,7 @@ func (bc *Baiducloud) createListener(lb *blb.LoadBalancer, pl PortListener) erro
 	return fmt.Errorf("CreateListener protocol not match: %s", pl.Protocol)
 }
 
-func (bc *Baiducloud) updateListener(lb *blb.LoadBalancer, pl PortListener) error {
+func (bc *Baiducloud) updateListener(ctx context.Context, lb *blb.LoadBalancer, pl PortListener) error {
 	switch pl.Protocol {
 	case "UDP":
 		args := blb.UpdateUDPListenerArgs{
@@ -132,7 +147,7 @@ func (bc *Baiducloud) updateListener(lb *blb.LoadBalancer, pl PortListener) erro
 			Scheduler:         "RoundRobin",
 			HealthCheckString: "HealthCheck",
 		}
-		err := bc.clientSet.Blb().UpdateUDPListener(&args)
+		err := bc.clientSet.BLBClient.UpdateUDPListener(ctx, &args, bc.getSignOption(ctx))
 		if err != nil {
 			return err
 		}
@@ -144,7 +159,7 @@ func (bc *Baiducloud) updateListener(lb *blb.LoadBalancer, pl PortListener) erro
 			BackendPort:    int(pl.NodePort),
 			Scheduler:      "RoundRobin",
 		}
-		err := bc.clientSet.Blb().UpdateTCPListener(&args)
+		err := bc.clientSet.BLBClient.UpdateTCPListener(ctx, &args, bc.getSignOption(ctx))
 		if err != nil {
 			return err
 		}
@@ -157,14 +172,14 @@ func (bc *Baiducloud) updateListener(lb *blb.LoadBalancer, pl PortListener) erro
 	return fmt.Errorf("updateListener protocol not match: %s", pl.Protocol)
 }
 
-func (bc *Baiducloud) getAllListeners(lb *blb.LoadBalancer) ([]PortListener, error) {
+func (bc *Baiducloud) getAllListeners(ctx context.Context, lb *blb.LoadBalancer) ([]PortListener, error) {
 	var allListeners []PortListener
 
 	// add TCPlisteners
 	describeTCPListenerArgs := blb.DescribeTCPListenerArgs{
 		LoadBalancerId: lb.BlbId,
 	}
-	tcpListeners, err := bc.clientSet.Blb().DescribeTCPListener(&describeTCPListenerArgs)
+	tcpListeners, err := bc.clientSet.BLBClient.DescribeTCPListener(ctx, &describeTCPListenerArgs, bc.getSignOption(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +195,7 @@ func (bc *Baiducloud) getAllListeners(lb *blb.LoadBalancer) ([]PortListener, err
 	describeUDPListenerArgs := blb.DescribeUDPListenerArgs{
 		LoadBalancerId: lb.BlbId,
 	}
-	udpListeners, err := bc.clientSet.Blb().DescribeUDPListener(&describeUDPListenerArgs)
+	udpListeners, err := bc.clientSet.BLBClient.DescribeUDPListener(ctx, &describeUDPListenerArgs, bc.getSignOption(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +211,7 @@ func (bc *Baiducloud) getAllListeners(lb *blb.LoadBalancer) ([]PortListener, err
 	return allListeners, nil
 }
 
-func (bc *Baiducloud) deleteListener(lb *blb.LoadBalancer, pl []PortListener) error {
+func (bc *Baiducloud) deleteListener(ctx context.Context, lb *blb.LoadBalancer, pl []PortListener) error {
 	var portList []int
 	for _, l := range pl {
 		portList = append(portList, l.Port)
@@ -205,7 +220,7 @@ func (bc *Baiducloud) deleteListener(lb *blb.LoadBalancer, pl []PortListener) er
 		LoadBalancerId: lb.BlbId,
 		PortList:       portList,
 	}
-	err := bc.clientSet.Blb().DeleteListeners(&args)
+	err := bc.clientSet.BLBClient.DeleteListeners(ctx, &args, bc.getSignOption(ctx))
 	if err != nil {
 		return err
 	}
