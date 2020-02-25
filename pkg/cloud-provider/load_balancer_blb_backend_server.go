@@ -17,35 +17,65 @@ limitations under the License.
 package cloud_provider
 
 import (
+	"context"
 	"fmt"
 	"strings"
+	"time"
 
-	"github.com/golang/glog"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/cloud-provider-baiducloud/pkg/cloud-sdk/blb"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/klog"
+
+	"icode.baidu.com/baidu/jpaas-caas/bce-sdk-go/blb"
 )
 
-const BLBMaxRSNum int = 50
-const DefaultBLBRSWeight int = 100
+const blbMaxRSNum int = 50
+const defaultBLBRSWeight int = 100
 
-func (bc *Baiducloud) reconcileBackendServers(service *v1.Service, nodes []*v1.Node, lb *blb.LoadBalancer) error {
+func (bc *Baiducloud) reconcileBackendServers(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node) error {
+	startTime := time.Now()
+	serviceKey := fmt.Sprintf("%s/%s", service.Namespace, service.Name)
+	defer func() {
+		klog.Infof(Message(ctx, fmt.Sprintf("Finished reconcileBackendServers for service %q (%v)", serviceKey, time.Since(startTime))))
+	}()
+	lb, exist, err := bc.getServiceAssociatedBLB(ctx, clusterName, service)
+	if err != nil {
+		return err
+	}
+	if !exist {
+		return fmt.Errorf("failed to reconcileBackendServers: lb not exist")
+	}
+
+	if service.Spec.ExternalTrafficPolicy == v1.ServiceExternalTrafficPolicyTypeLocal {
+		nodes, err = bc.getServiceAssociatedNodes(ctx, service)
+		if err != nil {
+			return err
+		}
+		if len(nodes) == 0 {
+			klog.Infof(Message(ctx, fmt.Sprintf("service %s has no nodes to add to lb, maybe has no pod, do nothing", serviceKey)))
+			return nil
+		}
+		klog.Infof(Message(ctx, fmt.Sprintf("externalTrafficPolicy of service %s is Local, nodes is %+v", serviceKey, nodes)))
+	}
+
 	// extract annotation
 	anno, err := ExtractServiceAnnotation(service)
 	if err != nil {
 		return fmt.Errorf("failed to ExtractServiceAnnotation %s, err: %v", service.Name, err)
 	}
 	// default rs num of a blb is 50
-	targetRsNum := BLBMaxRSNum
+	targetRsNum := blbMaxRSNum
 	if anno.LoadBalancerRsMaxNum > 0 {
 		targetRsNum = anno.LoadBalancerRsMaxNum
 	}
-
 	// turn kube nodes list to backend list
 	var candidateBackends []blb.BackendServer
 	for _, node := range nodes {
 		splitted := strings.Split(node.Spec.ProviderID, "//")
 		if len(splitted) != 2 {
-			glog.Warningf("node %s has no spec.providerId", node.Name)
+			msg := fmt.Sprintf("node %s has no spec.providerId", node.Name)
+			bc.eventRecorder.Eventf(node, v1.EventTypeNormal, "Node has no providerID", msg)
+			klog.Warningf(Message(ctx, msg))
 			continue
 		}
 		name := splitted[1]
@@ -53,14 +83,12 @@ func (bc *Baiducloud) reconcileBackendServers(service *v1.Service, nodes []*v1.N
 			InstanceId: name,
 		})
 	}
-
 	if len(candidateBackends) < targetRsNum {
 		targetRsNum = len(candidateBackends)
 	}
-	glog.Infof("nodes num is %d, target rs num is %d", len(candidateBackends), targetRsNum)
-
+	klog.Infof(Message(ctx, fmt.Sprintf("nodes num is %d, target rs num is %d", len(candidateBackends), targetRsNum)))
 	// get all existing rs from lb and change to map
-	existingBackends, err := bc.getAllBackendServer(lb)
+	existingBackends, err := bc.getAllBackendServer(ctx, lb)
 	if err != nil {
 		return err
 	}
@@ -69,15 +97,15 @@ func (bc *Baiducloud) reconcileBackendServers(service *v1.Service, nodes []*v1.N
 	if err != nil {
 		return err
 	}
-	glog.Infof("find nodes %v to add to BLB %s", rsToAdd, lb.BlbId)
-	glog.Infof("find nodes %v to del from BLB %s", rsToDel, lb.BlbId)
+	klog.Infof(Message(ctx, fmt.Sprintf("find nodes %v to add to BLB %s for service %s", rsToAdd, lb.BlbId, serviceKey)))
+	klog.Infof(Message(ctx, fmt.Sprintf("find nodes %v to del from BLB %s for service %s", rsToDel, lb.BlbId, serviceKey)))
 
 	if len(rsToAdd) > 0 {
 		args := blb.AddBackendServersArgs{
 			LoadBalancerId:    lb.BlbId,
 			BackendServerList: rsToAdd,
 		}
-		err = bc.clientSet.Blb().AddBackendServers(&args)
+		err = bc.clientSet.BLBClient.AddBackendServers(ctx, &args, bc.getSignOption(ctx))
 		if err != nil {
 			return err
 		}
@@ -92,13 +120,47 @@ func (bc *Baiducloud) reconcileBackendServers(service *v1.Service, nodes []*v1.N
 			LoadBalancerId:    lb.BlbId,
 			BackendServerList: delList,
 		}
-		err = bc.clientSet.Blb().RemoveBackendServers(&args)
+		err = bc.clientSet.BLBClient.RemoveBackendServers(ctx, &args, bc.getSignOption(ctx))
 		if err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func (bc *Baiducloud) getServiceAssociatedNodes(ctx context.Context, service *v1.Service) ([]*v1.Node, error) {
+	ep, err := bc.kubeClient.CoreV1().Endpoints(service.Namespace).Get(service.Name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	if len(ep.Subsets) == 0 {
+		klog.Infof(Message(ctx, fmt.Sprintf("Endpoints %s/%s has no subsets", ep.Namespace, ep.Name)))
+		return nil, nil
+	}
+	nodeMap := make(map[string]string, 0)
+	for _, addr := range ep.Subsets[0].Addresses {
+		nodeMap[*addr.NodeName] = *addr.NodeName
+	}
+
+	for _, addr := range ep.Subsets[0].NotReadyAddresses {
+		nodeMap[*addr.NodeName] = *addr.NodeName
+	}
+
+	all_nodes, err := bc.kubeClient.CoreV1().Nodes().List(metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*v1.Node, 0)
+	for _, node := range all_nodes.Items {
+		if _, exist := nodeMap[node.Name]; exist {
+			n := node.DeepCopy()
+			klog.Infof(Message(ctx, fmt.Sprintf("Node is %s", n.Name)))
+			result = append(result, n)
+		}
+	}
+
+	return result, nil
 }
 
 /*
@@ -122,7 +184,6 @@ func mergeBackend(candidateBackends, existingBackends []blb.BackendServer, targe
 	if targetBackendsNum > len(candidateBackends) || targetBackendsNum <= 0 {
 		return nil, nil, fmt.Errorf("targetBackendsNum %d is invalid", targetBackendsNum)
 	}
-
 	// turn existingBackends to map
 	existingBackendsMap := make(map[string]int)
 	for _, backend := range existingBackends {
@@ -138,22 +199,22 @@ func mergeBackend(candidateBackends, existingBackends []blb.BackendServer, targe
 	// find rs to delete
 	var rsToAdd, rsToDel []blb.BackendServer
 	// first find rs that is not in kubernetes to delete from blb
-	for insId := range existingBackendsMap {
-		_, exist := candidateBackendsMap[insId]
+	for insID := range existingBackendsMap {
+		_, exist := candidateBackendsMap[insID]
 		if !exist {
 			rsToDel = append(rsToDel, blb.BackendServer{
-				InstanceId: insId,
+				InstanceId: insID,
 			})
-			delete(existingBackendsMap, insId)
+			delete(existingBackendsMap, insID)
 		}
 	}
 
 	// then, if number of rs in BLB still > targetBackendsNum, random choose rs in blb to delete
 	numToDel := len(existingBackendsMap) - targetBackendsNum
-	for insId := range existingBackendsMap {
+	for insID := range existingBackendsMap {
 		if numToDel > 0 {
-			rsToDel = append(rsToDel, blb.BackendServer{InstanceId: insId})
-			delete(existingBackendsMap, insId)
+			rsToDel = append(rsToDel, blb.BackendServer{InstanceId: insID})
+			delete(existingBackendsMap, insID)
 			numToDel = numToDel - 1
 		}
 	}
@@ -161,14 +222,14 @@ func mergeBackend(candidateBackends, existingBackends []blb.BackendServer, targe
 	// find rs to add
 	if len(existingBackendsMap) < targetBackendsNum {
 		numToAdd := targetBackendsNum - len(existingBackendsMap)
-		for insId := range candidateBackendsMap {
+		for insID := range candidateBackendsMap {
 			if numToAdd == 0 {
 				break
 			}
-			if _, exist := existingBackendsMap[insId]; !exist {
+			if _, exist := existingBackendsMap[insID]; !exist {
 				rsToAdd = append(rsToAdd, blb.BackendServer{
-					InstanceId: insId,
-					Weight:     DefaultBLBRSWeight,
+					InstanceId: insID,
+					Weight:     defaultBLBRSWeight,
 				})
 				numToAdd = numToAdd - 1
 			}
@@ -177,13 +238,36 @@ func mergeBackend(candidateBackends, existingBackends []blb.BackendServer, targe
 	return rsToAdd, rsToDel, nil
 }
 
-func (bc *Baiducloud) getAllBackendServer(lb *blb.LoadBalancer) ([]blb.BackendServer, error) {
+func (bc *Baiducloud) getAllBackendServer(ctx context.Context, lb *blb.LoadBalancer) ([]blb.BackendServer, error) {
 	args := blb.DescribeBackendServersArgs{
 		LoadBalancerId: lb.BlbId,
 	}
-	bs, err := bc.clientSet.Blb().DescribeBackendServers(&args)
+	bs, err := bc.clientSet.BLBClient.DescribeBackendServers(ctx, &args, bc.getSignOption(ctx))
 	if err != nil {
 		return nil, err
 	}
 	return bs, nil
+}
+
+func (bc *Baiducloud) deleteAllBackendServers(ctx context.Context, lb *blb.LoadBalancer) error {
+	allServers, err := bc.getAllBackendServer(ctx, lb)
+	var removeList []string
+	if err != nil {
+		return err
+	}
+	for _, server := range allServers {
+		removeList = append(removeList, server.InstanceId)
+	}
+
+	if len(removeList) > 0 {
+		args := blb.RemoveBackendServersArgs{
+			LoadBalancerId:    lb.BlbId,
+			BackendServerList: removeList,
+		}
+		err = bc.clientSet.BLBClient.RemoveBackendServers(ctx, &args, bc.getSignOption(ctx))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

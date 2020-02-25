@@ -17,77 +17,85 @@ limitations under the License.
 package cloud_provider
 
 import (
+	"context"
 	"fmt"
-	"github.com/golang/glog"
 	"math/rand"
+
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/klog"
+
+	"icode.baidu.com/baidu/jpaas-caas/bce-sdk-go/vpc"
 )
 
-// TODO: 存在很大的优化空间
-// 背景：BLB与NAT子网存在冲突，当用户的集群在NAT子网内时，CCE会创建一个保留子网，类型是通用型，名字是CCE-Reserve，给BLB
-// CCE-Reserve 参数：
-// (1) 名字: CCE-Reserve
-// (2) 可用区：第一台虚机所在可用区
-// (3) CIDR
-//		   IP：第一台虚机所在子网的下一个子网
-//		   Mask：第一台虚机所在子网的Mask
-// (4) VPC：第一台虚机所在VPC
-// (5) 类型：通用型
-func (bc *Baiducloud) getVpcInfoForBLB(serviceAnnotation *ServiceAnnotation) (string, string, error) {
+func (bc *Baiducloud) getVpcInfoForBLB(ctx context.Context, service *v1.Service) (string, string, error) {
 	// get VPC id
-	vpcId, err := bc.getVpcID()
+	vpcID, err := bc.getVpcID(ctx)
 	if err != nil {
-		return "", "", fmt.Errorf("Can't get VPC for BLB: %v\n", err)
+		return "", "", fmt.Errorf("Can't get VPC for BLB: %v\n ", err)
 	}
 	// user set subnet id in annotation
-	subnetId := serviceAnnotation.LoadBalancerSubnetId
-	if subnetId != "" {
-		glog.V(3).Infof("Find subnetId %v in annotation for BLB", subnetId)
-		subnet, err := bc.clientSet.Vpc().DescribeSubnet(subnetId)
-		if err != nil {
-			return "", "", fmt.Errorf("Can't get subnet with subnetId %v in annotation: %v\n", subnetId, err)
+	subnetID, ok := service.Annotations[ServiceAnnotationLoadBalancerSubnetID]
+	if ok {
+		if subnetID != "" {
+			klog.V(3).Infof("Find subnetId %v in annotation for BLB", subnetID)
+			subnetIsTypeBCC, err := bc.subnetIsTypeBCC(ctx, subnetID)
+			if err != nil {
+				return "", "", err
+			}
+			if !subnetIsTypeBCC {
+				return "", "", fmt.Errorf("SubnetId %v in annotation is not type BCC", subnetID)
+			}
+			klog.V(3).Infof("Use subnet with id %v in annotation for BLB", subnetID)
+			return vpcID, subnetID, nil
 		}
-		if subnet.SubnetType != "BCC" {
-			return "", "", fmt.Errorf("Can't use subnet with subnetId %v in annotation: subnet type is not BCC\n", subnetId)
-		}
-		glog.V(3).Infof("Use subnet with id %v in annotation for BLB", subnetId)
-		return vpcId, subnetId, nil
 	}
+
 	// get subnet id from instance
-	ins, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
+	instanceResponse, err := bc.clientSet.CCEClient.ListClusterNodes(ctx, bc.ClusterID, bc.getSignOption(ctx))
 	if err != nil {
 		return "", "", err
 	}
+	ins := instanceResponse.Nodes
 	if len(ins) == 0 {
 		return "", "", fmt.Errorf("getVpcInfoForBLB failed since instance num is zero")
 	}
 	// random select a VM to choose subnet
 	randomVM := ins[rand.Intn(len(ins))]
-	subnetId = randomVM.SubnetId
+	subnetID = randomVM.SubnetID
 
 	// check subnet
-	subnet, err := bc.clientSet.Vpc().DescribeSubnet(subnetId)
+	subnetIsTypeBCC, err := bc.subnetIsTypeBCC(ctx, subnetID)
 	if err != nil {
 		return "", "", fmt.Errorf("DescribeSubnet failed: %v", err)
 	}
-	if subnet.SubnetType == "BCC" {
-		return subnet.VpcID, subnetId, nil
+	if subnetIsTypeBCC {
+		return vpcID, subnetID, nil
 	}
 
 	// get subnet list and choose preferred one
-	params := make(map[string]string, 0)
-	params["vpcId"] = subnet.VpcID
-	subnets, err := bc.clientSet.Vpc().ListSubnet(params)
+	listSubnetArgs := &vpc.ListSubnetArgs{
+		VPCID: vpcID,
+	}
+	subnets, err := bc.clientSet.VPCClient.ListSubnet(ctx, listSubnetArgs, bc.getSignOption(ctx))
 	if err != nil {
 		return "", "", fmt.Errorf("ListSubnet failed: %v", err)
 	}
 	for _, subnet := range subnets {
 		if subnet.Name == "系统预定义子网" {
-			return subnet.VpcID, subnet.SubnetID, nil
+			return subnet.VPCID, subnet.SubnetID, nil
 		}
 		if subnet.Name == "CCE-Reserve" {
-			return subnet.VpcID, subnet.SubnetID, nil
+			return subnet.VPCID, subnet.SubnetID, nil
 		}
 	}
 
-	return "", "", fmt.Errorf("failed to find Subnet for BLB, maybe need to create a Subnet of type BCC")
+	return "", "", fmt.Errorf("no suitable subnet found for BLB")
+}
+
+func (bc *Baiducloud) subnetIsTypeBCC(ctx context.Context, subnetID string) (bool, error) {
+	subnet, err := bc.clientSet.VPCClient.DescribeSubnet(ctx, subnetID, bc.getSignOption(ctx))
+	if err != nil {
+		return false, fmt.Errorf("DescribeSubnet failed: %v", err)
+	}
+	return subnet.SubnetType == "BCC", nil
 }
