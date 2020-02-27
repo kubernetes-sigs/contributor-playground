@@ -7,4 +7,4 @@ Hello!
 * Web Developer
 * 2015-2018: Contributed to OpenStack Dashboard and several plugins, i.e. Zun UI, Magnum UI, Senlin Dashboard and Zaqar UI.
 * 2018-now: Contributing to Kubernetes Dashboard.
-
+* 2018-12: Become a maintainer for Kubernetes Dashboard.
