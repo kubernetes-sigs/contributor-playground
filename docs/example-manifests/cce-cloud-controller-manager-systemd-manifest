@@ -1,0 +1,21 @@
+[Unit]
+Description=Kubernetes Kubelet
+After=kube-apiserver.service
+
+[Service]
+ExecStart=/opt/kube/bin/kube-cloud-controller-manager \
+--allocate-node-cidrs=true \
+--cloud-config=/etc/kubernetes/cloud.config \
+--cloud-provider=cce \
+--cluster-cidr=172.0.0.1/16 \
+--cluster-name=kubernetes \
+--kubeconfig=/root/.kube/config \
+--leader-elect=true \
+--logtostderr=true \
+--route-reconciliation-period=50s \
+--v=4
+Restart=always
+Type=simple
+LimitNOFILE=65536
+
+[Install]
