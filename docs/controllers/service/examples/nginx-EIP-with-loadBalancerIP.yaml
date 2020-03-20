@@ -1,0 +1,32 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-service-eip-with-load-balancer-ip
+spec:
+  selector:
+    app: nginx-eip-with-load-balancer-ip
+  type: LoadBalancer
+  loadBalancerIP: 8.8.8.8
+  ports:
+  - name: nginx-port
+    port: 80
+    targetPort: 80
+    protocol: TCP
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-deployment-eip-with-load-balancer-ip
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-eip-with-load-balancer-ip
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
