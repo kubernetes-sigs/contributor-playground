@@ -1,0 +1,35 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-service-eip-postpaid-by-traffic-50m
+  annotations:
+    service.beta.kubernetes.io/cce-elastic-ip-payment-timing: "Postpaid"
+    service.beta.kubernetes.io/cce-elastic-ip-billing-method: "ByTraffic"
+    service.beta.kubernetes.io/cce-elastic-ip-bandwidth-in-mbps: "50"
+spec:
+  selector:
+    app: nginx-eip-postpaid-by-traffic-50m
+  type: LoadBalancer
+  ports:
+  - name: nginx-port
+    port: 80
+    targetPort: 80
+    protocol: TCP
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-deployment-eip-postpaid-by-traffic-50m
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-eip-postpaid-by-traffic-50m
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
