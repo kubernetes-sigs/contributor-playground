@@ -1,10 +1,12 @@
 # Kubernetes Fest Tokyo 2020: Kubernetes Upstream Training
 
-<a href="https://github.com/kubernetes/kubernetes"><img src="https://github.com/kubernetes/kubernetes/blob/master/logo/logo.png" width="64"></a><a href="xxx"><img src="./images/xxx.png"></a>
+<!--
+![Kubernetes Fest Tokyo 2020](./images/xxx.png)
+-->
 
 Welcome to Kubernetes Upstream Training!!
 
-This is the location of our Kubernetes Fest Tokyo 2020 Kubernetes Upstream Training (June 13th 2020) activities.
+This is the location of our Kubernetes Fest Tokyo 2020: Kubernetes Upstream Training (June 13th 2020) activities.
 
 ## 資料 (Documents)
 
@@ -12,7 +14,8 @@ This is the location of our Kubernetes Fest Tokyo 2020 Kubernetes Upstream Train
 * [スライド Slides](docs/k8s-upstream-training-kft-2020.pdf)
 * [Kubernbetes contributors guide](https://github.com/kubernetes/community/tree/master/contributors/guide)
 
+<!--
 ## We got new contributors!! 
 
-To be done.
 ![group photo](images/xxx.jpg)
+-->
