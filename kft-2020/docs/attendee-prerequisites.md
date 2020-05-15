@@ -1,6 +1,11 @@
 ワークショップに参加する前に
 ============================
 
+# コミュニティ行動規範
+
+まずは、CNCF コミュニティ行動規範をご一読ください
+https://github.com/cncf/foundation/blob/master/code-of-conduct-languages/jp.md
+
 # メールアドレスについて
 
 以下の CNCF CLA サインアップにおいて、
