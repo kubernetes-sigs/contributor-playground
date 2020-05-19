@@ -16,7 +16,7 @@ _企業として参画する予定だが、ワークショップまでに間に�
 * GitHub の **Primary email address**
 * Linux Foundation ID のメールアドレス
 
-Primary email address が一致していないと Pull Request を行った時に Kubernetes の CI テストで失敗し、
+GitHub の Primary email address と Linux Foundation ID のメールアドレス が一致していないと Pull Request を行った時に Kubernetes の CI テストで失敗し、
 `cncf-cla: no`のラベルが付いてしまい、マージできないため、登録するメールアドレスには注意が必要です。
 
 # GitHub アカウントの作成
@@ -25,7 +25,7 @@ Primary email address が一致していないと Pull Request を行った時�
 * GitHub アカウントをすでに持っている場合は Settings -> Emails で、**Primary email address** が
   Linux Foundation ID に登録するアドレスに設定してください。企業の開発者の場合はとくに注意。
   
-なお、Github のコミットで別の email を使用したい場合は、
+なお、GitHub のコミットで別の email を使用したい場合は、
 そのメールアドレスを (Primary 以外の) **Emails** に登録しておけばよい。
 
 # CNCF CLA へのサインアップ
@@ -37,17 +37,17 @@ Primary email address が一致していないと Pull Request を行った時�
   + すでに持っている場合は、メールアドレスが要件を満たすものになっているかを確認、企業の開発者の場合は注意。
 * Linux Foundation ID と GitHub アカウントの紐付け
   + Linux Foundationn ID の [Social network logins](https://identity.linuxfoundation.org/user/me/hybridauth) に
-    アクセスし github アカウントと紐付ける。
+    アクセスし GitHub アカウントと紐付ける。
 
 * CNCF CLA sign up
   1. 企業内で CNCF 開発参加者のリスト管理者に名前の追加を依頼する。
   2. CNCFの[当該ページ](https://identity.linuxfoundation.org/projects/cncf)の "Sign up to contribute to this project as an employee" をクリック。(この手順で "Groups:Authorized CNCF Contributors" が設定される。)
-    * 個人開発者の場合は "Sign up to contribute to this project as an individual" をクリック
+      * 個人開発者の場合は "Sign up to contribute to this project as an individual" をクリック
   3. The Linux Foudation ID を使ってログインする。
   4. [https://identity.linuxfoundation.org/user/me](https://identity.linuxfoundation.org/user/me) に下記が表示されることを確認する。
-    - Groups:Authorized CNCF Contributors
-    - CNCF-<企業名が判断できる名称> (← 企業の開発者として登録している場合のみ)
-    - **Note**: もし "CNCF-<企業名が判断できる名称>" が付いているが、"Groups:Authorized CNCF Contributors" が付いてない場合は、再度手順2から実施する。
+      - Groups:Authorized CNCF Contributors
+      - CNCF-<企業名が判断できる名称> (← 企業の開発者として登録している場合のみ)
+      - **Note**: もし "CNCF-<企業名が判断できる名称>" が付いているが、"Groups:Authorized CNCF Contributors" が付いてない場合は、再度手順iiから実施する。
 
 # Kubernetes の Slack を登録
 * ここから登録します。https://slack.k8s.io/
