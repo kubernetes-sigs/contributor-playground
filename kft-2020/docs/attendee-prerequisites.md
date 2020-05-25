@@ -52,8 +52,8 @@ GitHub の Primary email address と Linux Foundation ID のメールアドレ�
 # Kubernetes の Slack を登録
 * ここから登録します。https://slack.k8s.io/
 * ログイン後に以下のチャンネルに入ってください。
-  + #jp-dev
-    このチャンネルの中で、事前の質疑応答、レビュー依頼の練習、フォローなど行っていきます。
+  + #jp-mentoring, #jp-dev
+    - このチャンネルの中で、事前の質疑応答、レビュー依頼の練習、フォローなど行っていきます。
 
 # コマンドのインストール
 * 以下のコマンドをインストールしておいてください。
