@@ -6,7 +6,7 @@
 
 Welcome to Kubernetes Upstream Training!!
 
-This is the location of our [KubeFest Tokyo 2020](https://k8sjp.connpass.com/event/176105/): Kubernetes Upstream Training (June 13th 2020) activities.
+This is the location of our [KubeFest Tokyo 2020](https://k8sjp.connpass.com/event/176105/): [Kubernetes Upstream Training (June 13th 2020) activities](https://k8sjp.github.io/kubefest-2020/sessions/4/).
 
 ## 資料 (Documents)
 
