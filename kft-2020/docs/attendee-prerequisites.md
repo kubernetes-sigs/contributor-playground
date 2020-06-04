@@ -6,6 +6,10 @@
 まずは、CNCF コミュニティ行動規範をご一読ください
 https://github.com/cncf/foundation/blob/master/code-of-conduct-languages/jp.md
 
+# オープンソース参加規約の確認
+
+所属企業によっては、企業として参加、個人として参加に関わらずオープンソースに貢献するために規約を定めていることがあります。
+
 # メールアドレスについて
 
 以下の CNCF CLA サインアップにおいて、
