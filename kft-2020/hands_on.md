@@ -1,14 +1,14 @@
 ```shell
 $ git clone https://github.com/foo/contributor-playground
 $ cd contributor-playground
-$ git remote add upstream
-https://github.com/kubernetes-sigs/contributor-playground
+$ git remote add upstream https://github.com/kubernetes-sigs/contributor-playground
+$ git remote set-url --push upstream no_push
 
 $ git remote -v
 origin  https://github.com/foo/contributor-playground (fetch)
 origin  https://github.com/foo/contributor-playground (push)
 upstream        https://github.com/kubernetes-sigs/contributor-playground (fetch)
-upstream        https://github.com/kubernetes-sigs/contributor-playground (push)
+upstream        no_push (push)
 
 $ cd kft-2020/workdir/
 $ git checkout -b add_foo_md
