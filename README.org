@@ -1,0 +1,71 @@
+﻿#+TITLE: APISnoop Readme
+
+A suite of tools to assist kubernetes test-writing and investigate test coverage.
+
+** Introduction
+
+APISnoop is a collection of programs intended to run in a kubernetes cluster, that help with multiple aspects of conformance testing.  At its core, it is a postgres database seeded with audit logs from the e2e.test binary and the most recent API spec, that are then mapped to a collection of views.  We provide a graphql endpoint built from this db, and a web frontend with some simple views into that coverage. With these, you can query the current state of coverage from multiple angles using a shared SQL language.
+
+In addition, APISnoop is built to be integrated fully with kubemacs.  This pairing offers test writers the ability to query the audit log to find useful, untested endpoints, write up a test that hits their cluster, and then check the results of the test to see if it hit the endpoints they intended.  They can do this all from within their text editor, even doing it all from within a single exportable document.
+
+** Setup
+For the best APISnoop experience, we recommend using [[https://github.com/kubemacs/kubemacs][kubemacs]].  With this pairing, you can run the steps below from within your text editor and have APISnoop deploying while you read.
+
+To start up APISnoop, you will want to set up a domain for our ingress, so you can view this all in a browser, then deploy it with the supplied tilt file.
+
+*** Ingress configuration
+  Ingress manifest overrides in the customize folder can be overridden to map to your setup.
+
+  You can use the default URLs that use the following catchall domains, but they will only work on your local computer. They work by responding with the address 127.0.0.1 for any (*) hostname within that domain.
+
+  If you want to share with others, you'll need a working DNS domain pointing to your IP, which work similarly, but resolve to your public (or local wifi/ethernet) ip. Use YOUIP.xip.io if you don't have a domain, or configure your own.
+  
+**** for xip.io
+
+     Execute these shell commands, either by typing ~,,~ if viewing this in kubemacs, or running them in a separate terminal.
+     #+begin_src shell :dir "." :results silent
+       CURRENT_IP=127.0.0.1 # the default
+       NEW_IP=$(curl ifconfig.co) # or IP of choice
+       sed -i s:$CURRENT_IP:$NEW_IP:g kustomize/*yaml
+       echo http://tilt.$NEW_IP.xip.io
+       echo http://pgadmin.$NEW_IP.xip.io
+       echo http://hasura.$NEW_IP.xip.io
+       echo http://apisnoop.$NEW_IP.xip.io
+     #+end_src
+
+     This should return results similar to these:
+     
+    : http://tilt.147.75.91.66.xip.io
+    : http://pgadmin.147.75.91.66.xip.io
+    : http://hasura.147.75.91.66.xip.io
+    : http://apisnoop.147.75.91.66.xip.io
+
+*** Bring up tilt
+  Tilt will use the kustomization.yaml and the patches it references to bring up and build the APISnoop development environment.
+
+  Uncomment the images / dockerfiles you want to work on before running tilt.
+  
+  Our tilt file is located in the root of the repo.  If viewing this in kubemacs, you can execute the below command with ~,,~.  Otherwise, you will want to run it in a separate terminal.
+
+  #+begin_src tmate :dir "." :session ii :window TILT
+    # sudo chgrp $(id -u) /var/run/docker.sock
+    # to ensure docker socket is working
+    tilt up --host 0.0.0.0
+  #+end_src
+*** Reset basic-auth password
+
+  The default basic-auth user: ii pass: ii.
+  To change it, just update the basic-auth secret, either by executing the code flow below(using kubemacs) or typing it manually in a separate terminal.
+
+    #+name: reset basic-auth password
+    #+begin_src shell :results silent
+      kubectl delete secret basic-auth
+      kubectl create secret generic basic-auth \
+        --from-literal=auth=$(
+          LOGIN=hh
+          PASSWORD=ii
+          echo $PASSWORD | htpasswd -i -n $LOGIN)
+    #+end_src
+
+** Next Steps
+   Our [[file:docs/][docs folder]]  has a growing collection of tutorials and reference material to get started with both apisnoop and test writing in general.  The best place to start is our [[file:docs/overview.org][overview doc]].
