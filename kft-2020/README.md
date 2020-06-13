@@ -14,8 +14,6 @@ This is the location of our [KubeFest Tokyo 2020](https://k8sjp.connpass.com/eve
 * [スライド Slides](docs/k8s-upstream-training-kft-2020.pdf)
 * [Kubernbetes contributors guide](https://github.com/kubernetes/community/tree/master/contributors/guide)
 
-<!--
 ## We got new contributors!! 
 
-![group photo](images/xxx.jpg)
--->
+![group photo 01](images/kft2020-01.png) ![group photo 02](images/kft2020-02.png)
