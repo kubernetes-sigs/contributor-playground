@@ -1,1 +1,1 @@
-Enjoy workshop!
+Hello,Contributor.
