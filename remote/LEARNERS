@@ -1,2 +1,4 @@
+# -*- yaml -*-
 learners:
     - parrasajad
+    - pymander
