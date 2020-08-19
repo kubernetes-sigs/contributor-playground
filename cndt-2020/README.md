@@ -1,4 +1,4 @@
-[CloudNative Days Tokyo 2020](https://cndt2020.cloudnativedays.jp/)
+[![CloudNative Days Tokyo 2020](images/CNDT2020@2x-100.jpg)](https://cndt2020.cloudnativedays.jp/)
 
 ---
 
@@ -6,7 +6,7 @@
 
 Welcome to Kubernetes Upstream Training!!
 
-This is the location of our [CloudNative Days Tokyo 2020](https://cndt2020.cloudnativedays.jp/)
+This is the location of [CloudNative Days Tokyo 2020](https://cndt2020.cloudnativedays.jp/): Kubernetes Upstream Training (Sep 7th 2020) activities.
 
 ## 資料 (Documents)
 
