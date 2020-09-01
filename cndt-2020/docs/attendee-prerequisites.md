@@ -66,8 +66,6 @@ GitHub の Primary email address と Linux Foundation ID のメールアドレ�
 # コマンドのインストール
 * 以下のコマンドをインストールしておいてください。
   + git
-  + golang
-  + docker
 
 # Git や GitHub の操作
 * 基本的な Git や GitHub の操作には慣れておいてください。
@@ -77,5 +75,4 @@ GitHub の Primary email address と Linux Foundation ID のメールアドレ�
 # リポジトリのフォークとクローン
 * 以下のリポジトリを自分の GitHub アカウントにフォークしておいてください。
   + https://github.com/kubernetes-sigs/contributor-playground
-  + https://github.com/kubernetes/kubernetes
 * 次に自分のアカウントにフォークしたリポジトリを自分の PC にクローンしておいてください。
