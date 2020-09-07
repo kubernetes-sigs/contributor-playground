@@ -16,4 +16,5 @@ This is the location of [CloudNative Days Tokyo 2020](https://cndt2020.cloudnati
 
 ## We got new contributors!! 
 
-When training done, We will paste photos here.
+![group photo 01](images/cndt-2020-01.png) ![group photo 02](images/cndt-2020-02.png)
+
