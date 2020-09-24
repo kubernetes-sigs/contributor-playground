@@ -8,7 +8,7 @@ This repository will be used as a safe space for participants in the New Contrib
 
 このリポジトリは、(いくつかの)Kubernetsのプロジェクトにおけるレビューやプルリクエストのプロセスに慣れるために、Kubernetesアップストリームトレーニング参加者の安全な場所として使います。
 
-Each subfolder under `japan/` contains assets for kubernetes upstream training holded in event at Japan.
+Each subfolder under `japan/` contains assets for kubernetes upstream training holded in events at Japan.
 
 各サブフォルダは日本開催のイベントで実施されるKubernetesアップストリームトレーニングのためのアセットを含みます。
 
