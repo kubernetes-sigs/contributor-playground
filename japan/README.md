@@ -21,7 +21,7 @@ Please refer docs in each subfolder for community, discussion, contribution, sup
 <table>
   <tr>
     <td>2019-07-22 <a href="cndt-2019">CloudNative Days Tokyo 2019<br><img src="https://raw.githubusercontent.com/kubernetes-sigs/contributor-playground/master/japan/cndt-2019/group-photo.jpg" width="400"></a></td>
-    <td>2019-12-09 <a href="ood-2019">Okinawa Open Days 2019<br><img src="https://raw.githubusercontent.com/kubernetes-sigs/contributor-playground/master/japan/ood-2019/images/ood2019-photo.jpg" width="400">]</a></td>
+    <td>2019-12-09 <a href="ood-2019">Okinawa Open Days 2019<br><img src="https://raw.githubusercontent.com/kubernetes-sigs/contributor-playground/master/japan/ood-2019/images/ood2019-photo.jpg" width="400"></a></td>
   </tr>
   <tr>
     <td>2020-06-13 <a href="kft-2020">KubeFest Tokyo 2020<br><img src="https://raw.githubusercontent.com/kubernetes-sigs/contributor-playground/master/japan/kft-2020/images/kft2020-01.png" width="400"></a></td>
