@@ -1,0 +1,6 @@
+# See the OWNERS docs: https://go.k8s.io/community/contributors/guide/owners.md
+
+# contribex APAC coordinators leading NCWs in India
+approvers:
+  - nikhita
+  - palnabarun
