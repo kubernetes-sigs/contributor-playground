@@ -24,7 +24,7 @@ In this meetup, we will learn how to contribute to the Kubernetes and participat
 ## Resources
 
 - Slides URL: to be updated
-- [Attendee instructions](attendee-Instructions.md)
+- [Attendee instructions](attendee-instructions.md)
 - Contributor Documentation
   - [Contributor guide](https://www.kubernetes.dev/docs/guide/)
   - [Contributor cheatsheet](https://www.kubernetes.dev/docs/contributor-cheatsheet/)
