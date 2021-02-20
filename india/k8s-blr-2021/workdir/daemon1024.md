@@ -1,0 +1,1 @@
+Thank You for the awesome workshop. Kubernetes is awesome ❤️
