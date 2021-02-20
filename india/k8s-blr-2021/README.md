@@ -4,6 +4,9 @@ Welcome to [Kubernetes New Contributor Workshop](https://www.meetup.com/kubernet
 
 In this meetup, we will learn how to contribute to the Kubernetes and participate in various avenues of the community.
 
+<img src="assets/1.jpg" width="400">
+<img src="assets/2.jpg" width="400">
+
 ## Planned Agenda
 
 - Introduction to the Kubernetes Community
