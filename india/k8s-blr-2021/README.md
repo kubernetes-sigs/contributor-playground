@@ -23,7 +23,7 @@ In this meetup, we will learn how to contribute to the Kubernetes and participat
 
 ## Resources
 
-- Slides URL: to be updated
+- Slides URL: [here](http://bit.ly/k8sblr-contributing-101)
 - [Attendee instructions](attendee-instructions.md)
 - Contributor Documentation
   - [Contributor guide](https://www.kubernetes.dev/docs/guide/)
