@@ -10,7 +10,7 @@ This is the location of our [KubeFest Tokyo 2020](https://k8sjp.connpass.com/eve
 
 ## 資料 (Documents)
 
-* [参加者の皆様への宿題 Attendee prerequisites (in preparation)](docs/attendee-prerequisites.md)
+* [参加者の皆様への宿題 Attendee prerequisites (in preparation)](../assets/attendee-prerequisites.md)
 * [スライド Slides](../assets/slide.pdf)
 * [Kubernbetes contributors guide](https://github.com/kubernetes/community/tree/master/contributors/guide)
 
