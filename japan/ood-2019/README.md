@@ -9,7 +9,7 @@ This is the location of our OOD 2019 Kubernetes Upstream Training (Dec 9th 2019)
 ## 資料 (Documents)
 
 * [参加者の皆様への宿題 Attendee prerequisites (in preparation)](docs/attendee-prerequisites.md)
-* [スライド Slides](docs/k8s-upstream-training-ood-2019.pdf)
+* [スライド Slides](../assets/slide.pdf)
 * [Kubernbetes contributors guide](https://github.com/kubernetes/community/tree/master/contributors/guide)
 
 ## We got new contributors!! 
