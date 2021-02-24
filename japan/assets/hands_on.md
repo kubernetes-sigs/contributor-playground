@@ -1,3 +1,5 @@
+In following contents, please change `<EVENT-NAME>` with event name you joined (e.g. `cndt-2020`).
+
 ```shell
 $ git clone https://github.com/foo/contributor-playground
 $ cd contributor-playground
@@ -10,7 +12,7 @@ origin  https://github.com/foo/contributor-playground (push)
 upstream        https://github.com/kubernetes-sigs/contributor-playground (fetch)
 upstream        no_push (push)
 
-$ cd kft-2020/workdir/
+$ cd <EVENT-NAME>/workdir/
 $ git checkout -b add_foo_md
 $ vim foo.md
 $ git add foo.md
