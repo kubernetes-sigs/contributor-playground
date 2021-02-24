@@ -10,8 +10,8 @@ This is the location of [CloudNative Days Tokyo 2020](https://cndt2020.cloudnati
 
 ## 資料 (Documents)
 
-* [参加者の皆様への宿題 Attendee prerequisites (in preparation)](docs/attendee-prerequisites.md)
-* [スライド Slides](docs/k8s-upstream-training-cndt-2020.pdf)
+* [参加者の皆様への宿題 Attendee prerequisites (in preparation)](../assets/attendee-prerequisites.md)
+* [スライド Slides](../assets/slide.pdf)
 * [Kubernbetes contributors guide](https://github.com/kubernetes/community/tree/master/contributors/guide)
 
 ## We got new contributors!! 

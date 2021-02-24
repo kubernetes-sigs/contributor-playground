@@ -5,7 +5,7 @@
 Welcome to Kubernetes Upstream Training!!
 July 22th 2019 This is the location of our CNDT 2019 Kubernetes Upstream Training activities.
 
-* [Slides](Kubernetes-Upstream-Training-in-CNDT2019.pdf)
+* [Slides](../assets/slide.pdf)
 
 ## Docs
 
