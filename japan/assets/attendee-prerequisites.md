@@ -3,7 +3,7 @@
 
 # コミュニティ行動規範
 
-まずは、CNCF コミュニティ行動規範をご一読ください
+まずは、CNCF コミュニティ行動規範をご一読ください。
 https://github.com/cncf/foundation/blob/master/code-of-conduct-languages/jp.md
 
 # オープンソース参加規約の確認
@@ -26,35 +26,43 @@ GitHub の Primary email address と Linux Foundation ID のメールアドレ�
 # GitHub アカウントの作成
 
 * GitHub アカウントを持っていない人は作成してください。
-* GitHub アカウントをすでに持っている場合は Settings -> Emails で、**Primary email address** が
+* GitHub アカウントをすでに持っている場合は Settings -> Emails で、**Primary email address** を
   Linux Foundation ID に登録するアドレスに設定してください。企業の開発者の場合はとくに注意。
   
 なお、GitHub のコミットで別の email を使用したい場合は、
-そのメールアドレスを (Primary 以外の) **Emails** に登録しておけばよい。
+GitHub でそのメールアドレスを (Primary 以外の) **Emails** に登録してください。
 
 # CNCF CLA へのサインアップ
 * Linux Foundation ID の取得
   + [LF sign up](https://identity.linuxfoundation.org/) へアクセス
-  + 持っていない場合は[ここ](https://identity.linuxfoundation.org/)から作成する。
+  + 持っていない場合は[ここ](https://identity.linuxfoundation.org/)から作成します。
     - ユーザ名、メールアドレスなどを入力して登録ボタンを押下
-    - メールアドレス宛に確認メールが来るので、メール中のURLにブラウザからアクセスする。
-  + すでに持っている場合は、メールアドレスが要件を満たすものになっているかを確認、企業の開発者の場合は注意。
+    - メールアドレス宛に確認メールが来るので、メール中のURLにブラウザからアクセス。
+  + すでに持っている場合は、メールアドレスが要件を満たすものになっているかを確認。企業の開発者の場合は注意。
 * Linux Foundation ID と GitHub アカウントの紐付け
-  + Linux Foundationn ID の [Social network logins](https://identity.linuxfoundation.org/user/me/hybridauth) に
-    アクセスし GitHub アカウントと紐付ける。
+  + Linux Foundation ID の [Social network logins](https://identity.linuxfoundation.org/user/me/hybridauth) に
+    アクセスして GitHub アカウントと紐付けます。
 
 * CNCF CLA sign up
-  1. 企業内で CNCF 開発参加者のリスト管理者に名前の追加を依頼する。
-  2. CNCFの[当該ページ](https://identity.linuxfoundation.org/projects/cncf)の "Sign up to contribute to this project as an employee" をクリック。(この手順で "Groups:Authorized CNCF Contributors" が設定される。)
-      * 個人開発者の場合は "Sign up to contribute to this project as an individual" をクリック
-  3. The Linux Foudation ID を使ってログインする。
-  4. [https://identity.linuxfoundation.org/user/me](https://identity.linuxfoundation.org/user/me) に下記が表示されることを確認する。
-      - Groups:Authorized CNCF Contributors
-      - CNCF-<企業名が判断できる名称> (← 企業の開発者として登録している場合のみ)
-      - **Note**: もし "CNCF-<企業名が判断できる名称>" が付いているが、"Groups:Authorized CNCF Contributors" が付いてない場合は、再度手順iiから実施する。
+企業の開発者として登録する場合と個人の開発者として登録する場合で手順が異なります。
+  - 企業の開発者として登録する場合
+	  1. 企業内で CNCF 開発参加者のリスト管理者に名前の追加を依頼します。
+	  2. CNCFの[当該ページ](https://identity.linuxfoundation.org/projects/cncf)の "Sign up to contribute to this project as an employee" をクリック。(この手順で "Groups:Authorized CNCF Contributors" が設定されます。)
+	  3. The Linux Foudation ID を使ってログインします。
+	  4. [https://identity.linuxfoundation.org/user/me](https://identity.linuxfoundation.org/user/me) に下記が表示されることを確認します。
+		  - Groups:Authorized CNCF Contributors
+		  - CNCF-<企業名が判断できる名称>
+		  - **Note**: もし "CNCF-<企業名が判断できる名称>" が付いているが、"Groups:Authorized CNCF Contributors" が付いてない場合は、再度手順2.から実施してください。
+  - 個人の開発者として登録する場合
+	  1. CNCFの[当該ページ](https://identity.linuxfoundation.org/projects/cncf)の "Sign up to contribute to this project as an individual" をクリック。(この手順で "Groups:Authorized CNCF Contributors" が設定されます。)
+	  2. The Linux Foudation ID を使ってログインします。
+	  3. [https://identity.linuxfoundation.org/user/me](https://identity.linuxfoundation.org/user/me) に下記が表示されることを確認します。
+		  - Groups:Authorized CNCF Contributors
+		  - **Note**: もし "Groups:Authorized CNCF Contributors" が付いてない場合は、再度手順1.から実施してください。
 
 # Kubernetes の Slack に参加
-* ここから参加します。https://slack.k8s.io/
+* ここから参加します。
+  + https://slack.k8s.io/
 * ログイン後に以下のチャンネルに入ってください。
   + #jp-dev
     - レビュー依頼の練習に使用します。そのほか、実際のコントリビューション (Issue や PR) のそれぞれについて議論する場です。
