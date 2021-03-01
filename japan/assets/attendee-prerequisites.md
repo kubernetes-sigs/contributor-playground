@@ -30,7 +30,7 @@ GitHub の Primary email address と Linux Foundation ID のメールアドレ�
   Linux Foundation ID に登録するアドレスに設定してください。企業の開発者の場合はとくに注意。
   
 なお、GitHub のコミットで別の email を使用したい場合は、
-GitHub でそのメールアドレスを (Primary 以外の) **Emails** に登録してください。
+GitHub の設定でそのメールアドレスを (Primary 以外の) **Emails** に登録してください。
 
 # CNCF CLA へのサインアップ
 * Linux Foundation ID の取得
@@ -47,14 +47,14 @@ GitHub でそのメールアドレスを (Primary 以外の) **Emails** に登�
 企業の開発者として登録する場合と個人の開発者として登録する場合で手順と確認項目が異なります。
   + **企業の開発者として登録する場合**
     1. 企業内で CNCF 開発参加者のリスト管理者に名前の追加を依頼します。
-    2. CNCFの[当該ページ](https://identity.linuxfoundation.org/projects/cncf)の "Sign up to contribute to this project as an employee" をクリック。(この手順で "Groups:Authorized CNCF Contributors" が設定されます。)
+    2. CNCFの[当該ページ](https://identity.linuxfoundation.org/projects/cncf)の "Sign up to contribute to this project as an **employee**" をクリック。(この手順で "Groups:Authorized CNCF Contributors" が設定されます。)
     3. The Linux Foudation ID を使ってログインします。
     4. [https://identity.linuxfoundation.org/user/me](https://identity.linuxfoundation.org/user/me) に下記が表示されることを確認します。
         - Groups:Authorized CNCF Contributors
         - CNCF-<企業名が判断できる名称>
         - **Note**: もし "CNCF-<企業名が判断できる名称>" が付いているが、"Groups:Authorized CNCF Contributors" が付いてない場合は、再度「CNCF CLA sign up」のはじめから実施してください。
   + **個人の開発者として登録する場合**
-    1. CNCFの[当該ページ](https://identity.linuxfoundation.org/projects/cncf)の "Sign up to contribute to this project as an individual" をクリック。(この手順で "Groups:Authorized CNCF Contributors" が設定されます。)
+    1. CNCFの[当該ページ](https://identity.linuxfoundation.org/projects/cncf)の "Sign up to contribute to this project as an **individual**" をクリック。(この手順で "Groups:Authorized CNCF Contributors" が設定されます。)
     2. The Linux Foudation ID を使ってログインします。
     3. [https://identity.linuxfoundation.org/user/me](https://identity.linuxfoundation.org/user/me) に下記が表示されることを確認します。
         - Groups:Authorized CNCF Contributors
