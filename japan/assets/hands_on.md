@@ -12,7 +12,7 @@ origin  https://github.com/foo/contributor-playground (push)
 upstream        https://github.com/kubernetes-sigs/contributor-playground (fetch)
 upstream        no_push (push)
 
-$ cd <EVENT-NAME>/workdir/
+$ cd japan/<EVENT-NAME>/workdir/
 $ git checkout -b add_foo_md
 $ vim foo.md
 $ git add foo.md
