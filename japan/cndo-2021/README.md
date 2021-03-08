@@ -6,7 +6,7 @@
 
 Welcome to Kubernetes Upstream Training!!
 
-This is the location of [CloudNative Days Spring 2021 Online](https://event.cloudnativedays.jp/cndo2021): Kubernetes Upstream Training (Mar 10th 2021) activities.
+This is the location of [CloudNative Days Spring 2021 Online](https://event.cloudnativedays.jp/cndo2021): Kubernetes Upstream Training activities.
 
 ## 資料 (Documents)
 
@@ -15,6 +15,8 @@ This is the location of [CloudNative Days Spring 2021 Online](https://event.clou
 * [Kubernbetes contributors guide](https://github.com/kubernetes/community/tree/master/contributors/guide)
 
 ## スケジュール (Timetable)
+
+Date: Mar 10 2021
 
 | Time | Contents | 
 | ------------- | ------------- | 
