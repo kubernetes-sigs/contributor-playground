@@ -43,5 +43,5 @@ Total:4h30m
 
 ## We got new contributors!! 
 
-Photo of attendees will be shown here after this training!
+![group photo 01](images/cndo-2021-01.png) ![group photo 02](images/cndo-2021-02.png)
 
