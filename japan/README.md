@@ -28,7 +28,7 @@ Please refer docs in each subfolder for community, discussion, contribution, sup
     <td>2020-09-07 <a href="cndt-2020">CloudNative Days Tokyo 2020<br><img src="https://raw.githubusercontent.com/kubernetes-sigs/contributor-playground/master/japan/cndt-2020/images/cndt-2020-01.png" width="400"></a></td>
   </tr>
   <tr>
-    <td>2021-03-10 <a href="cndo-2021">CloudNative Days Spring 2021 Online<br><img src="https://raw.githubusercontent.com/kubernetes-sigs/contributor-playground/master/japan/cndo-2021/images/cndo-2021-01.png" width="400"></a></td>
+    <td>2021-03-10 <a href="cndo-2021">CloudNative Days Spring 2021 Online<br><img src="cndo-2021/images/cndo-2021-01.png" width="400"></a></td>
     <td>
       <i>202x-xx-xx New events will be added here.</i>
     </td>
