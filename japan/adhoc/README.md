@@ -11,4 +11,5 @@ PRのレビューは、[OWNERS](../OWNERS) ファイルに記載の者が対応�
 
 * [参加者の皆様への宿題 Attendee prerequisites (in preparation)](../assets/attendee-prerequisites.md)
 * [スライド Slides](../assets/slide.pdf)
+* [YouTube<br>![Kubernetes Upstream Training on YouTube](https://img.youtube.com/vi/79TiANhORMA/0.jpg)](https://www.youtube.com/watch?v=79TiANhORMA)
 * [Kubernbetes contributors guide](https://github.com/kubernetes/community/tree/master/contributors/guide)
