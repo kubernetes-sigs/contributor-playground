@@ -1,3 +1,3 @@
-# Hello Beijing
+# Hello China
 
 Hello, new contributors!
