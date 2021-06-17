@@ -1,0 +1,5 @@
+# See the OWNERS docs: https://go.k8s.io/community/contributors/guide/owners.md
+
+approvers:
+  - nikhita
+  - palnabarun
