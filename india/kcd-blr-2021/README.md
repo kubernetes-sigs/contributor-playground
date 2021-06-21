@@ -50,4 +50,4 @@ TBD
 
 #### Madhav Jivrajani (**[@MadhavJivrajani](https://github.com/MadhavJivrajani)**)
 
-TBD
+Madhav, a systems geek and goof, is an active contributor to various projects in the Kubernetes community and works mainly on the API Machinery and Node side of things and has also been involved with the structured logging efforts in the Kubernetes project for the 1.22 release. Apart from that, he helps organize and document code walkthrough sessions for the  Kubernetes contributor community in India and helps new contributors get started in the Kubernetes community.
