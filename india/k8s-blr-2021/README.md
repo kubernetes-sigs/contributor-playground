@@ -46,3 +46,7 @@ Nikhita is a Senior Member of Technical Staff at VMware, a member of the Kuberne
 #### Divya Mohan (**[@divya-mohan0209](https://github.com/divya-mohan0209)**)
 
 Alongside her day job as a Senior Systems Engineer at HSBC, Divya has been contributing to the k8s community for almost a year now in various capacities. She's the SIG Docs lead for another project under the CNCF umbrella, LitmusChaos & is a CNCF ambassador. Outside of work commitments, she loves speaking about her (mis)adventures in the Cloud Native space & tweeting cat photos.
+
+#### Arsh Sharma (**[@RinkiyaKeDad](https://github.com/RinkiyaKeDad)**)
+
+Arsh is currently a Google Summer Of Code (GSoC) Student Developer with CNCF. Previously he has been a [Linux Foundation Mentee](https://lfx.linuxfoundation.org/tools/mentorship/) where he worked on evaluating dependency updates to Kubernetes. Apart from contributing to open source projects, he loves writing blogs about various things in the cloud-native ecosystem.  
