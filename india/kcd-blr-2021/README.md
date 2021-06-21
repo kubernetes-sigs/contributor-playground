@@ -46,7 +46,7 @@ Alongside her day job as a Senior Systems Engineer at HSBC, Divya has been contr
 
 #### Arsh Sharma (**[@RinkiyaKeDad](https://github.com/RinkiyaKeDad/)**)
 
-TBD
+Arsh is currently a Google Summer Of Code (GSoC) Student Developer with CNCF. Previously he has been a [Linux Foundation Mentee](https://lfx.linuxfoundation.org/tools/mentorship/) where he worked on evaluating dependency updates to Kubernetes. Apart from contributing to open source projects, he loves writing blogs about various things in the cloud-native ecosystem.
 
 #### Madhav Jivrajani (**[@MadhavJivrajani](https://github.com/MadhavJivrajani)**)
 
