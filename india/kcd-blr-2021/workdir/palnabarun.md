@@ -1,1 +1,1 @@
-# Kubernetes is cool!
+# Kubernetes is cool and amazing!
