@@ -1,0 +1,1 @@
+hey i loved the session knowing more about the kubernetes community
