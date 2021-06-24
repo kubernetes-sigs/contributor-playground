@@ -1,1 +1,1 @@
-Kuberentes is coooool.
+Kuberentes is coooool
