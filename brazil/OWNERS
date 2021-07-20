@@ -1,0 +1,6 @@
+# See the OWNERS docs: https://go.k8s.io/community/contributors/guide/owners.md
+
+# contribex coordinators leading NCWs in Brazil
+approvers:
+  - cpanato
+  - rikatz
