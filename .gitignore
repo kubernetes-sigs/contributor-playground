@@ -1,0 +1,50 @@
+# Darwin
+.DS_Store
+._*
+*.dylib
+*.so
+
+# VS-Code
+.vscode/*
+
+# Emacs-editor
+*~
+\#*\#
+.\#*
+
+# Vim-editor
+*.un~
+.netrwhist
+Session.vim
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+
+# Intellij Files
+.idea/*
+*.iml
+
+# Temporal-github-pages
+gh-pages
+
+# Docker-based-builds-files
+test/binaries
+
+# Go-build-binaries
+cli-utils
+kapply
+main
+
+# Others
+*.so
+log/
+obj/
+.optemp/
+Thumbs.db
+*.log
+*.exe
+*.exe~
+*.dll
+bin
+build
+*.swp
+*.swo
