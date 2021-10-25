@@ -2,15 +2,18 @@
 
 reviewers:
   - atoato88
-  - k-toyoda-pi
   - oomichi
   - shu-mutou
-  - s-ito-ts
+  - YuikoTakada
+  - s-kawamura-w664
+  - t-inu
 approvers:
   - atoato88
-  - k-toyoda-pi
   - oomichi
   - shu-mutou
-  - s-ito-ts
   - YuikoTakada
-
+  - s-kawamura-w664
+  - t-inu
+emeritus_approvers:
+  - k-toyoda-pi
+  - s-ito-ts
