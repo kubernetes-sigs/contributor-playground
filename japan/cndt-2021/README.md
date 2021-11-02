@@ -26,6 +26,5 @@ This is the location of [Kubernetes Upstream Training](https://event.cloudnative
 
 ## We got new contributors!! 
 
-TBD.
-<!-- ![group photo 01](images/cndt-2021-01.png) -->
+![group photo 01](images/cndt-2021-01.png) ![group photo 02](images/cndt-2021-02.png)
 
