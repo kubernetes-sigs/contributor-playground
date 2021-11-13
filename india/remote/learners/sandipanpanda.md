@@ -1,0 +1,2 @@
+Hi there, I am Sandipan. I am feeling lucky to be a member of an inclusive and awesome community like Kubernetes.
+As a contributor to this project, and in the interest of fostering an open and welcoming community, I pledge to uphold the community values and respect all people who contribute to Kubernetes by any means, including reporting issues, posting feature requests, updating documentation, submitting pull requests or patches, and other activities. Thank you Kubernetes community!
