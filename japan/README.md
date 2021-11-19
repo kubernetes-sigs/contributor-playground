@@ -32,6 +32,7 @@ Please refer docs in each subfolder for community, discussion, contribution, sup
     <td>2021-11-02 <a href="cndt-2021">CloudNative Days Tokyo 2021<br><img src="cndt-2021/images/cndt-2021-01.png" alt="Please look forward to the event!" width="400"></a></td>
   </tr>
   <tr>
-    <td colspan="2"><i>202x-xx-xx New events will be added here.</i></td>
+    <td>2021-12-13 <a href="ossj-2021">Open Source Summit Japan 2021<br><img src="ossj-2021/images/ossj-2021-01.png" width="400"></a></td>
+    <td><i>202x-xx-xx New events will be added here.</i></td>
   </tr>
 </table>
