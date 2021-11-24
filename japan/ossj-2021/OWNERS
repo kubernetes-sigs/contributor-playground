@@ -1,0 +1,16 @@
+# See the OWNERS docs: https://go.k8s.io/community/contributors/guide/owners.md
+
+reviewers:
+  - oomichi
+  - atoato88
+  - shu-mutou
+  - YuikoTakada
+  - s-kawamura-w664
+  - t-inu
+approvers:
+  - oomichi
+  - atoato88
+  - shu-mutou
+  - YuikoTakada
+  - s-kawamura-w664
+  - t-inu
