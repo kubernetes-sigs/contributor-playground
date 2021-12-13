@@ -27,5 +27,5 @@ This is the location of [Kubernetes Upstream Training](https://events.linuxfound
 
 ## We got new contributors!!
 
-![group photo 01](images/ossj-2021-01.png) ![group photo 02](images/ossj-2021-02.png)
+![group photo 01](images/ossj-2021-01.png) 
 
