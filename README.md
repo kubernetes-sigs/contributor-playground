@@ -8,11 +8,11 @@ A [Youtube playlist](https://www.youtube.com/playlist?list=PL69nYSiGNLP3M5X7stuD
 
 ## Community, discussion, contribution, and support
 
-Learn how to engage with the Kubernetes community on the [community page](http://kubernetes.io/community/).
+Learn how to engage with the Kubernetes community on the [community page](https://kubernetes.io/community/).
 
 You can reach the maintainers of this project at:
 
-- [Slack](http://slack.k8s.io/)
+- [Slack](https://slack.k8s.io/)
 - [Mailing List](https://groups.google.com/forum/#!forum/kubernetes-dev)
 
 ### Code of conduct
