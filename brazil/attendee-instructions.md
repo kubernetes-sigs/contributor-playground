@@ -18,11 +18,9 @@ troubleshooting guidelines](https://github.com/kubernetes/community/blob/master/
 ## Join the Kubernetes Slack
 
 - Sign up for the Kubernetes Slack [here](https://slack.k8s.io/).
-- India specific slack channels:
-    - **#in-dev** - for contributors
-    - **#in-users** - for users
-    - **#in-events** - for events
-- Say Hi and introduce yourself in the **#in-dev** channel! :smile:
+- Brazil specific slack channels:
+    - **#pt_br-users** - for users
+- Say Hi and introduce yourself in the **#pt_br-users** channel! :smile:
 
 ## Fork the repo
 
@@ -41,7 +39,7 @@ origin  https://github.com/foo/contributor-playground (push)
 upstream        https://github.com/kubernetes-sigs/contributor-playground (fetch)
 upstream        no_push (push)
 
-$ cd india/k8s-blr-2021/workdir
+$ cd brazil/
 $ git checkout -b add_foo_md
 $ vim foo.md
 $ git add foo.md
