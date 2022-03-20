@@ -21,7 +21,7 @@ This exercise requires working knowledge of creating Github pull requests.  If a
 
 1. All students can participate in the Review phase, but students who have been selected as Approvers must participate.
 2. Reviewing students should look over the PR, comment on it, and add `/lgtm` when appropriate.
-3. Students that have Approver should also `/approve`.  Note that they will not not not be able to *actually* approve PRs against things outside the current NCW folder.
+3. Students that have Approver should also `/approve`.  Note that they will not be able to *actually* approve PRs against things outside the current NCW folder.
 4. Optionally, reviewers should also:
   - suggest improvements to the name or description
   - link the PR to any appropriate issue(s)
