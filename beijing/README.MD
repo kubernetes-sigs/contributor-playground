@@ -1,3 +1,3 @@
-#Hello Beijing
+#Hello Beijing!
 ---
 Hello, new contributors!
