@@ -15,7 +15,7 @@
 
 以下の [CNCF CLA サインアップ](#cncf-cla-へのサインアップ)において**企業の開発者として登録する**場合は、メールアドレスは企業ドメインのアドレス等を使用する必要があります。  
 詳しくは企業の[CLA Manager](https://docs.linuxfoundation.org/lfx/easycla/v2-current/corporate-cla-managers)に確認してください。  
-企業として参画する予定だが、ワークショップまでに間に合わない場合は、個人開発者としてサインアップしておいてください。
+企業として参画する予定だがワークショップまでに確認が間に合わない場合は、個人開発者としてサインアップすることを検討してください。
 
 # GitHub アカウントの作成
 
@@ -30,7 +30,7 @@ Kubernetesコミュニティでは2022年3月頃にCLAの手順がEasyCLAに移�
 
 ## サインアップ事前作業
 まず以下を実施してください。
-- CNCF CLA sign up のときに使うメールアドレスと[git コマンドに設定するコミットメールアドレスは、同じものを設定してください。](https://docs.github.com/ja/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/setting-your-commit-email-address#setting-your-commit-email-address-in-git)
+- CNCF CLA サインアップのときに使うメールアドレスと[git コマンドに設定するコミットメールアドレスは、同じものを設定してください。](https://docs.github.com/ja/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/setting-your-commit-email-address#setting-your-commit-email-address-in-git)
 
 
 次に、以下は企業の開発者として登録する場合と個人の開発者として登録する場合で作業が異なります。
