@@ -17,3 +17,5 @@ approvers:
 emeritus_approvers:
   - k-toyoda-pi
   - s-ito-ts
+labels:
+  - area/japan
