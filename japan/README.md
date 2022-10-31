@@ -16,7 +16,12 @@ Please refer docs in each subfolder for community, discussion, contribution, sup
 
 コミュニティ、ディスカッション、コントリビューション、サポートそして行動規範(Code of conduct)については、各フォルダの資料を参照してください。
 
-## Kubernetes Upstream Trainings in Public Events
+## Coming Kubernetes Upstream Trainings
+
+- 2022/11/18: [Cloud Native Days Tokyo](https://event.cloudnativedays.jp/cndt2022/hands-on#hs0)
+- 2022/12/14: [Okinawa Open Days](https://www.okinawaopendays.com/2022-program)
+
+## Post Kubernetes Upstream Trainings
 
 <table>
   <tr>
