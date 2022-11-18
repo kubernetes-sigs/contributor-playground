@@ -18,7 +18,7 @@ This is the location of [Kubernetes Upstream Training](https://event.cloudnative
 
 | Icon | Name | Slack | Affiliation | Focus on, Role.. |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-|<a href="https://github.com/oomichi"><img src="https://avatars.githubusercontent.com/u/1287154?s=50"></a>| <a href="https://github.com/oomichi">Kenichi Omichi</a> | @oomichi | NEC Corporation of America | - sig-testing<br> - Approver of k8s.io/kubernetes/test<br> - Approver of kubernetes-sigs/kubespray |
+|<a href="https://github.com/oomichi"><img src="https://avatars.githubusercontent.com/u/1287154?s=50"></a>| <a href="https://github.com/oomichi">Kenichi Omichi</a> | @oomichi | NEC | - sig-testing<br> - Approver of k8s.io/kubernetes/test<br> - Owner of kubernetes-sigs/kubespray |
 |<a href="https://github.com/atoato88"><img src="https://avatars.githubusercontent.com/u/748740?s=50"></a>| <a href="https://github.com/atoato88">Akihito Inoh</a> | @akihito-inou(atoato88) | NEC Solution Innovators | - sig-cluster-lifecycle<br> - Approver of kubernetes-sigs/kubebuilder-declarative-pattern <br> - k/dashboard i18n ja |
 |<a href="https://github.com/shu-mutou"><img src="https://avatars.githubusercontent.com/u/12838129?s=50"></a>| <a href="https://github.com/shu-mutou">Shu Muto</a> | @Shu Muto | NEC Solution Innovators | - Chair of sig-ui<br> - Approver of k/dashboard |
 |<a href="https://github.com/ziyi-xie"><img src="https://avatars.githubusercontent.com/u/92832323?s=50"></a>| <a href="https://github.com/ziyi-xie">Xie Ziyi</a> | @XIE ZIYI | NEC Solution Innovators | - sig-docs<br> - k/dashboard i18n ja  |
