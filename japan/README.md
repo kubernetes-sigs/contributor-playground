@@ -18,7 +18,6 @@ Please refer docs in each subfolder for community, discussion, contribution, sup
 
 ## Upcoming Kubernetes Upstream Trainings
 
-- 2022/11/18: [Cloud Native Days Tokyo](https://event.cloudnativedays.jp/cndt2022/hands-on#hs0)
 - 2022/12/14: [Okinawa Open Days](https://www.okinawaopendays.com/2022-program)
 
 ## Post Kubernetes Upstream Trainings
@@ -34,10 +33,14 @@ Please refer docs in each subfolder for community, discussion, contribution, sup
   </tr>
   <tr>
     <td>2021-03-10 <a href="cndo-2021">CloudNative Days Spring 2021 Online<br><img src="cndo-2021/images/cndo-2021-01.png" width="400"></a></td>
-    <td>2021-11-02 <a href="cndt-2021">CloudNative Days Tokyo 2021<br><img src="cndt-2021/images/cndt-2021-01.png" alt="Please look forward to the event!" width="400"></a></td>
+    <td>2021-11-02 <a href="cndt-2021">CloudNative Days Tokyo 2021<br><img src="cndt-2021/images/cndt-2021-01.png" width="400"></a></td>
   </tr>
   <tr>
     <td>2021-12-13 <a href="ossj-2021">Open Source Summit Japan 2021<br><img src="ossj-2021/images/ossj-2021-01.png" width="400"></a></td>
+    <td>2022-11-18 <a href="cndt-2022">CloudNative Days Tokyo 2022<br><img src="cndt-2022/images/cndt-2022-01.png" width="400"></a></td>
+  </tr>
+  <tr>
     <td><i>202x-xx-xx New events will be added here.</i></td>
+    <td></td>
   </tr>
 </table>
