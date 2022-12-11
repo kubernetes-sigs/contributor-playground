@@ -1,4 +1,4 @@
-# Kubernetes Contributor Playground
+### Kubernetes Contributor Playground
 
 Hello new contributors!
 
