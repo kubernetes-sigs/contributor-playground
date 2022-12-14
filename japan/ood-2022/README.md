@@ -29,6 +29,5 @@ This is the location of [Kubernetes Upstream Training](https://www.okinawaopenda
 
 ## We got new contributors!!
 
-We will show the photo of new contributors after finishing the training.
-<!-- ![group photo 01](images/ood-2022-01.png) -->
+![group photo 01](images/ood-2022-01.jpg)
 

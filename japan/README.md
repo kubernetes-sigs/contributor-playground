@@ -18,7 +18,7 @@ Please refer docs in each subfolder for community, discussion, contribution, sup
 
 ## Upcoming Kubernetes Upstream Trainings
 
-- 2022/12/14: [Okinawa Open Days](https://www.okinawaopendays.com/2022-program)
+- see you in 2023
 
 ## Post Kubernetes Upstream Trainings
 
@@ -40,7 +40,7 @@ Please refer docs in each subfolder for community, discussion, contribution, sup
     <td>2022-11-18 <a href="cndt-2022">CloudNative Days Tokyo 2022<br><img src="cndt-2022/images/cndt-2022-01.png" width="400"></a></td>
   </tr>
   <tr>
-    <td><i>202x-xx-xx New events will be added here.</i></td>
+    <td>2022-12-14 <a href="ood-2022">Okinawa Open Days 2022<br><img src="ood-2022/images/ood-2022-01.jpg" width="400"></a></td>
     <td></td>
   </tr>
 </table>
