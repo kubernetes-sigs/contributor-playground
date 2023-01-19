@@ -6,6 +6,8 @@ This repository will be used as a safe space for participants in the New Contrib
 
 A [Youtube playlist](https://www.youtube.com/playlist?list=PL69nYSiGNLP3M5X7stuD7N4r3uP2PZQUx) of the New Contributor workshop has been posted, and an outline of content to videos can be found [here](http://git.k8s.io/community/events/2018/05-contributor-summit).
 
+_**If you want to practice submitting your Pull Request, do so in the `remote` directory, or in the directory for each area or event. Do not edit files in the root directory.**_
+
 ## Community, discussion, contribution, and support
 
 Learn how to engage with the Kubernetes community on the [community page](http://kubernetes.io/community/).
