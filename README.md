@@ -8,7 +8,7 @@ A [Youtube playlist](https://www.youtube.com/playlist?list=PL69nYSiGNLP3M5X7stuD
 
 _**If you want to practice submitting your Pull Request, do so in the `remote` directory, or in the directory for each area or event. Do not edit files in the root directory.**_
 
-## Community, discussion, contribution, and support
+## Community, discussion, contribution, and support and more
 
 Learn how to engage with the Kubernetes community on the [community page](http://kubernetes.io/community/).
 
