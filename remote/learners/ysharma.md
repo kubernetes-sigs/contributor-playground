@@ -1,0 +1,23 @@
+## Hello K8s community
+
+I'm planning to actively self-study and contribute to areas of interest as I learn more about k8s
+
+Here is an amazing quote recorded at the FIFA World Cup final 2022-12-18
+
+### Peter Drury on Messi
+```
+He was beautiful...  
+He was the point of difference,  
+He has always been... the point of difference  
+Unparalleled...  
+And maybe today there will  
+Ofcourse always be those who argue  
+Always be those who debate...
+And the debate can rage on if you like  
+But as he falls in love...  
+With the object in the world that his heart most desired...  
+It is hard to escape the supposition  
+That he has rendered himself today...  
+The greatest of all time...
+```
+:wink:
