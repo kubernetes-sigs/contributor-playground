@@ -1,6 +1,7 @@
 # See the OWNERS docs at https://go.k8s.io/owners
 
 approvers:
+<<<<<<< HEAD
   - MadhavJivrajani
   - Priyankasaggu11929
   - cblecker
@@ -12,3 +13,10 @@ approvers:
 emeritus_approvers:
   - alisondy
   - guineveresaenger
+=======
+  - BobyMCbobs
+  - cooldracula
+  - heyste
+  - hh
+  - zachmandeville
+>>>>>>> 84ff80b6 (chore: alphasort OWNERS and SECURITY_CONTACTS)
