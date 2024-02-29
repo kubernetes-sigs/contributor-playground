@@ -5,7 +5,7 @@ This exercise is designed for students to learn how issues are used in the Kuber
 ## Preparation before the exercise
 
 1. Create a folder named after the current New Contributor Workshop (e.g. "Seattle-18") with an OWNERS file containing all the NCW teachers as Approvers.
-1. Before the NCW starts, put a notepad and pens on each table.  Label the first few sheets of the notepad with `TABLE #` corressponding to the table number.
+1. Before the NCW starts, put a notepad and pens on each table.  Label the first few sheets of the notepad with `TABLE #` corresponding to the table number.
 2. Just after the introductions, have everyone write on the notepads as follows:
   - put they're gitHub handle
   - if they have *already contributed* to Kubernetes before, add a star by their name
