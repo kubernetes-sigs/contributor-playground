@@ -25,6 +25,5 @@ This is the location of [Kubernetes Upstream Training](https://kutj.connpass.com
 
 ## We got new contributors!!
 
-A group photo of those who participated in the training will be posted here.
-<!--![group photo 01](images/cncj-202403-01.jpg)-->
+![group photo 01](images/cncj-202403-01.png) ![group photo 02](images/cncj-202403-02.png)
 

@@ -41,6 +41,6 @@ Please refer docs in each subfolder for community, discussion, contribution, sup
   </tr>
   <tr>
     <td>2022-12-14 <a href="ood-2022">Okinawa Open Days 2022<br><img src="ood-2022/images/ood-2022-01.jpg" width="400"></a></td>
-    <td></td>
+    <td>2024-03-13 <a href="cncj-202403">Kubernetes Upstream Training Japan 2024-03 by CNCJ<br><img src="cncj-202403/images/cncj-202403-01.png" width="400"></a></td>
   </tr>
 </table>
