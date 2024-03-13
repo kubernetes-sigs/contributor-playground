@@ -16,10 +16,6 @@ Please refer docs in each subfolder for community, discussion, contribution, sup
 
 コミュニティ、ディスカッション、コントリビューション、サポートそして行動規範(Code of conduct)については、各フォルダの資料を参照してください。
 
-## Upcoming Kubernetes Upstream Trainings
-
-- see you in 2023
-
 ## Post Kubernetes Upstream Trainings
 
 <table>
