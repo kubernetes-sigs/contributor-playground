@@ -1,0 +1,90 @@
+#+TITLE: Set up with Kubemacs
+
+* Introduction
+  Kubemacs is a specially packaged version of [[https://spacemacs.org][spacemacs]] that is deployed onto a kubernetes cluster.  It's prebuilt with pairing software like [[https://github.com/tmate-io/tmate][tmate]] and [[https://orgmode.org/][org-mode]] to enable easier remote pairing and documentation-as-code, respectively.
+
+The current iteration of APISnoop is designed to to be run with kubemacs.  It's an ideal environment for kubernetes test writers as it allows one to interact with a testing cluster directly, and query its test results, using APISnoop's pre-built views and templates.
+
+This page runs through deploying kubemacs with APISnoop.  Luckily, this is as simple as installing some dependencies, downloading two files, then running a shell script.  Let's get to it!
+* Prerequisites
+  We will deploy kubemacs using [[https://kind.sigs.k8s.io/][kind]](kubernetes in docker), then attaching to your running cluster with [[https://kubernetes.io/docs/reference/kubectl/overview/][kubectl]].
+  *To run kubemacs you need docker, kubectl, and a machine able to run a kind cluster*.
+** Installing docker
+   Kubemacs works with docker version 1.18 and up
+
+   You can check your version with
+   #+begin_src shell :results silent
+   docker --version
+   #+end_src
+
+   If this returns ~command not found~ or something older than 1.18, [[https://docs.docker.com/engine/][consult docker's documentation for installing docker engine]]
+** Installing Kubectl
+   You want to use kubectl 1.17 or above
+
+   #+begin_src  shell :results output :results silent
+   kubectl version
+   #+end_src
+
+  If you do not have kubectl, you can install it [[https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-on-linux][following the kubernetes guide]]
+** Permissions
+   Once you've installed docker, you want to make sure your user has been added to the docker group and to the users group.  This ensures there's no permission issues once you've attached to your cluster
+
+   The commands to do so are essentially
+#+begin_src sql-mode
+  sudo adduser $USER docker
+  sudo adduser $USER users
+#+end_src
+* Downloading the .env and shell script
+  The entire kubemacs deployment, including applying apisnoop, can be done in a shell script that is customized with environment variables.  We've included an example of both files in this repo, that you can download to your computer.
+** kubemacs.env
+   The latest stable image of kubemacs (for pinning) is ~2020.04.02~
+   [[../kubemacs.env][repo link]]
+
+   Once downloaded, *you will want to replace the github variables with your own*.
+   You can also customize the repos you want to check out, adding multiple git repos separated by whitespace, and the folder all of them should be downloaded to in the cluster.
+
+   NOTE: kubemacs is not apisnoop specific, and so if you find you like working on emacs in cluster in general, you can customize this .env to work for different projects as needed by adding space separated repos to ~KUBEMACS_INIT_DEFAULT_REPOS~.
+** kubemacs.sh
+   Be sure to switch out the ENV_FILE variable value to the name of your .env folder
+   [[../kubemacs.sh][repo link]]
+
+* Setting up Kubemacs
+  Once both files are downloaded to your computer, from the folder where you've downloaded them run:
+
+  #+begin_src shell
+  ./kubemacs.sh
+  #+end_src
+
+  This will move through the entire process and, if all is going smoothly, attach you directly to the cluster at the intial org file set in the .env file.
+
+
+  If this does not happen, you can manually attach with the following command
+  #+begin_src
+  kubectl exec -ti kubemacs-0 -- attach
+  #+end_src
+
+* Sharing your session
+  If it all worked, you should see an org file version of our README and a green bar at the bottom of your terminal screen indicating you are in a tmate session.  Tmate is a fork of [[https://github.com/tmux/tmux/wiki/Getting-Started][tmux]] and shares it's commands.  [[https://tmuxcheatsheet.com/][Here is a handy cheatsheet for common commands]]
+
+  The incredible distinction of tmate is you can _share your sessions with others over the internet_.
+  To grab a link to your tmate session, open a new window with ~ctl-b c~ then type one of these commands:
+
+  #+begin_src shell
+  # for an ssh link with read and write access
+  tmate display -p '#{tmate_ssh}'
+  #+end_src
+  #+begin_src shell
+  # for an ssh link with readonly access
+  tmate display -p '#{tmate_ssh_ro}'
+  #+end_src
+  #+begin_src shell
+  # for a web link with read and write access
+  tmate display -p '#{tmate_web}'
+  #+end_src
+  #+begin_src shell
+  # for a weblink with readonly access
+  tmate display -p '#{tmate_web_ro}'
+  #+end_src
+
+* Next Steps
+  The default file you are dropped into is the README for apisnoop.  From this point forward you can interact with this repo through org files.  This'll let you do cool stuff like execute the code blocks listed in the documentation and write your own code blocks to run ad-hoc sql queries and what not.  Check out the [[https://github.com/cncf/apisnoop/blob/master/README.org][README]], then move to [[file:test-writing.org][docs/test-writing.org]] to understand the context and motivation for apisnoop's test-writing flow.

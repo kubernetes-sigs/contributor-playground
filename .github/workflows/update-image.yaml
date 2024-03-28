@@ -1,0 +1,46 @@
+name: Update image
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    name: Update the commits!
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+
+
+      - name: setup space
+        run: |
+          sudo apt-get update -y
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          gh auth login --with-token < <(echo ${{ secrets.GITHUB_TOKEN }})
+          gh auth status
+
+
+      - name: install gcrane
+        run: |
+           go version
+           go install github.com/google/go-containerregistry/cmd/crane@latest
+           crane version
+
+
+      - name: set sha to var
+        run: echo "GITHUB_SHA_SHORT=$(git rev-parse --short=6 $GITHUB_SHA)" >> $GITHUB_ENV
+
+
+      - name: test sha var
+        run: echo $GITHUB_SHA_SHORT
+
+      - name: Get image of latest commit from gcr
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 5
+          retry_on: error
+          timeout_seconds: 30
+          command: crane ls gcr.io/k8s-staging-apisnoop/snoopdb  | grep $GITHUB_SHA_SHORT

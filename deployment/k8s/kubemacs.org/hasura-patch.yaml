@@ -1,0 +1,7 @@
+# Ensure tilt is available outside kind
+- op: add
+  path: /spec/rules/0/host
+  value: "hasura.kubemacs.org"
+# - op: add
+#   path: "/metadata/annotations/nginx.ingress.kubernetes.io~1server-alias"
+#   value: "hasura.hh.kubemacs.org"

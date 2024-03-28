@@ -1,0 +1,62 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+bases:
+  - ../nginx-ingress
+  - ../postgres
+  - ../hasura
+  - ../pgadmin
+  - ../webapp
+  - ../auditlogger
+  - ../tilt
+    #- ../basic-auth
+patchesJson6902:
+  - target:
+      group: extensions
+      version: v1beta1
+      kind: Ingress
+      name: tilt-ingress
+    path: patch-ingress-auth.yaml
+  - target:
+      group: extensions
+      version: v1beta1 
+      kind: Ingress
+      name: hasura-ingress
+    path: patch-ingress-auth.yaml
+  - target:
+      group: extensions
+      version: v1beta1 
+      kind: Ingress
+      name: pgadmin-ingress
+    path: patch-ingress-auth.yaml
+  - target:
+      group: extensions
+      version: v1beta1 
+      kind: Ingress
+      name: pgadmin-ingress
+    path: pgadmin-patch.yaml
+  - target:
+      group: extensions
+      version: v1beta1 
+      kind: Ingress
+      name: hasura-ingress
+    path: hasura-patch.yaml
+  - target:
+      group: extensions
+      version: v1beta1 
+      kind: Ingress
+      name: webapp-ingress
+    path: webapp-patch.yaml
+  - target:
+      group: extensions
+      version: v1beta1 
+      kind: Ingress
+      name: tilt-ingress
+    path: tilt-patch.yaml
+images:
+  # https://console.cloud.google.com/gcr/images/k8s-staging-apisnoop?project=k8s-staging-apisnoop&organizationId=758905017065
+  - name: gcr.io/k8s-staging-apisnoop/auditlogger
+    newTag: v20200203-0.9.22-30-g8fc1acd
+  - name: gcr.io/k8s-staging-apisnoop/hasura
+    newTag: v20200203-0.9.22-30-g8fc1acd
+  - name: gcr.io/k8s-staging-apisnoop/postgres
+    newTag: v20200203-0.9.22-30-g8fc1acd

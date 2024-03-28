@@ -1,0 +1,102 @@
+# -*- ii: mode; -*-
+#+TODO: ORG(o) MOCK(m) TRIAGE(r) BACKLOG(b) TEST(t) PROMOTION(p) FLAKING(f) COMMENTS(c) | DONE(d)
+#+TITLE: APISnoop OKRs
+
+* 2020 Q1 (Jan-Mar)
+** Increase Stable Test Coverage Velocity 100% over 2019 (Score: 0.9)
+*** KR1=0.9 (26/+27) new conformant stable endpoints
+**** SCORE: 0.9
+Done = 5
+Needs Approval = 3
+Needs Review = 9
+In Progress (no flakes) = 9
+**** Done = 5
+***** DONE +3 Promote: Secret patching test #87262
+      CLOSED: [2020-04-02 Thu 06:49]
+***** DONE +1 Promote: find Kubernetes Service in default Namespace #87260
+      CLOSED: [2020-04-02 Thu 06:50]
+***** DONE +1 Promote: Namespace patch test #87256
+      CLOSED: [2020-04-02 Thu 06:50]
+**** Needs Approval +3
+***** PROMOTION +3 Promote: pod PreemptionExecutionPath verification
+- ? #issue
+- ? #test 
+- Promotion:  https://github.com/kubernetes/kubernetes/pull/83378
+Clayton says: "I got it"
+Has a failing test... /retest
+**** Needs Review +9
+***** TEST +3 Promote: PodTemplate Lifecycle test #88036 (removing flakes)
+- Issue: https://github.com/kubernetes/kubernetes/issues/86141 #issue
+  Needs reopening and checkboxes for current state..
+- Promotion: https://github.com/kubernetes/kubernetes/pull/88036#ref-pullrequest-571656281
+- Flakes:  https://github.com/kubernetes/kubernetes/pull/88588#issuecomment-606957802
+- Addressing Flakes:  [[https://github.com/kubernetes/kubernetes/pull/89746][https://github.com/kubernetes/kubernetes/pull/89746]]
+***** COMMENTS +2 Promote: ConfigMap Lifecycle test #88034 (comments addressed)
+- Promotion: https://github.com/kubernetes/kubernetes/pull/88034#discussion_r398728147
+- Addressing Comments: https://github.com/kubernetes/kubernetes/pull/88034#issuecomment-607430447 (addresed)
+- PR to handle timeouts: https://github.com/kubernetes/kubernetes/pull/89707
+***** COMMENTS +4 Pod and PodStatus
+- mock-test:  https://github.com/kubernetes/kubernetes/issues/88545
+- test:  https://github.com/kubernetes/kubernetes/pull/89453
+  Addressed the [[https://github.com/kubernetes/kubernetes/pull/89453#discussion_r400346746][comment]]:
+  "Not sure this will work, you will be racing with the kubelet, I think. That is, kubelet may mark it ready again."
+**** In Progress +18
+***** TEST +4 Promote: Endpoints
+- mock-test:  https://github.com/kubernetes/kubernetes/issues/87762
+- test:  https://github.com/kubernetes/kubernetes/pull/88778
+- promotion:  https://github.com/kubernetes/kubernetes/pull/89752
+  [[https://testgrid.k8s.io/sig-release-master-blocking#gce-cos-master-default&include-filter-by-regex=should%2520test%2520the%2520lifecycle%2520of%2520an%2520Endpoint][TestGrid reference]] still looks green!
+***** TEST +5 Promote: Event Lifecycle test #86858
+- mock-test:  https://github.com/kubernetes/kubernetes/issues/86288
+- test:  https://github.com/kubernetes/kubernetes/pull/86858
+- promotion:  https://github.com/kubernetes/kubernetes/pull/89753
+  [[https://testgrid.k8s.io/sig-release-master-blocking#gce-cos-master-default&include-filter-by-regex=should%2520ensure%2520that%2520an%2520event%2520can%2520be%2520fetched%252C%2520patched%252C%2520deleted%252C%2520and%2520listed][TestGrid reference]] 
+***** FLAKING +7 ReplicationController lifecycle
+- mock-test:  https://github.com/kubernetes/kubernetes/issues/88302
+  Needs reopening and checkboxes for current state...
+- test:  https://github.com/kubernetes/kubernetes/pull/88588
+- [[https://github.com/kubernetes/kubernetes/issues/89740][address flaking comment]] : [[https://github.com/kubernetes/kubernetes/pull/89746][https://github.com/kubernetes/kubernetes/pull/89746]]
+relies on it's own update response data
+**** Sorted Backlog +5
+***** BACKLOG +2 ServiceStatus lifecycle
+- org-file: https://github.com/cncf/apisnoop/pull/298
+- mock-test: https://github.com/kubernetes/kubernetes/issues/89135
+ Currently, this test is having issues writing to the ServiceStatus endpoints (via patch and update).
+ The data is patched without errors, but the data when fetched is no different to before the patching.
+***** BACKLOG +3 ServiceAccount lifecycle
+- mock-test: https://github.com/kubernetes/kubernetes/issues/89071
+ @johnbelamaric You don't need to check the status of the secret as part of the test. In other places we check that the resource in question happens, we don't have to follow.
+**** Triage +12
+***** TRIAGE +5 Apps DaemonSet lifecycle
+- org-file: https://github.com/cncf/apisnoop/pull/305
+- mock-test: https://github.com/kubernetes/kubernetes/issues/89637
+***** TRIAGE +5 Apps Deployment lifecycle
+- org-file:
+- mock-test: https://github.com/kubernetes/kubernetes/issues/89340
+***** TRIAGE +2 NodeStatus                                    :deprioritized:
+      Needs these comments addressed, and we voted to de-priorize
+  https://github.com/kubernetes/kubernetes/issues/88358#issuecomment-591062171
+ 
+*** KR2=0.9 +6% Coverage Increase
+**** SCORE: 0.9 
+Based on the same KR above... it's not merged, but these are non-flakey tests that are ready to merge.
+** Complete cncf/apisnoop prow.k8s.io + EKS migration (Score: 0.5)
+*** KR1=0.5 All cncf/apisnoop artifacts created by prow.k8s.io
+*** KR2=0.0 All cncf/apisnoop github workflow managed by prow.k8s.io
+*** KR3=1.0 All cncf/apisnoop non-prow infra moved to EKS
+** Mentor/Teach test-writing workflow at Contributer Summit / KubeConEU (Score: 1.0)
+*** KR1 Caleb and Hippie Mentoring at Contributor Summit
+I am pairing weekly with Guin and Mallian to ensure the workflow is accessible.
+*** KR2 Zach and Stephen teaching test writing
+They are teaching Riaan, all remote, using our org-flow.
+* 2020 Q2 (Apr-Jun)
+** Increase Stable Test Coverage Velocity 50% over Q1
+*** KR1 (0/+40) new conformant stable endpoints
+*** KR2 +9% Coverage Increase
+*** KR3 (stretch) 50% stable endpoints hit by conformance tests
+** Prepare to Gate k/k PRs touching test/e2e or API
+*** KR1 comment w/ list of increase/decrease of stable endpoints
+*** KR2 gate w/ comment
+** Prepare to Gate cncf/k8s-conformance PRs touching v*.*/
+*** KR1 comment w/ list of unrun conformance tests
+*** KR2 gate w/ comment

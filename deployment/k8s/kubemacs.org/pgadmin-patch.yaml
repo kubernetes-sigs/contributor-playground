@@ -1,0 +1,6 @@
+- op: add
+  path: /spec/rules/0/host
+  value: "pgadmin.kubemacs.org"
+# - op: add
+#   path: "/metadata/annotations/nginx.ingress.kubernetes.io~1server-alias"
+#   value: "pgadmin.hh.ii.coop, pgadmin.hh.ii.nz"

@@ -1,0 +1,164 @@
+[
+    {
+        "tested": 129,
+        "release": "1.5.0",
+        "untested": 58,
+        "total tested": 129,
+        "new endpoints": 187,
+        "total untested": 58,
+        "total endpoints": 187
+    },
+    {
+        "tested": 5,
+        "release": "1.6.0",
+        "untested": 1,
+        "total tested": 134,
+        "new endpoints": 6,
+        "total untested": 59,
+        "total endpoints": 193
+    },
+    {
+        "tested": 6,
+        "release": "1.7.0",
+        "untested": 2,
+        "total tested": 140,
+        "new endpoints": 8,
+        "total untested": 61,
+        "total endpoints": 201
+    },
+    {
+        "tested": 12,
+        "release": "1.8.0",
+        "untested": 27,
+        "total tested": 152,
+        "new endpoints": 39,
+        "total untested": 88,
+        "total endpoints": 240
+    },
+    {
+        "tested": 53,
+        "release": "1.9.0",
+        "untested": 10,
+        "total tested": 205,
+        "new endpoints": 63,
+        "total untested": 98,
+        "total endpoints": 303
+    },
+    {
+        "tested": 6,
+        "release": "1.10.0",
+        "untested": 3,
+        "total tested": 211,
+        "new endpoints": 9,
+        "total untested": 101,
+        "total endpoints": 312
+    },
+    {
+        "tested": 1,
+        "release": "1.11.0",
+        "untested": 1,
+        "total tested": 212,
+        "new endpoints": 2,
+        "total untested": 102,
+        "total endpoints": 314
+    },
+    {
+        "tested": 1,
+        "release": "1.12.0",
+        "untested": 0,
+        "total tested": 213,
+        "new endpoints": 1,
+        "total untested": 102,
+        "total endpoints": 315
+    },
+    {
+        "tested": 0,
+        "release": "1.13.0",
+        "untested": 0,
+        "total tested": 213,
+        "new endpoints": 0,
+        "total untested": 102,
+        "total endpoints": 315
+    },
+    {
+        "tested": 18,
+        "release": "1.14.0",
+        "untested": 0,
+        "total tested": 231,
+        "new endpoints": 18,
+        "total untested": 102,
+        "total endpoints": 333
+    },
+    {
+        "tested": 0,
+        "release": "1.15.0",
+        "untested": 0,
+        "total tested": 231,
+        "new endpoints": 0,
+        "total untested": 102,
+        "total endpoints": 333
+    },
+    {
+        "tested": 27,
+        "release": "1.16.0",
+        "untested": 0,
+        "total tested": 258,
+        "new endpoints": 27,
+        "total untested": 102,
+        "total endpoints": 360
+    },
+    {
+        "tested": 0,
+        "release": "1.17.0",
+        "untested": 0,
+        "total tested": 258,
+        "new endpoints": 0,
+        "total untested": 102,
+        "total endpoints": 360
+    },
+    {
+        "tested": 0,
+        "release": "1.18.0",
+        "untested": 0,
+        "total tested": 258,
+        "new endpoints": 0,
+        "total untested": 102,
+        "total endpoints": 360
+    },
+    {
+        "tested": 41,
+        "release": "1.19.0",
+        "untested": 0,
+        "total tested": 299,
+        "new endpoints": 41,
+        "total untested": 102,
+        "total endpoints": 401
+    },
+    {
+        "tested": 8,
+        "release": "1.20.0",
+        "untested": 0,
+        "total tested": 307,
+        "new endpoints": 8,
+        "total untested": 102,
+        "total endpoints": 409
+    },
+    {
+        "tested": 32,
+        "release": "1.21.0",
+        "untested": 0,
+        "total tested": 339,
+        "new endpoints": 32,
+        "total untested": 102,
+        "total endpoints": 441
+    },
+    {
+        "tested": 0,
+        "release": "1.22.0",
+        "untested": 0,
+        "total tested": 339,
+        "new endpoints": 0,
+        "total untested": 102,
+        "total endpoints": 441
+    }
+]

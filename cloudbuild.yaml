@@ -1,0 +1,72 @@
+# This step copies the applied manifest to the production branch
+# The COMMIT_SHA variable is automatically
+# replaced by Cloud Build.
+steps:
+- name: gcr.io/cloud-builders/gcloud
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    gcloud secrets versions access latest --secret=cncf-ci-github-token --format='get(payload.data)' \
+     | tr '_-' '/+' | base64 -d > github-token.txt
+# /workspace/github-token.txt now exists
+- name: gcr.io/cloud-builders/docker
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    set -x
+    pwd
+    # install github.com/github/hub/
+    curl -L https://github.com/github/hub/releases/download/v2.14.2/hub-linux-amd64-2.14.2.tgz \
+      | tar -x -v -z --strip-components 2 hub-linux-amd64-2.14.2/bin/hub
+    git clone https://$(cat github-token.txt)@github.com/cncf/apisnoop
+    cd apisnoop
+    git config --global user.email "cncf-ci@ii.coop"
+    git config --global user.name "CNCF CI Bot"
+# /workspace/apisnoop exists
+- name:  gcr.io/k8s-staging-apisnoop/snoopdb:v20201115-2020.10.27-52-ga905134
+#  entrypoint: /usr/local/bin/docker-entrypoint.sh
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    set -x
+    pwd
+    /usr/local/bin/docker-entrypoint.sh postgres
+    ls -al /tmp/coverage
+    cp -r /tmp/coverage .
+    # mv /tmp/coverage/ apisnoop
+  env:
+  - 'JOB_NAME=generator'
+# /workspace/apisnoop/fo/bar/baz.json
+- name: gcr.io/cloud-builders/docker
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    set -x
+    cp -r coverage/* apisnoop/resources/coverage/
+    cd apisnoop
+    git diff > ../GIT_DIFF
+    if [ -s ../GIT_DIFF ]
+    then
+    git config --global user.email "cncf-ci@ii.coop"
+    git config --global user.name "CNCF CI Bot"
+    git checkout -b snoop-auto-updates
+    git add .
+    git commit -m "Changes in coverage diff $(date)"
+    git push --force https://$(cat ../github-token.txt)@github.com/cncf/apisnoop snoop-auto-updates
+    GIT_EDITOR=cat GITHUB_TOKEN=$(cat ../github-token.txt) ../hub pr list | grep "Changes in coverage diff"  > ../PR_EXISTS
+    if [ -s ../PR_EXISTS ]
+    then
+    echo "PR exists already"
+    else
+    GIT_EDITOR=cat GITHUB_TOKEN=$(cat ../github-token.txt) ../hub pull-request -p
+    fi
+    else
+    echo "No changes to push"
+    echo we are done
+    fi
+options:
+    substitution_option: 'ALLOW_LOOSE'

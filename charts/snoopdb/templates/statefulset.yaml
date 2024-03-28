@@ -1,0 +1,136 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    io.cncf.component-group: apisnoop
+    io.cncf.apisnoop-component: snoopdb
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
+  serviceName: {{ include "chart.fullname" . | toString | quote }}
+  selector:
+    matchLabels:
+      io.cncf.component-group: apisnoop
+      io.cncf.apisnoop-component: snoopdb
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        io.cncf.component-group: apisnoop
+        io.cncf.apisnoop-component: snoopdb
+        {{- include "chart.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "chart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: cptoken
+          image: busybox
+          command: ['sh', '-c', 'cp /var/run/secrets/kubernetes.io/serviceaccount/token /opt/token.txt ; chmod 644 /opt/token.txt']
+          volumeMounts:
+            - name: data
+              mountPath: /opt
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "chart.fullname" . }}-configuration
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "chart.fullname" . }}-configuration
+                  key: POSTGRES_USER
+          {{- if .Values.password }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "chart.fullname" . }}-configuration
+                  key: POSTGRES_PASSWORD
+          {{- end }}
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "chart.fullname" . }}-configuration
+                  key: PGDATABASE
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "chart.fullname" . }}-configuration
+                  key: POSTGRES_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "chart.fullname" . }}-configuration
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          {{- if not .Values.password }}
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: trust
+          {{- end }}
+          {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            exec:
+              command:
+                - "sh"
+                - "-c"
+                - "pg_isready"
+                - "-U"
+                - "$POSTGRES_USER"
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          - name: tmp
+            mountPath: /tmp
+          - name: var-lib-postgresql
+            mountPath: /var/lib/postgresql
+          - name: var-run-postgresql
+            mountPath: /var/run/postgresql
+          - name: data
+            mountPath: /opt
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: var-lib-postgresql
+          emptyDir: {}
+        - name: var-run-postgresql
+          emptyDir: {}
+        - name: data
+          emptyDir: {}

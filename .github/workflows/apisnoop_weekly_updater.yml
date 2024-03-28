@@ -1,0 +1,56 @@
+name: apisnoop weekly updater
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 12 * * 6"
+
+env:
+  IMAGE: gcr.io/k8s-staging-apisnoop/snoopdb:v20240121-auditlogger-1.2.11-4-gb17b29c
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: configure system
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y postgresql-client netcat
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          gh auth login --with-token < <(echo ${{ secrets.GITHUB_TOKEN }})
+          gh auth status
+
+      - name: start SnoopDB
+        run: |
+          docker run -e POSTGRES_USER=apisnoop -e POSTGRES_DB=apisnoop -e LOAD_K8S_DATA=true --name snoopdb -d -p 5432:5432 $IMAGE
+          until psql -U apisnoop -d apisnoop -h localhost -c 'select 0;'; do 
+            docker logs --tail=100 snoopdb
+            sleep 10s
+          done
+
+      - name: run 505_output_coverage_jsons
+        run: |
+          cd $(git rev-parse --show-toplevel)
+          psql -U apisnoop -d apisnoop -h localhost -f ./505_output_coverage_jsons.sql
+
+      - name: commit and push if there are changes
+        run: |
+          if { git ls-files --others --exclude-standard ; git diff-index --name-only --diff-filter=d HEAD ; } | grep --regexp='[.]json$'; then
+              echo changes detected
+            else
+              exit 0
+          fi
+          TIMESTAMP="$(date +%Y-%m-%d-%H-%M)"
+          NEW_BRANCH="coverage-update-for-${TIMESTAMP}"
+          git add resources/coverage/*.json
+          git branch "${NEW_BRANCH}"
+          git checkout "${NEW_BRANCH}"
+          git commit -s -m "update coverage for ${TIMESTAMP}"
+          git push origin "${NEW_BRANCH}"
+          gh pr create --title "Update APISnoop coverage ${TIMESTAMP}" --body "updates to coverage for ${TIMESTAMP}"
