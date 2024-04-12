@@ -11,11 +11,12 @@ PRのレビューは、[OWNERS](../OWNERS) ファイルに記載の者が対応�
 
 * [参加者の皆様への宿題 Attendee prerequisites (in preparation)](../assets/attendee-prerequisites.md)
 * [スライド Slides](../assets/slide.pdf)
-* [YouTube<br>![Kubernetes Upstream Training on YouTube](https://img.youtube.com/vi/79TiANhORMA/0.jpg)](https://www.youtube.com/watch?v=79TiANhORMA)
-  | Time | Contents | 
+* [YouTube<br>![Kubernetes Upstream Training on YouTube](https://img.youtube.com/vi/v2e9MOOzcnw/0.jpg)](https://youtube.com/playlist?list=PLdgFIy8M90Ano3Wg5wWeND3X545X0UQGL)
+  | 動画タイトル | Contents | 
   | ------------- | ------------- | 
-  | [00:00:00](https://www.youtube.com/watch?v=79TiANhORMA&t=0s) - (53m) | Kubernetes コミュニティ | 
-  | [00:53:10](https://www.youtube.com/watch?v=79TiANhORMA&t=3190s) - (31m) | Kubernetes 開発環境 | 
-  | [01:24:18](https://www.youtube.com/watch?v=79TiANhORMA&t=5058s) - (35m)| コントリビューション実践 | 
-  | [01:59:29](https://www.youtube.com/watch?v=79TiANhORMA&t=7169s) - (23m) | ハンズオン | 
+  | [KUTJ 202403 by CNCJ section1](https://youtu.be/v2e9MOOzcnw) - (28m) | Kubernetes コミュニティ | 
+  | [KUTJ 202403 by CNCJ section2](https://youtu.be/5s4AZKIUy04) - (30m) | コントリビューション実践 | 
+  | [KUTJ 202403 by CNCJ section3](https://youtu.be/6Wgk1Mc6I2w) - (17m)| コミュニケーション | 
+  | [KUTJ 202403 by CNCJ section4](https://youtu.be/nmw_AtjmJXU) - (13m) | ハンズオン | 
+  | [KUTJ 202403 by CNCJ section5](https://youtu.be/WWVLVm78mRU) - (27m) | Kubernetes 開発環境 | 
 * [Kubernbetes contributors guide](https://github.com/kubernetes/community/tree/master/contributors/guide)
