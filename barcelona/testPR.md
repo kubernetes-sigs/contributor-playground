@@ -1,1 +1,1 @@
-This is a simple test PR ! 
+It is my first pr submitted under kubernetes org.
