@@ -5,7 +5,7 @@
 
 # コミュニティ行動規範
 
-まずは[CNCF コミュニティ行動規範](https://github.com/cncf/foundation/blob/master/code-of-conduct-languages/jp.md)をご一読ください。
+まずは[CNCF コミュニティ行動規範](https://github.com/cncf/foundation/blob/master/code-of-conduct-languages/ja.md)をご一読ください。
 
 # オープンソース参加規約の確認
 
