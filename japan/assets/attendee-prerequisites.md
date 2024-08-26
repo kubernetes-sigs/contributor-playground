@@ -54,7 +54,7 @@ Kubernetesコミュニティでは2022年3月頃にCLAの手順がEasyCLAに移�
 
 サインアップを一度実施すると、以降のKubernetesコミュニティでの活動で再度実施する必要はありません。  
 1. PullRequestを作成すると linux-foundation-easycla から以下のようにコメントされます。  
-  `Please here to be authorized` をクリックします。  
+  `Please click here to be authorized` をクリックします。
   ![](https://user-images.githubusercontent.com/69111235/152226443-f6fe61ee-0e92-46c5-b6ea-c0deb718a585.png)  
 
 1. `Authorize LF-Engineering` の緑のボタンをクリックします。  
