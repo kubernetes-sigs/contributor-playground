@@ -26,3 +26,5 @@ This is the location of [Kubernetes Upstream Training](https://community.cncf.io
 |<a href="https://github.com/Okabe-Junya"><img src="https://avatars.githubusercontent.com/u/86868255?s=50"></a>| <a href="https://github.com/Okabe-Junya">Junya Okabe</a> | University of Tsukuba | @Junya Okabe | - sig-docs Japanese l10n approver<br> |
 
 ## We got new contributors!!
+
+![group-photo](./images/cncj-kutj-2024-08.png)
