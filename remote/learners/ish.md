@@ -1,1 +1,1 @@
-Hi k8s community, signing the CLA!
+Hi team, signing the CLA!
