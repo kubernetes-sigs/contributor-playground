@@ -1,1 +1,1 @@
-Hi team, signing the CLA!
+Hi, signing the CLA!
