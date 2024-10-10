@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: City
+metadata:
+  name: melbourne
+  labels:
+    country: australia
+    state: victoria
+    city: melbourne
+spec:
+  population: 5000000
+  landmarks:
+    - name: Flinders Street Station
+      type: historic
+    - name: Federation Square
+      type: cultural
+    - name: Royal Botanic Gardens
+      type: nature
+    - name: Melbourne Cricket Ground
+      type: sports
+  attributes:
+    coffeeCulture: true
+    artScene: world-class
+    publicTransport:
+      trams: true
+      trains: true
+      buses: true
+    weather:
+      description: "four seasons in one day"
+      summer:
+        averageTemperatureC: 25
+      winter:
+        averageTemperatureC: 14
+  famousFor:
+    - coffee
+    - street art
+    - sports events
+    - laneways
+    - education
+    - AFL
+  annualEvents:
+    - name: Australian Open
+      type: sports
+      month: January
+    - name: Melbourne International Comedy Festival
+      type: arts
+      month: March-April
+    - name: Melbourne Cup
+      type: horse racing
+      month: November
+    - name: AFL Grand Final
+      type: sports
+      month: September
