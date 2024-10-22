@@ -23,9 +23,8 @@
 * 企業の開発者として参加する人で、GitHub アカウントをすでに持っている場合は GitHub の Settings -> Emails で、**email address** の項目に企業で使う[メールアドレスを追加](https://docs.github.com/ja/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/adding-an-email-address-to-your-github-account)してください。
 
 # CNCF CLA へのサインアップ
-Kubernetesコミュニティでは2022年3月頃にCLAの手順がEasyCLAに移行しており、以前とは手順が変更されています。
 
-ワークショップの事前作業としては、以下の[サインアップ事前作業](#サインアップ事前作業)を実施してください。  
+ワークショップの事前作業として、以下の[サインアップ事前作業](#サインアップ事前作業)を実施してください。  
 実際のサインアップはワークショップの中でPullRequestを作成した際に実施します。  
 
 *ワークショップに参加せずCNCF CLAへのサインアップだけ行いたい人は、[サインアップ事前作業](#サインアップ事前作業)と[サインアップ作業](#サインアップ作業)を実施してください。*
