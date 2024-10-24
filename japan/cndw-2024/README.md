@@ -27,4 +27,7 @@ This is the location of [Kubernetes Upstream Training](https://community.cncf.io
 
 ## We got new contributors!!
 
-![group-photo](./images/cncj-kutj-2024-08.png)
+Comming soon....
+<!--
+![group-photo](./images/cncj-kutj-cndw2024.png)
+-->
