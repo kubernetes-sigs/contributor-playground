@@ -1,4 +1,4 @@
-# Kubernetes Upstream Training Japan 2024-11 by CNCJ
+# Kubernetes Upstream Training in Japan at [CNDW2024](https://event.cloudnativedays.jp/cndw2024/)
 
 Welcome to Kubernetes Upstream Training!!
 
