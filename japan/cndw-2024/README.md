@@ -24,7 +24,7 @@ This is the location of [Kubernetes Upstream Training](https://community.cncf.io
 |<a href="https://github.com/shu-mutou"><img src="https://avatars.githubusercontent.com/u/12838129?s=50"></a>| <a href="https://github.com/shu-mutou">Shu Muto</a> | NEC Solution Innovators, Ltd. | @Shu Muto | - Chair of sig-ui<br> - Approver of k/dashboard<br>- CNCF Ambassador |
 |<a href="https://github.com/ziyi-xie"><img src="https://avatars.githubusercontent.com/u/92832323?s=50"></a>| <a href="https://github.com/ziyi-xie">Xie Ziyi</a> | NEC Solution Innovators, Ltd. | @XIE ZIYI | - sig-docs<br> - k/dashboard i18n ja  |
 |<a href="https://github.com/Okabe-Junya"><img src="https://avatars.githubusercontent.com/u/86868255?s=50"></a>| <a href="https://github.com/Okabe-Junya">Junya Okabe</a> | University of Tsukuba | @Junya Okabe | - sig-docs Japanese l10n approver<br>- CNCF Ambassador |
-|<a href="https://github.com/inductor"><img src="https://avatars.githubusercontent.com/u/20236173?s=50"></a> | <a href="https://github.com/inductor">Kohei Ota</a> | Apple Inc. | @inductor (Kohei) | - CNCF Ambassador |
+|<a href="https://github.com/inductor"><img src="https://avatars.githubusercontent.com/u/20236173?s=50"></a> | <a href="https://github.com/inductor">Kohei Ota</a> | Apple Inc. | @inductor (Kohei) | - sig-docs Japanese l10n approver<br>- CNCF Ambassador |
 
 ## We got new contributors!!
 
