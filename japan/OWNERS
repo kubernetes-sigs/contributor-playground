@@ -8,6 +8,7 @@ reviewers:
   - YuikoTakada
   - ziyi-xie
   - Okabe-Junya
+  - inductor
 approvers:
   - atoato88
   - nasa9084
@@ -16,6 +17,7 @@ approvers:
   - YuikoTakada
   - ziyi-xie
   - Okabe-Junya
+  - inductor
 emeritus_approvers:
   - k-toyoda-pi
   - oomichi
