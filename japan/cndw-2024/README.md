@@ -21,9 +21,10 @@ This is the location of [Kubernetes Upstream Training](https://community.cncf.io
 |<a href="https://github.com/atoato88"><img src="https://avatars.githubusercontent.com/u/748740?s=50"></a>| <a href="https://github.com/atoato88">Akihito Inoh</a> | NEC Solution Innovators, Ltd. | @akihito-inou(atoato88) | - sig-cluster-lifecycle<br> - Approver of kubernetes-sigs/kubebuilder-declarative-pattern <br> - sig-docs |
 |<a href="https://github.com/nasa9084"><img src="https://avatars.githubusercontent.com/u/11725486?s=50"></a>| <a href="https://github.com/nasa9084">nasa9084</a> | LY Corporation | @nasa9084 | - sig-docs Japanese l10n approver<br> |
 |<a href="https://github.com/mkimuram"><img src="https://avatars.githubusercontent.com/u/36450643?s=50" width="50px"></a>| <a href="https://github.com/mkimuram">Masaki Kimura</a> | Hitachi, Ltd. | @mkimura | - sig-storage |
-|<a href="https://github.com/shu-mutou"><img src="https://avatars.githubusercontent.com/u/12838129?s=50"></a>| <a href="https://github.com/shu-mutou">Shu Muto</a> | NEC Solution Innovators, Ltd. | @Shu Muto | - Chair of sig-ui<br> - Approver of k/dashboard |
+|<a href="https://github.com/shu-mutou"><img src="https://avatars.githubusercontent.com/u/12838129?s=50"></a>| <a href="https://github.com/shu-mutou">Shu Muto</a> | NEC Solution Innovators, Ltd. | @Shu Muto | - Chair of sig-ui<br> - Approver of k/dashboard<br>- CNCF Ambassador |
 |<a href="https://github.com/ziyi-xie"><img src="https://avatars.githubusercontent.com/u/92832323?s=50"></a>| <a href="https://github.com/ziyi-xie">Xie Ziyi</a> | NEC Solution Innovators, Ltd. | @XIE ZIYI | - sig-docs<br> - k/dashboard i18n ja  |
-|<a href="https://github.com/Okabe-Junya"><img src="https://avatars.githubusercontent.com/u/86868255?s=50"></a>| <a href="https://github.com/Okabe-Junya">Junya Okabe</a> | University of Tsukuba | @Junya Okabe | - sig-docs Japanese l10n approver<br> |
+|<a href="https://github.com/Okabe-Junya"><img src="https://avatars.githubusercontent.com/u/86868255?s=50"></a>| <a href="https://github.com/Okabe-Junya">Junya Okabe</a> | University of Tsukuba | @Junya Okabe | - sig-docs Japanese l10n approver<br>- CNCF Ambassador |
+|<a href="https://github.com/inductor"><img src="https://avatars.githubusercontent.com/u/20236173?s=50"></a> | <a href="https://github.com/inductor">Kohei Ota</a> | Apple Inc. | @inductor (Kohei) | - CNCF Ambassador |
 
 ## We got new contributors!!
 
