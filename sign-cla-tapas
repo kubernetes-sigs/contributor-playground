@@ -1,8 +1,8 @@
-What this PR does / why we need it:
+**What this PR does / why we need it:**
 
 /kind documentation
 
-What this PR does / why we need it:
+**What this PR does / why we need it:**
 
 This PR is for signing the CLA
 
@@ -14,6 +14,11 @@ Special notes for your reviewer:
 
 Does this PR introduce a user-facing change?:
 
+<!--
 NONE
+-->
 
 Additional documentation e.g., KEPs (Kubernetes Enhancement Proposals), usage docs, etc.
+<!--
+
+-->
