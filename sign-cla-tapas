@@ -6,19 +6,32 @@
 
 This PR is for signing the CLA
 
-Which issue(s) this PR fixes:
+**Which issue(s) this PR fixes:**
 
-Fixes #
-
-Special notes for your reviewer:
-
-Does this PR introduce a user-facing change?:
-
-<!--
+```
 NONE
--->
+```
 
-Additional documentation e.g., KEPs (Kubernetes Enhancement Proposals), usage docs, etc.
-<!--
+**Fixes #**
 
--->
+```
+NONE
+```
+
+**Special notes for your reviewer:**
+
+```
+NONE
+```
+
+**Does this PR introduce a user-facing change?:**
+
+```
+NONE
+```
+
+**Additional documentation e.g., KEPs (Kubernetes Enhancement Proposals), usage docs, etc.**
+
+```
+NA
+```
