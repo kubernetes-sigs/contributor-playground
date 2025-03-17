@@ -1,1 +1,1 @@
-Hello fellow devs! Just practicing submitting a PR :)
+Hello fellow devs! Just practicing submitting a PR  :)
