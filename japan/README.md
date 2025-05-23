@@ -41,6 +41,9 @@ Please refer docs in each subfolder for community, discussion, contribution, sup
   </tr>
   <tr>
     <td>2024-08-26 <a href="cncj-202408">Kubernetes Upstream Training Japan 2024-08 by CNCJ<br><img src="cncj-202408/images/cncj-kutj-2024-08.png" width="400"></a></td>
-    <td>2024-11-26 <a href="cndw-2024">Kubernetes Upstream Training Japan 2024-11 by CNDW 2024<br><img src="cndw-2024/images/cndw-2024-11.jpg" width="400"></a></td>
+    <td>2024-11-26 <a href="cndw-2024">Kubernetes Upstream Training Japan 2024-11 by CNCJ at CNDW 2024<br><img src="cndw-2024/images/cndw-2024-11.jpg" width="400"></a></td>
+  </tr>
+  <tr>
+    <td>2025-05-22 <a href="cnds-2025">Kubernetes Upstream Training Japan 2025-05 by CNCJ at CNDS 2025<br><img src="cnds-2025/images/CNDS2025-hybrid.jpg" width="400"></a></td>
   </tr>
 </table>
