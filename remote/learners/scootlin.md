@@ -1,1 +1,1 @@
-Ready to join the community!
+Ready to join the community!¡
