@@ -9,6 +9,7 @@ reviewers:
   - ziyi-xie
   - Okabe-Junya
   - inductor
+  - sreeram-venkitesh
 approvers:
   - atoato88
   - nasa9084
@@ -18,6 +19,7 @@ approvers:
   - ziyi-xie
   - Okabe-Junya
   - inductor
+  - sreeram-venkitesh
 emeritus_approvers:
   - k-toyoda-pi
   - oomichi
