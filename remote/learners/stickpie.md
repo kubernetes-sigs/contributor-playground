@@ -1,1 +1,1 @@
-Hello team! Looking to contribute! :)
+Hello team! Looking to contribute and make new friends :)
