@@ -9,4 +9,5 @@ learners:
 - archer.chen
 - blue86321
 - davidbaena
+- bosleyj
 - [ahmadidev](https://github.com/ahmadidev/)
