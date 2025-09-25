@@ -47,4 +47,8 @@ Please refer docs in each subfolder for community, discussion, contribution, sup
     <td>2025-05-22 <a href="cnds-2025">Kubernetes Upstream Training Japan 2025-05 by CNCJ at CNDS 2025<br><img src="cnds-2025/images/CNDS2025-hybrid.jpg" width="400"></a></td>
     <td>2025-06-15 <a href="japan-community-day-2025">Kubernetes Upstream Training in Japan at Japan Community Day 2025<br><img src="japan-community-day-2025/images/jcd2025.jpg" width="400"></a></td>
   </tr>
+  <tr>
+    <td>2025-11-14 <a href="cndw-2025">Kubernetes Upstream Training Japan 2025-11 by CNCJ at CNDW 2025<br>Comming soon!</td>
+    <td></td>
+  </tr>
 </table>
