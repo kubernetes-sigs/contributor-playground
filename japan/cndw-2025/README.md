@@ -21,7 +21,6 @@ This is the location of [Cloud Native Community Japan](https://community.cncf.io
 |<a href="https://github.com/shu-mutou"><img src="https://avatars.githubusercontent.com/u/12838129?s=50"></a>| <a href="https://github.com/shu-mutou">Shu Muto</a> | NEC Solution Innovators, Ltd. | @Shu Muto | - Chair of sig-ui<br> - Approver of k/dashboard<br>- CNCF Ambassador |
 |<a href="https://github.com/ziyi-xie"><img src="https://avatars.githubusercontent.com/u/92832323?s=50"></a>| <a href="https://github.com/ziyi-xie">Xie Ziyi</a> | NEC Solution Innovators, Ltd. | @XIE ZIYI | - sig-docs<br> - k/dashboard i18n ja  |
 |<a href="https://github.com/atoato88"><img src="https://avatars.githubusercontent.com/u/748740?s=50"></a>| <a href="https://github.com/atoato88">Akihito Inoh</a> | NEC Solution Innovators, Ltd. | @akihito-inou(atoato88) | - Approver of kubernetes-sigs/kubebuilder-declarative-pattern <br> - sig-docs |
-|<a href="https://github.com/Okabe-Junya"><img src="https://avatars.githubusercontent.com/u/86868255?s=50"></a>| <a href="https://github.com/Okabe-Junya">Junya Okabe</a> | University of Tsukuba | @Junya Okabe | - sig-docs Japanese l10n approver<br>- CNCF Ambassador |
 |<a href="https://github.com/mochizuki875"><img src="https://avatars.githubusercontent.com/u/37737691?s=50"></a>| <a href="https://github.com/mochizuki875">Keita Mochizuki</a> | - | @mochizuki875 | - kubernetes org and kubernetes-sigs org member<br> |
 
 ## We got new contributors!!
