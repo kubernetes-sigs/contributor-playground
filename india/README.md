@@ -7,3 +7,5 @@ This repository will be used as a safe space for participants in the New Contrib
 Each subfolder under `india/` contains assets for kubernetes upstream training held in events at India.
 
 Please refer docs in each subfolder for community, discussion, contribution, support, and code of conduct.
+
+-Sanjana M Bhat
