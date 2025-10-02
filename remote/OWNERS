@@ -6,3 +6,6 @@ approvers:
   - shu-mutou
   - ziyi-xie
   - nasa9084
+
+labels:
+  - area/remote
