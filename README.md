@@ -4,7 +4,7 @@ Hello new contributors!
 
 This repository will be used as a safe space for participants in the New Contributor Onboarding Track to familiarize themselves with (some of) the Kubernetes Project's review and pull request processes.
 
-A [Youtube playlist](https://www.youtube.com/playlist?list=PL69nYSiGNLP3M5X7stuD7N4r3uP2PZQUx) of the New Contributor workshop has been posted, and an outline of content to videos can be found [here](http://git.k8s.io/community/events/2018/05-contributor-summit).
+A [Youtube playlist](https://www.youtube.com/playlist?list=PL69nYSiGNLP3M5X7stuD7N4r3uP2PZQUx) of the New Contributor workshop has been posted, and an outline for content to videos can be found [here](http://git.k8s.io/community/events/2018/05-contributor-summit).
 
 _**If you want to practice submitting your Pull Request on demand, do so in the `remote` directory. If you're instructed to use this repository at an event, run them in the specified event directory. When practicing, do not edit files in the root directory.**_
 
