@@ -1,1 +1,1 @@
-Hello K8s Community!
+Hello Kubernetes Community!
