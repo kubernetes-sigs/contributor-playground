@@ -1,0 +1,1 @@
+Kubernetes comes from the Greek word κυβερνήτης (kubernētēs), meaning “helmsman” or “pilot,” and it was chosen to symbolize the platform’s role in steering and managing containerized applications across distributed systems, much like a navigator guiding a ship.
