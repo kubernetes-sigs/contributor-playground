@@ -25,4 +25,5 @@ This is the location of [Cloud Native Community Japan](https://community.cncf.io
 
 ## We got new contributors!!
 
-TBD
+![group-photo](./images/cndw-2025-11.jpg)
+
