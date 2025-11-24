@@ -16,3 +16,6 @@ reviewers:
   - gmingsuge
   - tomba7
   - joaopluigi
+
+labels:
+  - area/bay-area
