@@ -1,0 +1,1 @@
+# Kubernetes thrives because of its contributors, and I aspire to be one of them.
