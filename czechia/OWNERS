@@ -7,3 +7,6 @@ approvers:
 reviewers:
   - nehalandrew
   - aivazart
+
+labels:
+  - area/czechia

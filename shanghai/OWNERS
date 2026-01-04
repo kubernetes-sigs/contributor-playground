@@ -9,3 +9,6 @@ approvers:
   - qedrakmar
 
 reviewers:
+
+labels:
+  - area/shanghai
