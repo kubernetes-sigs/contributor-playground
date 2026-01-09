@@ -1,7 +1,6 @@
 A commonly encountered issue during the exercises is for folks to have
 signed the CLA, but with an email address different from that in their git
 config.  This is fairly straight forward for the PR submitter to fixup:
-
 1. Run: `git log`
 1. Look at your commit's "Author" line:  It's probably not what you used when
    signing the CLA.
