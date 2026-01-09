@@ -9,7 +9,7 @@ reviewers:
   - rosti
   - smourapina
   - kmova
-  - raelga 
+  - raelga
   - neolit123
 approvers:
   - guineveresaenger
@@ -22,3 +22,6 @@ approvers:
   - kmova
   - raelga
   - neolit123
+
+labels:
+  - area/barcelona
