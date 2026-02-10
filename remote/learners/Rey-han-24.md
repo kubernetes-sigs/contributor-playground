@@ -4,7 +4,7 @@
 
 # Hi, I'm Rehan
 ## About Me
-> I am from Pakistan. I am a software Engineering student. I just found out that i have a passion for contributing to open source and making my Github profile better and also making a network. This is
+> I am from Pakistan. I am a software Engineering student. I just found out that I have a passion for contributing to open source and making my Github profile better and also making a network. This is
 my first real contribution to open source. I also am eager to join the GSoC, LFX mentorships and outreachy type of organizations to contribute while gaining real life experience from mentors.
 
 
