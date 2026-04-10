@@ -31,7 +31,6 @@ approvers:
   - omkensey
   - annehwatson
 
-
 reviewers:
   - raghu67
   - jdjgya
@@ -61,7 +60,5 @@ reviewers:
   - karinnainiguez
   - serngawy
 
-
-
-
-
+labels:
+  - area/seattle

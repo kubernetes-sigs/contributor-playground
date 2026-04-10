@@ -3,4 +3,9 @@
 # contribex coordinators leading NCWs in Brazil
 approvers:
   - cpanato
+  - edsoncelio
   - rikatz
+  - stormqueen1990
+
+labels:
+  - area/brazil
