@@ -1,3 +1,4 @@
+TEST
 # Kubernetes Contributor Playground
 
 Hello new contributors!
