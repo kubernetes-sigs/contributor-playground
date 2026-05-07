@@ -23,5 +23,3 @@ Participation in the Kubernetes community is governed by the [Kubernetes Code of
 
 [owners]: https://git.k8s.io/community/contributors/guide/owners.md
 
-
-Thanks for the opportunity. Abdallah Kadour
