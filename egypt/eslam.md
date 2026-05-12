@@ -1,1 +1,1 @@
-Hi, I am looking forward to contribute to one of the great cloud project out there!!!
+Hi, I am looking forward to contributing to one of the great cloud projects out there!
