@@ -1,0 +1,10 @@
+# https://www.kubernetes.dev/docs/guide/owners/
+
+reviewers:
+  - em-sav
+
+approvers:
+  - em-sav
+
+labels:
+  - area/canada
