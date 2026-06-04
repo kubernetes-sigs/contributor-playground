@@ -17,6 +17,12 @@ You can reach the maintainers of this project at:
 - [Slack](http://slack.k8s.io/)
 - [Mailing List](https://groups.google.com/forum/#!forum/kubernetes-dev)
 
+### Additional Resources
+
+- [Kubernetes Documentation](https://kubernetes.io/docs/)
+- [Contributor Cheat Sheet](https://git.k8s.io/community/contributors/guide/contributor-cheatsheet)
+- [Developer Guide](https://git.k8s.io/community/contributors/devel)
+
 ### Code of conduct
 
 Participation in the Kubernetes community is governed by the [Kubernetes Code of Conduct](code-of-conduct.md).
