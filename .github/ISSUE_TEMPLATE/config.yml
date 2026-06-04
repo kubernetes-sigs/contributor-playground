@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Kubernetes Community Discussions
+    url: https://discuss.kubernetes.io/
+    about: Please ask and answer questions here.
+  - name: Kubernetes Slack
+    url: https://kubernetes.slack.com/
+    about: Please join us here for real-time discussion.
