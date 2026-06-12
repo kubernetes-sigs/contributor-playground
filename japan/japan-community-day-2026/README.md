@@ -23,6 +23,7 @@ This is the location of [Kubernetes Upstream Training in Japan](https://ocgroups
 | <a href="https://github.com/ziyi-xie"><img src="https://avatars.githubusercontent.com/u/92832323?s=50"></a>          | <a href="https://github.com/ziyi-xie">Xie Ziyi</a>       | NEC Solution Innovators, Ltd. | @XIE ZIYI               | - sig-docs<br> - k/dashboard i18n ja                                          |
 |<a href="https://github.com/mochizuki875"><img src="https://avatars.githubusercontent.com/u/37737691?s=50"></a>| <a href="https://github.com/mochizuki875">Keita Mochizuki</a> | NTT DATA Japan Corporation | @mochizuki875 | - kubernetes org and kubernetes-sigs org member<br> |
 |<a href="https://github.com/kahirokunn"><img src="https://avatars.githubusercontent.com/u/22343391?s=50"></a>| <a href="https://github.com/kahirokunn">Kahiro Okina</a> | Craftsman Software, Inc. | @kahirokunn | - sig-multicluster<br> - Approver of kubernetes-sigs/cluster-inventory-api, open-cluster-management-io/managed-serviceaccount, open-cluster-management-io/cluster-proxy, and argoproj-labs/clusterprofile-integration-for-argocd<br> - Reviewer of kubernetes-sigs/headlamp, knative/operator, knative-extensions/net-gateway-api, and k0sproject/k0smotron<br> - Author of headlamp-k8s/plugins/knative |
+|<a href="https://github.com/bells17"><img src="https://avatars.githubusercontent.com/u/2158863?s=50"></a>| <a href="https://github.com/bells17">Daiki Hayakawa</a> | 3-shake Inc. | @bells17 | - sig-docs Japanese l10n approver<br>- CNCF Ambassador |
 
 ## Doc Sprint 講師（Facilitators）
 
