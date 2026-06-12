@@ -21,6 +21,7 @@ This is the location of [Kubernetes Upstream Training in Japan](https://ocgroups
 | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ----------------------------- | ----------------------- | ----------------------------------------------------------------------------- |
 | <a href="https://github.com/shu-mutou"><img src="https://avatars.githubusercontent.com/u/12838129?s=50"></a>         | <a href="https://github.com/shu-mutou">Shu Muto</a>      | NEC Solution Innovators, Ltd. | @Shu Muto               | - Chair of sig-ui<br>- CNCF Ambassador<br> - TODO OSPO Ambassador             |
 | <a href="https://github.com/ziyi-xie"><img src="https://avatars.githubusercontent.com/u/92832323?s=50"></a>          | <a href="https://github.com/ziyi-xie">Xie Ziyi</a>       | NEC Solution Innovators, Ltd. | @XIE ZIYI               | - sig-docs<br> - k/dashboard i18n ja                                          |
+|<a href="https://github.com/mochizuki875"><img src="https://avatars.githubusercontent.com/u/37737691?s=50"></a>| <a href="https://github.com/mochizuki875">Keita Mochizuki</a> | NTT DATA Japan Corporation | @mochizuki875 | - kubernetes org and kubernetes-sigs org member<br> |
 
 ## Doc Sprint 講師（Facilitators）
 
