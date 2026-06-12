@@ -11,3 +11,5 @@ learners:
 - davidbaena
 - [ahmadidev](https://github.com/ahmadidev/)
 - danlanzi
+- [Kiro-user](https://github.com/rajan-sharma-in/)
+- [KIRO-ai](https://github.com/kiro-ai/)
