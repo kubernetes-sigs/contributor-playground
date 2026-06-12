@@ -10,3 +10,4 @@ learners:
 - blue86321
 - davidbaena
 - [ahmadidev](https://github.com/ahmadidev/)
+- danlanzi
