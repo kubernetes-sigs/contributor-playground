@@ -30,7 +30,7 @@ This is the location of [Kubernetes Upstream Training in Japan](https://ocgroups
 | Icon                                                                                                                 | Name                                                     | Affiliation                   | Slack                   | Focus on, Role..                                                              |
 | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ----------------------------- | ----------------------- | ----------------------------------------------------------------------------- |
 | <a href="https://github.com/nasa9084"><img src="https://avatars.githubusercontent.com/u/11725486?s=50"></a>          | <a href="https://github.com/nasa9084">nasa9084</a>       | LY Corporation                | @nasa9084               | - sig-docs Japanese l10n approver<br>                                         |
-| <a href="https://github.com/Okabe-Junya"><img src="https://avatars.githubusercontent.com/u/86868255?s=50"></a>       | <a href="https://github.com/Okabe-Junya">Junya Okabe</a> | University of Tsukuba         | @Junya Okabe            | - sig-docs Japanese l10n approver<br>- CNCF Ambassador                        |
+| <a href="https://github.com/Okabe-Junya"><img src="https://avatars.githubusercontent.com/u/86868255?s=50"></a>       | <a href="https://github.com/Okabe-Junya">Junya Okabe</a> | Mercari, Inc.                | @Junya Okabe            | - sig-docs Japanese l10n approver<br>- CNCF Ambassador                        |
 
 ## We got new contributors!!
 
