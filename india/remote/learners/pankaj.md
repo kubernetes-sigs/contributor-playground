@@ -1,0 +1,1 @@
+Cool people contribute to cool projects, and k8s is one of them.

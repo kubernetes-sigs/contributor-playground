@@ -1,0 +1,1 @@
+Hi guys! It's a pleasure to be part of the Kubernetes community.Thanks!

@@ -1,0 +1,15 @@
+# See the OWNERS docs at https://go.k8s.io/owners
+
+approvers:
+  - cblecker
+  - jberkus
+  - kaslin
+  - MadhavJivrajani
+  - nikhita
+  - palnabarun
+  - Priyankasaggu11929
+  - shu-mutou
+emeritus_approvers:
+  - alisondy
+  - guineveresaenger
+  - mrbobbytables

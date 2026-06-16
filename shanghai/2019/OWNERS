@@ -1,0 +1,48 @@
+# See the OWNERS docs at https://go.k8s.io/owners
+
+approvers:
+  - ashahab
+  - jberkus
+  - tpepper
+  - idealhack
+  - puja
+  - xiangpengzhao
+  - qedrakmar
+  - carlisia
+  - kxing-k8s
+  - ASmallLemon
+  - pkuzhangkai
+  - wentao-zh
+  - mitsutaka
+  - eahydra
+  - lilyerfeng
+  - oleotiger
+  - iamzhout
+  - yogeshojha
+  - bergwolf
+  - zghuang
+  - sureshanaparti
+  - xiaoanyunfei
+  - yanhan
+  - pluradj 
+
+reviewers:
+  - yamahata
+  - hellmage
+  - harikrishna-patnala
+  - harche
+  - FengJunLiu
+  - zhanggbj
+  - wilhelmguo
+  - haiker2011
+  - kylix3511
+  - lichen2013
+  - pixiake
+  - osswangxining
+  - Nessex
+  - xiongfeng
+  - ssurenr
+  - violet2016
+  - TaylorHere
+  - tani-yu
+  - TanishShinde

@@ -1,0 +1,16 @@
+# See the OWNERS docs at https://go.k8s.io/owners
+
+reviewers:
+  - jberkus
+  - parispittman
+  - rldutka
+  - TheGhostHuCodes
+  - evillgenius75
+  - matthewbrahms
+  - carlisia
+approvers:
+  - parispittman
+  - jberkus
+
+labels:
+  - area/denver

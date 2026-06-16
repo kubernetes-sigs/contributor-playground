@@ -1,0 +1,1 @@
+Petition for next KubeCon in Goa!

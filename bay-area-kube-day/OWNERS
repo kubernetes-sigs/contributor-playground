@@ -1,0 +1,21 @@
+# See the OWNERS docs at https://go.k8s.io/owners
+
+approvers:
+  - guineveresaenger
+  - jberkus
+  - parispittman
+  - DirectXMan12
+  - imkin
+  - jayapriya90
+  - jpeach
+  - blueviggen
+  - amarnathkarthik
+reviewers:
+  - sumitranr
+  - nandakishorek
+  - gmingsuge
+  - tomba7
+  - joaopluigi
+
+labels:
+  - area/bay-area

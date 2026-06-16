@@ -1,0 +1,11 @@
+# See the OWNERS docs: https://go.k8s.io/community/contributors/guide/owners.md
+
+approvers:
+  - nikhita
+  - palnabarun
+  - shu-mutou
+  - ziyi-xie
+  - nasa9084
+
+labels:
+  - area/remote

@@ -1,0 +1,15 @@
+# See the OWNERS docs: https://go.k8s.io/community/contributors/guide/owners.md
+
+reviewers:
+  - atoato88
+  - k-toyoda-pi
+  - shu-mutou
+  - s-ito-ts
+  - YuikoTakada
+approvers:
+  - atoato88
+  - k-toyoda-pi
+  - shu-mutou
+  - s-ito-ts
+  - YuikoTakada
+

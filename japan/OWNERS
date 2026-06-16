@@ -1,0 +1,34 @@
+# See the OWNERS docs: https://go.k8s.io/community/contributors/guide/owners.md
+
+reviewers:
+  - atoato88
+  - bells17
+  - inductor
+  - kahirokunn
+  - mkimuram
+  - mochizuki875
+  - nasa9084
+  - Okabe-Junya
+  - shu-mutou
+  - ziyi-xie
+approvers:
+  - atoato88
+  - bells17
+  - inductor
+  - kahirokunn
+  - mkimuram
+  - mochizuki875
+  - nasa9084
+  - Okabe-Junya
+  - shu-mutou
+  - ziyi-xie
+emeritus_approvers:
+  - k-toyoda-pi
+  - oomichi
+  - s-ito-ts
+  - s-kawamura-w664
+  - t-inu
+  - YuikoTakada
+
+labels:
+  - area/japan
