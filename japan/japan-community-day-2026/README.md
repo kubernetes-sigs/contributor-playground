@@ -34,4 +34,4 @@ This is the location of [Kubernetes Upstream Training in Japan](https://ocgroups
 
 ## We got new contributors!!
 
-Photos will be uploaded immediately after this activity!
+![](images/jcd2026.jpg)
