@@ -1,0 +1,1 @@
+Hi, I'm Ruturaj — an SRE/platform engineer, new to contributing to Kubernetes. Practicing my first PR here before applying to shadow the Release Signal role for the 1.38 release cycle. Looking forward to contributing more!
