@@ -1,3 +1,6 @@
 # Ayush Kumar (@ayuuXploits)
 
-Creative Technologist & Developer exploring Cloud Native and Kubernetes ecosystems.
+- **Role:** Creative Technologist & Systems Developer
+- **Interests:** Cloud Native, Kubernetes, Containerization, Distributed Systems & Edge Computing
+- **Learning Goals:** Contributing to SIG-ContribEx, exploring Kubernetes core architecture and cloud-native workflows
+- **GitHub:** [@ayuuXploits](https://github.com/ayuuXploits)
