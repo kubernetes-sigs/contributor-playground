@@ -1,4 +1,4 @@
-# Kubernetes Upstream Training in Japan at [CNDW2025](https://event.cloudnativedays.jp/cndw2026/)
+# Kubernetes Upstream Training in Japan at [CNDW2026](https://event.cloudnativedays.jp/cndw2026/)
 
 Welcome to Kubernetes Upstream Training!!
 
