@@ -52,6 +52,6 @@ Please refer docs in each subfolder for community, discussion, contribution, sup
     <td>2026-07-28 <a href="japan-community-day-2026">Kubernetes Upstream Training in Japan at Japan Community Day 2026<br><img src="japan-community-day-2026/images/jcd2026.jpg" width="400"></a></td>
   </tr>
   <tr>
-    <td>2026-11-17 <a href="cndw-2026">Kubernetes Upstream Training in Japan at CNDW 2026<!--<br><img src="cndw-2026/images/cndw-2026.jpg" width="400">--> Coming soon!!</a></td>
+    <td>2026-11-17 <a href="cndw-2026">Kubernetes Upstream Training in Japan at CNDW 2026<br><img src="cndw-2026/images/cndw-2026.jpg" width="400"></a></td>
   </tr>
 </table>
