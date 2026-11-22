@@ -1,0 +1,1 @@
+Hello Kubernetes! I'm yakasuka, an independent developer learning the Kubernetes contribution workflow. Excited to be here!
