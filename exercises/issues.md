@@ -5,14 +5,14 @@ This exercise is designed for students to learn how issues are used in the Kuber
 ## Preparation before the exercise
 
 1. Create a folder named after the current New Contributor Workshop (e.g. "Seattle-18") with an OWNERS file containing all the NCW teachers as Approvers.
-1. Before the NCW starts, put a notepad and pens on each table.  Label the first few sheets of the notepad with `TABLE #` corressponding to the table number.
+1. Before the NCW starts, put a notepad and pens on each table.  Label the first few sheets of the notepad with `TABLE #` corresponding to the table number.
 2. Just after the introductions, have everyone write on the notepads as follows:
-  - put they're gitHub handle
+  - put their GitHub handle
   - if they have *already contributed* to Kubernetes before, add a star by their name
 3. Collect all the notepads at an appropriate break.
-4. An NCW teacher should add some folks form the the list of GH handles as either reviewers of approvers to the OWNERs file in the appropriate `contributor-playground` folder:
-  - there should be 2 appprovers per table
-  - their should be at least 2 Reviewers per table
+4. An NCW teacher should add some folks from the list of GitHub handles as either reviewers or approvers to the OWNERS file in the appropriate `contributor-playground` folder:
+  - there should be 2 approvers per table
+  - there should be at least 2 Reviewers per table
   - folks with a star should be favored as approvers
   - use comments to mark the groups at each table
 5. Create a PR for the OWNERs file change, and get another Contribex admin to approve it.  This may require making sure that another approver will be present.
